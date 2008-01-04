@@ -1,0 +1,17 @@
+# Disk DescriptorFile
+version=1
+CID=404c498d
+parentCID=ffffffff
+createType="monolithicFlat"
+
+# Extent description
+RW 209715 FLAT "Menuet32-1-flat.vmdk" 0
+
+# The Disk Data Base 
+#DDB
+
+ddb.virtualHWVersion = "4"
+ddb.geometry.cylinders = "208"
+ddb.geometry.heads = "16"
+ddb.geometry.sectors = "63"
+ddb.adapterType = "ide"
