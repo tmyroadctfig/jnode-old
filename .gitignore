@@ -1,0 +1,12 @@
+
+# /
+build
+.classpath
+.project
+*.patch
+jnode.properties
+local/
+classlib.jar
+all/lib/classlib-src.jar
+classlib-src.jar.bz2
+classlib.pack.gz
