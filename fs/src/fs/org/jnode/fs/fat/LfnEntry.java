@@ -26,13 +26,15 @@ import java.util.Vector;
 import org.jnode.fs.FSAccessRights;
 import org.jnode.fs.FSDirectory;
 import org.jnode.fs.FSEntry;
+import org.jnode.fs.FSEntryCreated;
+import org.jnode.fs.FSEntryLastAccessed;
 import org.jnode.fs.FSFile;
 import org.jnode.fs.FileSystem;
 
 /**
  * @author gbin
  */
-class LfnEntry implements FSEntry {
+class LfnEntry implements FSEntry, FSEntryCreated, FSEntryLastAccessed {
     // decompacted LFN entry
     private String fileName;
     // TODO: Make them available

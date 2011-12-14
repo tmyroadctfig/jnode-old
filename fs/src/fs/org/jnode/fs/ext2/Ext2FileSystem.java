@@ -126,9 +126,9 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
         if (hasIncompatFeature(Ext2Constants.EXT3_FEATURE_INCOMPAT_JOURNAL_DEV))
             throw new FileSystemException(getDevice().getId() +
                     " Unsupported filesystem feature (JOURNAL_DEV) disallows mounting");
-        if (hasIncompatFeature(Ext2Constants.EXT3_FEATURE_INCOMPAT_RECOVER))
-            throw new FileSystemException(getDevice().getId() +
-                    " Unsupported filesystem feature (RECOVER) disallows mounting");
+//        if (hasIncompatFeature(Ext2Constants.EXT3_FEATURE_INCOMPAT_RECOVER))
+//            throw new FileSystemException(getDevice().getId() +
+//                    " Unsupported filesystem feature (RECOVER) disallows mounting");
 
         // an unsupported RO_COMPAT feature means that the filesystem can only
         // be mounted readonly

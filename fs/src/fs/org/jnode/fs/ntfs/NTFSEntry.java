@@ -28,12 +28,15 @@ import org.jnode.fs.FSEntry;
 import org.jnode.fs.FSFile;
 import org.jnode.fs.FSObject;
 import org.jnode.fs.FileSystem;
+import org.jnode.fs.FSEntryCreated;
+import org.jnode.fs.FSEntryLastAccessed;
+import org.jnode.fs.FSEntryLastChanged;
 
 /**
  * @author vali
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-public class NTFSEntry implements FSEntry {
+public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, FSEntryLastAccessed {
 
     private FSObject cachedFSObject;
 

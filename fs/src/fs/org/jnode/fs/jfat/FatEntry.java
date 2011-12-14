@@ -31,9 +31,11 @@ import org.jnode.fs.FSEntry;
 import org.jnode.fs.FSDirectory;
 import org.jnode.fs.FSFile;
 import org.jnode.fs.FSAccessRights;
+import org.jnode.fs.FSEntryCreated;
+import org.jnode.fs.FSEntryLastAccessed;
 
 
-public class FatEntry extends FatObject implements FSEntry {
+public class FatEntry extends FatObject implements FSEntry, FSEntryCreated, FSEntryLastAccessed {
     private static final Logger log = Logger.getLogger(FatEntry.class);
 
     private String name;
