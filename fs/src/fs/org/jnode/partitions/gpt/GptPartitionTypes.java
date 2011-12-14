@@ -21,6 +21,8 @@
 package org.jnode.partitions.gpt;
 
 import java.util.UUID;
+import org.apache.log4j.Logger;
+import org.jnode.util.NumberUtils;
 
 /**
  * Known GPT partition types.
@@ -102,6 +104,9 @@ public enum GptPartitionTypes {
     CHROMEOS_ROOTFS("3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC"),
     CHROMEOS_FUTURE_USE("2E0A753D-9E48-43B0-8337-B15192CB1B5E");
 
+    /** Logger */
+    private static final Logger log = Logger.getLogger(GptPartitionTypes.class);
+
     private UUID uuid;
 
     private GptPartitionTypes() {
@@ -121,32 +126,38 @@ public enum GptPartitionTypes {
 
         StringBuilder uuidBuilder = new StringBuilder();
 
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[3]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[2]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[1]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[0]));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[3], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[2], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[1], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[0], 2));
+        uuidBuilder.append("-");
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[5], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[4], 2));
+        uuidBuilder.append("-");
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[7], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[6], 2));
+        uuidBuilder.append("-");
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[8], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[9], 2));
+        uuidBuilder.append("-");
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[10], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[11], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[12], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[13], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[14], 2));
+        uuidBuilder.append(NumberUtils.hex(partitionTypeGuid[15], 2));
 
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[5]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[4]));
+        try {
+            UUID uuidToMatch = UUID.fromString(uuidBuilder.toString());
 
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[7]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[6]));
-
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[8]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[9]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[10]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[11]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[12]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[13]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[14]));
-        uuidBuilder.append(Integer.toHexString(partitionTypeGuid[15]));
-
-        UUID uuidToMatch = UUID.fromString(uuidBuilder.toString());
-
-        for (GptPartitionTypes type : GptPartitionTypes.values()) {
-            if (uuidToMatch.equals(type.uuid)) {
-                return type;
+            for (GptPartitionTypes type : GptPartitionTypes.values()) {
+                if (uuidToMatch.equals(type.uuid)) {
+                    return type;
+                }
             }
+        }
+        catch (Exception e) {
+            log.warn("Exception checking uuid: " + uuidBuilder.toString());
         }
 
         return UNKNOWN;

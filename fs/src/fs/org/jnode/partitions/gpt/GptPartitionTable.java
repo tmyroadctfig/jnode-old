@@ -57,15 +57,52 @@ public class GptPartitionTable implements PartitionTable<GptPartitionTableEntry>
     public GptPartitionTable(GptPartitionTableType tableType, byte[] first16KiB, Device device) {
         this.tableType = tableType;
 
-        if (containsPartitionTable(first16KiB)) {
-            long entries = LittleEndian.getUInt32(first16KiB, 0x50);
+        int blockSize = detectBlockSize(first16KiB);
+
+        if (blockSize != -1) {
+            long entries = LittleEndian.getUInt32(first16KiB, blockSize + 0x50);
+            int entrySize = (int) LittleEndian.getUInt32(first16KiB, blockSize + 0x54);
 
             for (int partitionNumber = 0; partitionNumber < entries; partitionNumber++) {
                 log.debug("try part " + partitionNumber);
 
-                partitions.add(new GptPartitionTableEntry(this, first16KiB, partitionNumber));
+                int offset = blockSize * 2 + (partitionNumber * entrySize);
+
+                GptPartitionTableEntry entry = new GptPartitionTableEntry(this, first16KiB, offset, blockSize);
+
+                if (entry.isValid())
+                {
+                    partitions.add(entry);
+                }
             }
         }
+    }
+
+    /**
+     * Detects the block size of the GPT partition.
+     *
+     * @param first16KiB the start of the disk to search for the GPT partition in.
+     * @return the detected block size or {@code -1} if no GPT partition is found.
+     */
+    private static int detectBlockSize(byte[] first16KiB) {
+        int[] detectionSizes = new int[] { 0x200, 0x1000 };
+
+        for (int blockSize : detectionSizes) {
+            if (first16KiB.length < blockSize + 8) {
+                // Not enough data to check for a valid partition table
+                return -1;
+            }
+
+            byte[] signatureBytes = new byte[8];
+            System.arraycopy(first16KiB, blockSize, signatureBytes, 0, signatureBytes.length);
+            String signature = new String(signatureBytes, Charset.forName("US-ASCII"));
+
+            if ("EFI PART".equals(signature)) {
+                return blockSize;
+            }
+        }
+
+        return -1;
     }
 
     /**
@@ -75,16 +112,7 @@ public class GptPartitionTable implements PartitionTable<GptPartitionTableEntry>
      * @return {@code true} if the boot sector contains a GPT partition table.
      */
     public static boolean containsPartitionTable(byte[] first16KiB) {
-        if (first16KiB.length < 0x1000 + 8) {
-            // Not enough data to check for a valid partition table
-            return false;
-        }
-
-        byte[] signatureBytes = new byte[8];
-        System.arraycopy(first16KiB, 0x1000, signatureBytes, 0, signatureBytes.length);
-        String signature = new String(signatureBytes, Charset.forName("US-ASCII"));
-
-        return "EFI PART".equals(signature);
+        return detectBlockSize(first16KiB) != -1;
     }
 
     public Iterator<GptPartitionTableEntry> iterator() {

@@ -38,10 +38,10 @@ public class GptPartitionTableType implements PartitionTableType {
     }
 
     public String getName() {
-        return "EFIPART";
+        return "EFI PART";
     }
 
-    public boolean supports(byte[] firstSector, BlockDeviceAPI devApi) {
-        return GptPartitionTable.containsPartitionTable(firstSector);
+    public boolean supports(byte[] first16KiB, BlockDeviceAPI devApi) {
+        return GptPartitionTable.containsPartitionTable(first16KiB);
     }
 }

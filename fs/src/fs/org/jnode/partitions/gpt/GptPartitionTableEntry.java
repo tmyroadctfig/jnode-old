@@ -21,7 +21,6 @@
 package org.jnode.partitions.gpt;
 
 import java.nio.charset.Charset;
-import org.apache.log4j.Logger;
 import org.jnode.partitions.PartitionTableEntry;
 import org.jnode.partitions.ibm.IBMPartitionTable;
 import org.jnode.util.LittleEndian;
@@ -33,11 +32,12 @@ import org.jnode.util.NumberUtils;
  * @author Luke Quinane
  */
 public class GptPartitionTableEntry implements PartitionTableEntry {
-    /** Logger */
-    private final Logger log = Logger.getLogger(getClass());
 
     /** The first 16KiB of the drive. */
     private final byte[] first16KiB;
+
+    /** The block size. */
+    private int blockSize;
 
     /** The offset to this partition table entry. */
     private final int offset;
@@ -47,15 +47,17 @@ public class GptPartitionTableEntry implements PartitionTableEntry {
      *
      * @param parent the parent table.
      * @param first16KiB the first 16,384 bytes of the disk.
-     * @param partitionNumber the partition number associated with this entry.
+     * @param offset the offset of this entry in the table.
+     * @param blockSize the block size.
      */
-    public GptPartitionTableEntry(GptPartitionTable parent, byte[] first16KiB, int partitionNumber) {
+    public GptPartitionTableEntry(GptPartitionTable parent, byte[] first16KiB, int offset, int blockSize) {
         this.first16KiB = first16KiB;
-        this.offset = 0x1000 + (partitionNumber * 0x1000);
+        this.blockSize = blockSize;
+        this.offset = offset;
     }
 
     public boolean isValid() {
-        return !isEmpty();
+        return first16KiB.length > offset + 128 && !isEmpty();
     }
 
     /**
@@ -89,11 +91,11 @@ public class GptPartitionTableEntry implements PartitionTableEntry {
     }
 
     public long getStartOffset() {
-        return LittleEndian.getInt64(first16KiB, offset + 0x20);
+        return LittleEndian.getInt64(first16KiB, offset + 0x20) * blockSize;
     }
 
     public long getEndOffset() {
-        return LittleEndian.getInt64(first16KiB, offset + 0x28);
+        return LittleEndian.getInt64(first16KiB, offset + 0x28) * blockSize;
     }
 
     public long getFlags() {
