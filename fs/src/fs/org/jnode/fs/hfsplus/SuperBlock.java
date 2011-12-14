@@ -78,7 +78,7 @@ public class SuperBlock extends HfsPlusObject {
         data = new byte[SUPERBLOCK_LENGTH];
         try {
             if (!create) {
-                log.info("load HFS+ volume header.");
+                log.debug("load HFS+ volume header.");
                 // skip the first 1024 bytes (boot sector) and read the volume
                 // header.
                 ByteBuffer b = ByteBuffer.allocate(SUPERBLOCK_LENGTH);
@@ -103,7 +103,7 @@ public class SuperBlock extends HfsPlusObject {
      * @throws IOException
      */
     public void create(HFSPlusParams params) throws IOException {
-        log.info("Create new HFS+ volume header (" + params.getVolumeName() +
+        log.debug("Create new HFS+ volume header (" + params.getVolumeName() +
                 ") with block size of " + params.getBlockSize() + " bytes.");
         int burnedBlocksBeforeVH = 0;
         int burnedBlocksAfterAltVH = 0;
@@ -138,7 +138,7 @@ public class SuperBlock extends HfsPlusObject {
         this.setDataClumpSize(params.getDataClumpSize());
         this.setNextCatalogId(CatalogNodeId.HFSPLUS_FIRSTUSER_CNID.getId());
         // Allocation file creation
-        log.info("Init allocation file.");
+        log.debug("Init allocation file.");
         long allocationClumpSize = getClumpSize(params.getBlockCount());
         long bitmapBlocks = allocationClumpSize / blockSize;
         long blockUsed = 2 + burnedBlocksBeforeVH + burnedBlocksAfterAltVH + bitmapBlocks;
@@ -163,7 +163,7 @@ public class SuperBlock extends HfsPlusObject {
             nextBlock = desc.getNext();
         }
         // Extent B-Tree initialization
-        log.info("Init extent file.");
+        log.debug("Init extent file.");
         forkdata =
                 new HfsPlusForkData(params.getExtentClumpSize(), params.getExtentClumpSize(),
                         (params.getExtentClumpSize() / blockSize));
@@ -173,7 +173,7 @@ public class SuperBlock extends HfsPlusObject {
         blockUsed += forkdata.getTotalBlocks();
         nextBlock = desc.getNext();
         // Catalog B-Tree initialization
-        log.info("Init catalog file.");
+        log.debug("Init catalog file.");
         int totalBlocks = params.getCatalogClumpSize() / blockSize;
         forkdata =
                 new HfsPlusForkData(params.getCatalogClumpSize(), params.getCatalogClumpSize(),

@@ -34,7 +34,7 @@ public class Extent {
     private BTHeaderRecord bthr;
 
     public Extent(HFSPlusParams params) {
-        log.info("Create B-Tree extent file.");
+        log.debug("Create B-Tree extent file.");
         btnd = new NodeDescriptor(0, 0, NodeDescriptor.BT_HEADER_NODE, 0, 3);
         //
         int totalNodes = params.getExtentClumpSize() / params.getExtentNodeSize();
