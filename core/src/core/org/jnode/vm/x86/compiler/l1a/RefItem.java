@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.Label;
@@ -26,16 +26,15 @@ import org.jnode.assembler.x86.X86Register;
 import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.assembler.x86.X86Register.GPR64;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
 import org.jnode.vm.classmgr.VmConstString;
-import org.jnode.vm.x86.compiler.X86CompilerConstants;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.x86.compiler.X86CompilerHelper;
 
 /**
  * @author Patrik Reali
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class RefItem extends WordItem implements X86CompilerConstants {
+final class RefItem extends WordItem {
 
     // generate unique labels for writeStatics (should use current label)
     private long labelCounter;
@@ -44,6 +43,8 @@ final class RefItem extends WordItem implements X86CompilerConstants {
 
     /**
      * Initialize a blank item
+     *
+     * @param factory
      */
     RefItem(ItemFactory factory) {
         super(factory);
@@ -55,7 +56,7 @@ final class RefItem extends WordItem implements X86CompilerConstants {
     }
 
     /**
-     * @see org.jnode.vm.x86.compiler.l1a.WordItem#cloneConstant()
+     * @see org.jnode.vm.x86.compiler.l1a.WordItem#cloneConstant(EmitterContext)
      */
     protected WordItem cloneConstant(EmitterContext ec) {
         return factory.createAConst(ec, getValue());
@@ -76,7 +77,7 @@ final class RefItem extends WordItem implements X86CompilerConstants {
      * @return
      */
     VmConstString getValue() {
-        if (Vm.VerifyAssertions) Vm._assert(getKind() == Kind.CONSTANT, "kind == Kind.CONSTANT");
+        if (VmUtils.verifyAssertions()) VmUtils._assert(getKind() == Kind.CONSTANT, "kind == Kind.CONSTANT");
         return value;
     }
 
@@ -87,7 +88,7 @@ final class RefItem extends WordItem implements X86CompilerConstants {
      * @return
      */
     boolean isNull() {
-        if (Vm.VerifyAssertions) Vm._assert(getKind() == Kind.CONSTANT, "kind == Kind.CONSTANT");
+        if (VmUtils.verifyAssertions()) VmUtils._assert(getKind() == Kind.CONSTANT, "kind == Kind.CONSTANT");
         return (value == null);
     }
 

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -32,6 +32,7 @@ public abstract class CompilerBytecodeVisitor extends BytecodeVisitor {
 
     /**
      * The given basic block is about to start.
+     * @param bb
      */
     public abstract void startBasicBlock(BasicBlock bb);
 
@@ -57,6 +58,7 @@ public abstract class CompilerBytecodeVisitor extends BytecodeVisitor {
 
     /**
      * Push the given VmType on the stack.
+     * @param value
      */
     public abstract void visit_ldc(VmType<?> value);
 

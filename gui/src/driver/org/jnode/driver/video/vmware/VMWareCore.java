@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,6 +19,8 @@
  */
  
 package org.jnode.driver.video.vmware;
+
+import gnu.classpath.SystemProperties;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -43,15 +45,14 @@ import org.jnode.driver.video.HardwareCursorImage;
 import org.jnode.driver.video.Surface;
 import org.jnode.driver.video.util.AbstractSurface;
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.IOResource;
-import org.jnode.system.MemoryResource;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
+import org.jnode.system.resource.IOResource;
+import org.jnode.system.resource.MemoryResource;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
 import org.jnode.util.AccessControllerUtils;
 import org.jnode.util.NumberUtils;
 import org.vmmagic.unboxed.Address;
-import gnu.classpath.SystemProperties;
 
 /**
  * @author epr

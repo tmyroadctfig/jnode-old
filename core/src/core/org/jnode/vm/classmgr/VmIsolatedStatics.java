@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,8 @@
 package org.jnode.vm.classmgr;
 
 import org.jnode.assembler.ObjectResolver;
-import org.jnode.vm.VmArchitecture;
+import org.jnode.vm.facade.VmArchitecture;
+
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)

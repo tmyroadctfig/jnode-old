@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -63,9 +63,13 @@ public class PluginListInsertor extends PackagerTask {
      */
     private List<String> readPluginIds(String pluginListName) {
         List<String> pluginIds = new ArrayList<String>();
-        
+
         final Properties properties = getProperties();
-        final String targetName = properties.getProperty(PLUGIN_LIST_NAME, null); 
+        String targetName = getProject().getProperty(TARGET_PLUGIN_LIST);
+        if (targetName == null || targetName.trim().length() == 0) {
+            targetName = properties.getProperty(PLUGIN_LIST_NAME, null);
+        }
+
         if (targetName == null) {
             log("property " + PLUGIN_LIST_NAME + " not specified in " +
                     getPropertiesFile().getAbsolutePath(), Project.MSG_ERR);

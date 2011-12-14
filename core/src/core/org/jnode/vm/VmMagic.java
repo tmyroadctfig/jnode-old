@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -33,7 +33,11 @@ import org.vmmagic.unboxed.Word;
  * instead of being executed as normal java methods.  The actual method
  * bodies are not used.
  * <p/>
- * Methods is this class can also be called from inside JNode.
+ * Methods in this class can also be called from inside JNode.
+ * <p/>
+ * See {@link org.jnode.vm.classmgr.VmType VmType} to get the list of "magic" classes and
+ * {@link org.jnode.vm.compiler.BaseMagicHelper.MagicMethod MagicMethod}
+ * to get the list of "magic" methods.
  *
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */

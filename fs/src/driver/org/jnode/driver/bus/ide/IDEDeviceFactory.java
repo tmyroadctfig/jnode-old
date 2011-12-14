@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +23,7 @@ package org.jnode.driver.bus.ide;
 import org.jnode.driver.Device;
 import org.jnode.driver.DriverException;
 import org.jnode.partitions.ibm.IBMPartitionTable;
-import org.jnode.system.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceNotFreeException;
 
 public interface IDEDeviceFactory {
     /**

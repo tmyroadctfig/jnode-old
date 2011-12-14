@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -85,7 +85,7 @@ public class IfCommandNode extends CommandNode {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("IfCommand{").append(super.toString());
         sb.append(",cond=").append(cond);
         if (thenPart != null) {
@@ -100,20 +100,25 @@ public class IfCommandNode extends CommandNode {
 
     @Override
     public int execute(BjorneContext context) throws ShellException {
-        int rc = cond.execute(context);
-        if (rc == 0) {
-            if (thenPart != null) {
-                return thenPart.execute(context);
+        try {
+            context.evaluateRedirectionsAndPushHolders(getRedirects());
+            int rc = cond.execute(context);
+            if (rc == 0) {
+                if (thenPart != null) {
+                    return thenPart.execute(context);
+                }
+            } else {
+                if (elsePart != null) {
+                    return elsePart.execute(context);
+                }
             }
-        } else {
-            if (elsePart != null) {
-                return elsePart.execute(context);
+            if ((getFlags() & BjorneInterpreter.FLAG_BANG) != 0) {
+                rc = (rc == 0) ? -1 : 0;
             }
+            return rc;
+        } finally {
+            context.popHolders();
         }
-        if ((getFlags() & BjorneInterpreter.FLAG_BANG) != 0) {
-            rc = (rc == 0) ? -1 : 0;
-        }
-        return rc;
     }
     
     @Override

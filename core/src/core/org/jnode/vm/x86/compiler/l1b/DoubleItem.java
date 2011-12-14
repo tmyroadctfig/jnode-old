@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1b;
 
 import org.jnode.assembler.x86.X86Assembler;
@@ -26,7 +26,7 @@ import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.assembler.x86.X86Register.GPR32;
 import org.jnode.assembler.x86.X86Register.GPR64;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Patrik Reali
@@ -76,8 +76,8 @@ final class DoubleItem extends DoubleWordItem {
      * @return the value
      */
     final double getValue() {
-        if (Vm.VerifyAssertions) {
-            Vm._assert(isConstant(), "kind == Kind.CONSTANT");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(isConstant(), "kind == Kind.CONSTANT");
         }
         return value;
     }

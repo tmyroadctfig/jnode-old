@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,16 +30,16 @@ import org.jnode.assembler.x86.X86BinaryAssembler;
 import org.jnode.assembler.x86.X86Constants;
 import org.jnode.assembler.x86.X86TextAssembler;
 import org.jnode.vm.Unsafe;
-import org.jnode.vm.Vm;
 import org.jnode.annotation.MagicPermission;
 import org.jnode.annotation.PrivilegedActionPragma;
-import org.jnode.vm.classmgr.TypeSizeInfo;
 import org.jnode.vm.classmgr.VmClassLoader;
 import org.jnode.vm.classmgr.VmCompiledCode;
 import org.jnode.vm.classmgr.VmMethod;
 import org.jnode.vm.compiler.CompiledMethod;
 import org.jnode.vm.compiler.EntryPoints;
 import org.jnode.vm.compiler.NativeCodeCompiler;
+import org.jnode.vm.facade.TypeSizeInfo;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.x86.VmX86Architecture;
 import org.jnode.vm.x86.X86CpuID;
@@ -51,8 +51,7 @@ import org.vmmagic.unboxed.Address;
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
 @MagicPermission
-public abstract class AbstractX86Compiler extends NativeCodeCompiler implements
-    X86CompilerConstants {
+public abstract class AbstractX86Compiler extends NativeCodeCompiler {
 
     private EntryPoints context;
 
@@ -60,24 +59,23 @@ public abstract class AbstractX86Compiler extends NativeCodeCompiler implements
 
     private TypeSizeInfo typeSizeInfo;
 
-    private final ThreadLocal nativeStreamHolder = new ThreadLocal();
+    private final ThreadLocal<X86BinaryAssembler> nativeStreamHolder = new ThreadLocal<X86BinaryAssembler>();
 
     /**
      * Initialize this compiler
      *
-     * @param loader
+     * @param loader the VmClassLoader
      */
     public final void initialize(VmClassLoader loader) {
         if (context == null) {
-            context = new EntryPoints(loader, Vm.getHeapManager(), getMagic());
+            context = new EntryPoints(loader, VmUtils.getVm().getHeapManager(), getMagic());
             mode = ((VmX86Architecture) loader.getArchitecture()).getMode();
             typeSizeInfo = loader.getArchitecture().getTypeSizeInfo();
         }
     }
 
     public NativeStream createNativeStream(ObjectResolver resolver) {
-        X86BinaryAssembler os;
-        os = (X86BinaryAssembler) nativeStreamHolder.get();
+        X86BinaryAssembler os = nativeStreamHolder.get();
         if (os == null) {
             os = new X86BinaryAssembler((X86CpuID) VmProcessor.current()
                 .getCPUID(), mode, 0);
@@ -91,7 +89,7 @@ public abstract class AbstractX86Compiler extends NativeCodeCompiler implements
     protected final CompiledMethod doCompileAbstract(VmMethod method,
                                                      NativeStream nos, int level, boolean isBootstrap) {
         if (isBootstrap) {
-            // System.out.println("Abstraxct method " + method);
+            // System.out.println("Abstract method " + method);
             final CompiledMethod cm = new CompiledMethod(level);
             final X86Assembler os = (X86Assembler) nos;
             // Create the helper
@@ -116,7 +114,7 @@ public abstract class AbstractX86Compiler extends NativeCodeCompiler implements
             // Set the address of the abstract method code
             final Address errorAddr = Unsafe
                 .getJumpTableEntry(X86JumpTable.VM_INVOKE_ABSTRACT_IDX);
-            final VmCompiledCode code = Vm.getCompiledMethods()
+            final VmCompiledCode code = VmUtils.getVm().getCompiledMethods()
                 .createCompiledCode(null, method, this, null,
                     errorAddr.toAddress(), null, 0, null, null, null);
             method.addCompiledCode(code, level);

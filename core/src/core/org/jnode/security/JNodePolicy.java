@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.security;
 
 import gnu.java.security.PolicyFile;
@@ -36,10 +36,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.plugin.ConfigurationElement;
 import org.jnode.plugin.Extension;
 import org.jnode.plugin.ExtensionPoint;
-import org.jnode.system.BootLog;
 
 /**
  * Default policy implementation for JNode.
@@ -99,7 +99,7 @@ final class JNodePolicy extends Policy {
             .entrySet()) {
             final CodeSource cs = e.getKey();
             if (cs.implies(codeSource)) {
-                // BootLog.info(cs + " -> " + codeSource);
+                // BootLogInstance.get().info(cs + " -> " + codeSource);
                 final PermissionCollection pc = e.getValue();
                 for (Enumeration<?> ee = pc.elements(); ee.hasMoreElements();) {
                     perms.add((Permission) ee.nextElement());
@@ -147,7 +147,7 @@ final class JNodePolicy extends Policy {
             final CodeSource cs = new CodeSource(url, (Certificate[]) null);
             final Permissions perms = new Permissions();
             codeSource2Permissions.put(cs, perms);
-            // BootLog.debug("Adding permissions for " + cs);
+            // BootLogInstance.get().debug("Adding permissions for " + cs);
             final ConfigurationElement[] elems = ext.getConfigurationElements();
             final int count = elems.length;
             for (int i = 0; i < count; i++) {
@@ -175,30 +175,30 @@ final class JNodePolicy extends Policy {
                         final Permission p = (Permission) perm;
                         perms.add(p);
                     } catch (ClassNotFoundException ex) {
-                        BootLog
+                        BootLogInstance.get()
                             .error("Permission class " + type
                                 + " not found");
                     } catch (InstantiationException ex) {
-                        BootLog.error("Cannot instantiate permission class "
+                        BootLogInstance.get().error("Cannot instantiate permission class "
                             + type);
                     } catch (IllegalAccessException ex) {
-                        BootLog.error("Illegal access to permission class "
+                        BootLogInstance.get().error("Illegal access to permission class "
                             + type);
                     } catch (NoSuchMethodException ex) {
-                        BootLog
+                        BootLogInstance.get()
                             .error("Constructor not found on permission class "
                                 + type + " in plugin " + id);
                     } catch (InvocationTargetException ex) {
-                        BootLog.error("Error constructing permission class "
+                        BootLogInstance.get().error("Error constructing permission class "
                             + type, ex);
                     } catch (ClassCastException ex) {
-                        BootLog.error("Permission class " + type
+                        BootLogInstance.get().error("Permission class " + type
                             + " not instance of Permission");
                     }
                 }
             }
         } catch (MalformedURLException ex) {
-            BootLog.error("Cannot create plugin codesource", ex);
+            BootLogInstance.get().error("Cannot create plugin codesource", ex);
         }
     }
 }

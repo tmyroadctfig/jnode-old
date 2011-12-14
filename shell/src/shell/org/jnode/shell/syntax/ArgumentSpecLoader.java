@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,6 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+ 
 package org.jnode.shell.syntax;
 
 import java.lang.reflect.Constructor;
@@ -130,6 +131,7 @@ public class ArgumentSpecLoader {
     /**
      * Parses an argument.
      */
+    @SuppressWarnings("unchecked")
     private ArgumentSpec<?> doLoad(SyntaxSpecAdapter element) {
         if (!element.getName().equals("argument")) {
             throw new SyntaxFailureException("Not a valid child of 'argument-bundle': " + element.getName());

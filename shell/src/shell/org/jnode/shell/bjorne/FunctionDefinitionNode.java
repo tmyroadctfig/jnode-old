@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -46,7 +46,7 @@ public class FunctionDefinitionNode extends CommandNode {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("FunctionDefinition{").append(super.toString());
         sb.append(",name=").append(name);
         sb.append(",body=").append(body);
@@ -56,7 +56,8 @@ public class FunctionDefinitionNode extends CommandNode {
 
     @Override
     public int execute(BjorneContext context) {
-        return -1;
+        context.defineFunction(name, body);
+        return 0;
     }
     
     @Override

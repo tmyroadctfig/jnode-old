@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -52,7 +52,7 @@ public final class Isolate {
      * @param args
      */
     public Isolate(String mainClass, String... args) {
-        this(new StreamBindings(), AccessController.doPrivileged(new GetPropertiesAction()), mainClass, args);
+        this(new StreamBindings(), null, mainClass, args);
     }
 
     /**
@@ -75,7 +75,10 @@ public final class Isolate {
      * @param args
      */
     public Isolate(StreamBindings bindings, Properties properties, String mainClass, String... args) {
-        this.impl = new VmIsolate(this, bindings.getBindings(), properties, mainClass, args);
+        Properties defaultProperties = AccessController.doPrivileged(new GetPropertiesAction());
+        if(properties != null)
+            defaultProperties.putAll(properties);
+        this.impl = new VmIsolate(this, bindings.getBindings(), defaultProperties, mainClass, args);
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1b;
 
 import org.jnode.assembler.x86.X86Assembler;
@@ -26,7 +26,7 @@ import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.assembler.x86.X86Register.GPR32;
 import org.jnode.assembler.x86.X86Register.GPR64;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.x86.compiler.X86CompilerConstants;
 import org.jnode.vm.x86.compiler.X86CompilerHelper;
 
@@ -47,10 +47,10 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
                 : null));
         this.gpr = (reg instanceof X86Register.GPR) ? (X86Register.GPR) reg
             : null;
-        if (Vm.VerifyAssertions) {
+        if (VmUtils.verifyAssertions()) {
             switch (kind) {
                 case Kind.GPR:
-                    Vm._assert((this.gpr != null),
+                    VmUtils._assert((this.gpr != null),
                         "kind == register implies that reg != null");
                     break;
             }
@@ -116,8 +116,8 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
      * @return The register that contains this item
      */
     final X86Register.GPR getRegister() {
-        if (Vm.VerifyAssertions)
-            Vm._assert(isGPR(), "Must be register");
+        if (VmUtils.verifyAssertions())
+            VmUtils._assert(isGPR(), "Must be register");
         return gpr;
     }
 
@@ -133,11 +133,11 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
                 vstack.push(ec);
                 r = pool.request(getType(), this);
             }
-            if (Vm.VerifyAssertions)
-                Vm._assert(r != null, "r != null");
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(r != null, "r != null");
             loadTo(ec, (X86Register.GPR) r);
         }
-        if (Vm.VerifyAssertions) {
+        if (VmUtils.verifyAssertions()) {
             verifyState(ec);
         }
     }
@@ -149,14 +149,14 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
      * @param reg register to load the item to
      */
     final void loadTo(EmitterContext ec, X86Register.GPR reg) {
-        if (Vm.VerifyAssertions)
-            Vm._assert(reg != null, "Reg != null");
+        if (VmUtils.verifyAssertions())
+            VmUtils._assert(reg != null, "Reg != null");
         final X86Assembler os = ec.getStream();
         final X86RegisterPool pool = ec.getGPRPool();
         final VirtualStack stack = ec.getVStack();
         final X86CompilerHelper helper = ec.getHelper();
-        if (Vm.VerifyAssertions) {
-            Vm._assert(!pool.isFree(reg), "reg not free");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(!pool.isFree(reg), "reg not free");
         }
 
         switch (getKind()) {
@@ -221,8 +221,8 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
                 ec.getVStack().push(ec);
                 r = ec.getGPRPool().request(JvmType.INT);
             }
-            if (Vm.VerifyAssertions)
-                Vm._assert(r != null, "r != null");
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(r != null, "r != null");
             loadTo(ec, (X86Register.GPR) r);
         }
     }
@@ -249,8 +249,8 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
                 ec.getVStack().push(ec);
                 r = ec.getGPRPool().request(JvmType.INT, this, true);
             }
-            if (Vm.VerifyAssertions)
-                Vm._assert(r != null, "r != null");
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(r != null, "r != null");
             loadTo(ec, (X86Register.GPR) r);
         }
     }
@@ -373,7 +373,7 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
                 stack.fpuStack.pop(this);
                 stack.fpuStack.push(this);
                 return;
-                // break;
+            // break;
 
             case Kind.STACK:
                 if (VirtualStack.checkOperandStack) {
@@ -411,8 +411,8 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
         switch (getKind()) {
             case Kind.GPR:
                 pool.release(gpr);
-                if (Vm.VerifyAssertions)
-                    Vm._assert(pool.isFree(gpr), "reg is free");
+                if (VmUtils.verifyAssertions())
+                    VmUtils._assert(pool.isFree(gpr), "reg is free");
                 break;
 
             case Kind.LOCAL:
@@ -443,8 +443,8 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
      * @see org.jnode.vm.x86.compiler.l1a.Item#spill(EmitterContext, Register)
      */
     final void spill(EmitterContext ec, X86Register reg) {
-        if (Vm.VerifyAssertions) {
-            Vm._assert(isGPR() && (this.gpr.getNr() == reg.getNr()), "spill1 gpr=" + gpr + ", reg=" + reg);
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(isGPR() && (this.gpr.getNr() == reg.getNr()), "spill1 gpr=" + gpr + ", reg=" + reg);
         }
         final X86RegisterPool pool = ec.getGPRPool();
         X86Register r = pool.request(getType());
@@ -454,12 +454,12 @@ public abstract class WordItem extends Item implements X86CompilerConstants {
                 return;
             }
             r = pool.request(getType());
-            if (Vm.VerifyAssertions)
-                Vm._assert(r != null, "r != null");
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(r != null, "r != null");
         }
         loadTo(ec, (X86Register.GPR) r);
         pool.transferOwnerTo(r, this);
-        if (Vm.VerifyAssertions) {
+        if (VmUtils.verifyAssertions()) {
             verifyState(ec);
         }
     }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -191,7 +191,9 @@ public class DefaultFontManager implements FontManager, ExtensionPointListener {
 
     public Font createFont(int format, InputStream stream) throws FontFormatException, IOException {
         String name = fontTypeToProviderName.get(format);
-        if (name == null) throw new IllegalArgumentException("unknown format " + name);
+        if (name == null) {
+            throw new IllegalArgumentException("unknown format " + format);
+        }
 
         for (FontProvider<?> prv : getProviders()) {
             if (prv.getName().equals(name)) {

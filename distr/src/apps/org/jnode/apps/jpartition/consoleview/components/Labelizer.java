@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,17 @@
  
 package org.jnode.apps.jpartition.consoleview.components;
 
+/**
+ * Interface used to transform an object into a displayable String.
+ * @author Fabien DUMINY (fduminy@jnode.org)
+ *
+ * @param <T>
+ */
 public interface Labelizer<T> {
+    /**
+     * Get a displayable String representing the given value.
+     * @param value The value to transform.
+     * @return
+     */
     String getLabel(T value);
 }

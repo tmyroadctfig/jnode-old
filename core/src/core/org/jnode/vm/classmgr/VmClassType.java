@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -266,7 +266,7 @@ public abstract class VmClassType<T> extends VmType<T> {
      * Verify this object before it is written into the bootimage
      * by the bootimage builder.
      *
-     * @see org.jnode.vm.VmSystemObject#verifyBeforeEmit()
+     * @see org.jnode.vm.objects.VmSystemObject#verifyBeforeEmit()
      */
     public void verifyBeforeEmit() {
         if (tib == null) {

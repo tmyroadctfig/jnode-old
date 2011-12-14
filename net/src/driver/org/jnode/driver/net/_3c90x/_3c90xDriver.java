@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -31,9 +31,9 @@ import org.jnode.driver.net.ethernet.spi.AbstractEthernetDriver;
 import org.jnode.net.HardwareAddress;
 import org.jnode.net.SocketBuffer;
 import org.jnode.plugin.ConfigurationElement;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.util.TimeoutException;
+import org.jnode.system.resource.ResourceNotFreeException;
 import org.jnode.util.AccessControllerUtils;
+import org.jnode.util.TimeoutException;
 
 /**
  * @author epr

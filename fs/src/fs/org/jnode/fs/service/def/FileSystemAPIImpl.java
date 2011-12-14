@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -279,16 +279,16 @@ final class FileSystemAPIImpl implements VMFileSystemAPI {
             final String name = child.getName();
 
             // never include the parent directory and the current directory in
-            // the result
-            // if they exist by any chance
-            if (name.equals(".") || name.equals(".."))
+            // the result if they exist by any chance.
+            if (".".equals(name) || "..".equals(name)) {
                 continue;
+            }
 
             entryPath.append(name);
             entryCache.setEntry(entryPath.toString(), child);
             entryPath.setLength(directoryPathSize);
 
-            if(name != null){
+            if (name != null) {
                 list.add(name);
             }
         }

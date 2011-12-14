@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +23,7 @@ package org.jnode.awt.image;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.ColorModel;
-import org.jnode.system.MemoryResource;
+import org.jnode.system.resource.MemoryResource;
 
 /**
  * Image consumer that copies pixels of 8-bit to the destination.

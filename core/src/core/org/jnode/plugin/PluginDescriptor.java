@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,7 +19,6 @@
  */
  
 package org.jnode.plugin;
-
 
 /**
  * Descriptor of a Plugin.
@@ -194,6 +193,8 @@ public interface PluginDescriptor {
 
     /**
      * Gets the classloader of this plugin descriptor.
+     * It's <strong>not mandatory</strong> but the returned {@link ClassLoader} usually
+     * implements {@link PluginClassLoader}. 
      *
      * @return ClassLoader
      */
@@ -212,4 +213,14 @@ public interface PluginDescriptor {
      * @param listener
      */
     public void removeListener(PluginDescriptorListener listener);
+    
+    /**
+     * Fire the pluginStarted event to this descriptor's listeners.
+     */
+    public void firePluginStarted();
+
+    /**
+     * Fire the pluginStopped event to this descriptor's listeners.
+     */
+    public void firePluginStopped();
 }

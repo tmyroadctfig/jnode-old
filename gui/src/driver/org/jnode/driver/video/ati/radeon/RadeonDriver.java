@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -32,7 +32,7 @@ import org.jnode.driver.video.NotOpenException;
 import org.jnode.driver.video.Surface;
 import org.jnode.driver.video.UnknownConfigurationException;
 import org.jnode.plugin.ConfigurationElement;
-import org.jnode.system.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceNotFreeException;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)

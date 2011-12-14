@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -80,16 +80,12 @@ public class ProcletCommandInvoker extends AsyncCommandInvoker implements Comman
     
     protected CommandThreadImpl createThread(CommandRunner cr) {
         CommandIO[] ios = cr.getIOs();
-        if (cr.isInternal()) {
-            return new CommandThreadImpl(cr, cr.getCommandName());
-        } else {
-            return Proclet.createProclet(cr, cr.getSysProps(), cr.getEnv(), 
-                    new Object[] {
+        return Proclet.createProclet(cr, cr.getSysProps(), cr.getEnv(), 
+                new Object[] {
                         ios[Command.STD_IN].getInputStream(), 
                         ios[Command.STD_OUT].getPrintStream(),
                         ios[Command.STD_ERR].getPrintStream()}, 
                 cr.getCommandName());
-        }
     }
     
     private static synchronized void init() {

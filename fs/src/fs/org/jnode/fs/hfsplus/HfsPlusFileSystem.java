@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.fs.hfsplus;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
     private final Logger log = Logger.getLogger(getClass());
 
     /** HFS volume header */
-    private Superblock volumeHeader;
+    private SuperBlock volumeHeader;
 
     /** Catalog special file for this instance */
     private Catalog catalog;
@@ -55,22 +55,22 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
     }
 
     /**
-     * 
+     *
      * @throws FileSystemException
      */
     public final void read() throws FileSystemException {
-        volumeHeader = new Superblock(this, false);
+        volumeHeader = new SuperBlock(this, false);
         log.debug(volumeHeader.toString());
-        if (!volumeHeader.isAttribute(Superblock.HFSPLUS_VOL_UNMNT_BIT)) {
+        if (!volumeHeader.isAttribute(SuperBlock.HFSPLUS_VOL_UNMNT_BIT)) {
             log.info(getDevice().getId() +
                     " Filesystem has not been cleanly unmounted, mounting it readonly");
             setReadOnly(true);
         }
-        if (volumeHeader.isAttribute(Superblock.HFSPLUS_VOL_SOFTLOCK_BIT)) {
+        if (volumeHeader.isAttribute(SuperBlock.HFSPLUS_VOL_SOFTLOCK_BIT)) {
             log.info(getDevice().getId() + " Filesystem is marked locked, mounting it readonly");
             setReadOnly(true);
         }
-        if (volumeHeader.isAttribute(Superblock.HFSPLUS_VOL_JOURNALED_BIT)) {
+        if (volumeHeader.isAttribute(SuperBlock.HFSPLUS_VOL_JOURNALED_BIT)) {
             log
                     .info(getDevice().getId() +
                             " Filesystem is journaled, write access is not supported. Mounting it readonly");
@@ -98,35 +98,20 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
         log.info("Create root entry.");
         LeafRecord record = catalog.getRecord(CatalogNodeId.HFSPLUS_POR_CNID);
         if (record != null) {
-            return new HfsPlusDirectory(this, null, "/", record);
+            return new HfsPlusEntry(this, null, "/", record);
         }
         log.error("Root entry : No record found.");
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jnode.fs.FileSystem#getFreeSpace()
-     */
     public final long getFreeSpace() {
         return volumeHeader.getFreeBlocks() * volumeHeader.getBlockSize();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jnode.fs.FileSystem#getTotalSpace()
-     */
     public final long getTotalSpace() {
         return volumeHeader.getTotalBlocks() * volumeHeader.getBlockSize();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jnode.fs.FileSystem#getUsableSpace()
-     */
     public final long getUsableSpace() {
         return -1;
     }
@@ -135,7 +120,7 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
         return catalog;
     }
 
-    public final Superblock getVolumeHeader() {
+    public final SuperBlock getVolumeHeader() {
         return volumeHeader;
     }
 
@@ -147,13 +132,14 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
      * @throws FileSystemException
      */
     public void create(HFSPlusParams params) throws FileSystemException {
-        volumeHeader = new Superblock(this, true);
+        volumeHeader = new SuperBlock(this, true);
         try {
             params.initializeDefaultsValues(this);
             volumeHeader.create(params);
             log.debug("Volume header : \n" + volumeHeader.toString());
             long volumeBlockUsed =
-                    volumeHeader.getTotalBlocks() - volumeHeader.getFreeBlocks() - ((volumeHeader.getBlockSize() == 512) ? 2 : 1);
+                    volumeHeader.getTotalBlocks() - volumeHeader.getFreeBlocks() -
+                            ((volumeHeader.getBlockSize() == 512) ? 2 : 1);
             // ---
             log.debug("Write allocation bitmap bits to disk.");
             writeAllocationFile((int) volumeBlockUsed);
@@ -165,7 +151,7 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
             flush();
         } catch (IOException e) {
             throw new FileSystemException("Unable to create HFS+ filesystem", e);
-        } 
+        }
     }
 
     private void writeAllocationFile(int blockUsed) {

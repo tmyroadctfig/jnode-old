@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,8 +20,8 @@
  
 package org.jnode.driver.block.floppy;
 
-import org.jnode.system.DMAException;
-import org.jnode.system.IRQHandler;
+import org.jnode.system.resource.DMAException;
+import org.jnode.system.resource.IRQHandler;
 import org.jnode.util.TimeoutException;
 
 /**
@@ -82,7 +82,7 @@ public interface FDC extends IRQHandler, FloppyConstants {
 
     /**
      * @param irq
-     * @see org.jnode.system.IRQHandler#handleInterrupt(int)
+     * @see org.jnode.system.resource.IRQHandler#handleInterrupt(int)
      */
     public void handleInterrupt(int irq);
 

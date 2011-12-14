@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,7 +20,7 @@
  
 package org.jnode.util;
 
-import org.jnode.system.BootLog;
+import org.jnode.bootlog.BootLogInstance;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
@@ -76,7 +76,7 @@ public class ByteQueueProcessorThread extends Thread {
      * @param ex
      */
     protected void handleException(Exception ex) {
-        BootLog.error("Exception in ByteQueueProcessor: " + getName(), ex);
+        BootLogInstance.get().error("Exception in ByteQueueProcessor: " + getName(), ex);
     }
 
     /**
@@ -85,7 +85,7 @@ public class ByteQueueProcessorThread extends Thread {
      * @param ex
      */
     protected void handleError(Error ex) {
-        BootLog.error("Error in ByteQueueProcessor: " + getName(), ex);
+        BootLogInstance.get().error("Error in ByteQueueProcessor: " + getName(), ex);
     }
 
     /**
@@ -96,7 +96,7 @@ public class ByteQueueProcessorThread extends Thread {
     public void run() {
         while (!stop) {
             try {
-                final byte value = queue.pop();
+                final byte value = queue.deQueue();
                 processor.process(value);
             } catch (Exception ex) {
                 handleException(ex);

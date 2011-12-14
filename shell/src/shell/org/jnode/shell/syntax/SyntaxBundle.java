@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -61,5 +61,16 @@ public class SyntaxBundle {
         } else {
             return new AlternativesSyntax(syntaxes).prepare(bundle);
         }
+    }
+
+    public String format(ArgumentBundle bundle) {
+        StringBuilder sb = new StringBuilder();
+        for (Syntax syntax : syntaxes) {
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+            sb.append(syntax.format(bundle));
+        }
+        return sb.toString();
     }
 }

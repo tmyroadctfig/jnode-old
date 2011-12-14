@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,9 +24,9 @@ import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
 
-import org.jnode.vm.VmArchitecture;
-import org.jnode.vm.VmSystemObject;
 import org.jnode.vm.compiler.CompiledIMT;
+import org.jnode.vm.facade.VmArchitecture;
+import org.jnode.vm.objects.VmSystemObject;
 
 /**
  * Interface for the delegation of loading classes with a given name

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,10 +23,10 @@ package org.jnode.vm.x86;
 import javax.naming.NameNotFoundException;
 
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.IOResource;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.SimpleResourceOwner;
+import org.jnode.system.resource.IOResource;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.SimpleResourceOwner;
 import org.jnode.annotation.Inline;
 import org.jnode.annotation.KernelSpace;
 import org.jnode.annotation.PrivilegedActionPragma;
@@ -45,8 +45,9 @@ final class PIC8259A {
      */
     private final ProcessorLock lock = new ProcessorLock();
 
-    // IO resources
+    /** PIC Master IO resource */
     private final IOResource io8259_A;
+    /** PIC Slave IO resource */
     private final IOResource io8259_B;
 
     /**

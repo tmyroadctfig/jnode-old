@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,10 +23,10 @@ package java.lang;
 import java.io.File;
 import java.io.IOException;
 
-import org.jnode.vm.Vm;
 import org.jnode.vm.VmProcess;
 import org.jnode.vm.VmSystem;
 import org.jnode.vm.VmExit;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.isolate.VmIsolate;
 import javax.isolate.Isolate;
 
@@ -52,7 +52,7 @@ final class VMRuntime
      * @return the number of processors available, at least 1
      */
     static int availableProcessors() {
-        return Vm.getVm().availableProcessors();
+        return VmUtils.getVm().availableProcessors();
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,9 +20,9 @@
  
 package org.jnode.net.ipv4.icmp;
 
-import org.jnode.util.Counter;
-import org.jnode.util.Statistic;
-import org.jnode.util.Statistics;
+import org.jnode.vm.objects.Counter;
+import org.jnode.vm.objects.Statistic;
+import org.jnode.vm.objects.Statistics;
 
 /**
  * @author epr

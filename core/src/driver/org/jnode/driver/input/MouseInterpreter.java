@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -68,7 +68,9 @@ public class MouseInterpreter implements PointerInterpreter {
                 return false;
             }
             int id = d.getPointerId();
-            if (id != 0) {
+            //todo -- 3 is for the wheel mouse identified bellow but when restarted the id remains 3 instead of
+            //todo -- 0 as on the first start. Investigate this anomaly.
+            if (id != 0 && id != 3) {
                 // does not seem to be a mouse, more likely a tablet of touch screen
                 log.debug("PointerId 0x" + NumberUtils.hex(id, 2));
                 return false;

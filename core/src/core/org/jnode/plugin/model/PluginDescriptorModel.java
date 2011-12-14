@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -29,7 +29,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.nanoxml.XMLElement;
 import org.jnode.plugin.Extension;
 import org.jnode.plugin.ExtensionPoint;
@@ -40,11 +40,10 @@ import org.jnode.plugin.PluginException;
 import org.jnode.plugin.PluginPrerequisite;
 import org.jnode.plugin.PluginReference;
 import org.jnode.plugin.Runtime;
-import org.jnode.system.BootLog;
-import org.jnode.util.BootableArrayList;
 import org.jnode.vm.VmSystem;
 import org.jnode.vm.classmgr.VmClassLoader;
 import org.jnode.vm.isolate.VmIsolateLocal;
+import org.jnode.vm.objects.BootableArrayList;
 
 /**
  * Implementation of {@link org.jnode.plugin.PluginDescriptor}.
@@ -294,7 +293,7 @@ public class PluginDescriptorModel extends AbstractModelObject implements
     }
 
     /**
-     * Fire the pluginStarted event to my listeners.
+     * {@inheritDoc}
      */
     public final void firePluginStarted() {
         final List<PluginDescriptorListener> listeners;
@@ -312,9 +311,9 @@ public class PluginDescriptorModel extends AbstractModelObject implements
     }
 
     /**
-     * Fire the pluginStop event to my listeners.
+     * {@inheritDoc}
      */
-    public final void firePluginStop() {
+    public final void firePluginStopped() {
         final List<PluginDescriptorListener> listeners;
         synchronized (listenerLock) {
             if (this.listeners != null) {
@@ -629,7 +628,7 @@ public class PluginDescriptorModel extends AbstractModelObject implements
             throw new SecurityException("Cannot overwrite the registry");
         }
         if (!resolved) {
-            // BootLog.info("Resolve " + id);
+            // BootLogInstance.get().info("Resolve " + id);
             this.registry = registry;
             registry.registerPlugin(this);
             for (int i = 0; i < extensionPoints.length; i++) {
@@ -664,7 +663,7 @@ public class PluginDescriptorModel extends AbstractModelObject implements
             }
             starting = true;
         }
-        // BootLog.info("Resolve on plugin " + getId());
+        // BootLogInstance.get().info("Resolve on plugin " + getId());
         try {
             AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
                 public Object run() throws PluginException {
@@ -672,20 +671,20 @@ public class PluginDescriptorModel extends AbstractModelObject implements
                     final int reqMax = requires.length;
                     for (int i = 0; i < reqMax; i++) {
                         final String reqId = requires[i].getPluginId();
-                        // BootLog.info("Start dependency " + reqId);
+                        // BootLogInstance.get().info("Start dependency " + reqId);
                         final PluginDescriptorModel reqDescr = (PluginDescriptorModel) registry
                             .getPluginDescriptor(reqId);
                         reqDescr.startPlugin(registry);
                         // Make sure that it is really started
                         reqDescr.waitUntilStarted();
                     }
-                    // BootLog.info("Start myself " + getId());
+                    // BootLogInstance.get().info("Start myself " + getId());
                     getPlugin().start();
                     return null;
                 }
             });
         } catch (PrivilegedActionException ex) {
-            BootLog.error("Error starting plugin", ex);
+            BootLogInstance.get().error("Error starting plugin", ex);
             /*try {
                 Thread.sleep(10000);
             } catch (InterruptedException ex1) {

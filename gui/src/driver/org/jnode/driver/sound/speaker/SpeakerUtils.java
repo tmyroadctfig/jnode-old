@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -38,8 +38,6 @@ public class SpeakerUtils {
 
     /** My logger */
     private static final Logger log = Logger.getLogger(SpeakerUtils.class);
-    /** What to play as the standard beep (null = a simple beep) * */
-    public static Note[] stdBeep = null;
 
     /** The length of a standard interval * */
     public static final int INTERVAL = 500;
@@ -58,30 +56,23 @@ public class SpeakerUtils {
 
     /** Sounds a beep on the system speaker * */
     public static void beep() {
-        if (stdBeep == null) {
-            try {
-                DeviceManager dm = InitialNaming.lookup(DeviceManager.NAME);
-                Device dev = dm.getDevice("speaker0");
-                SpeakerAPI s = dev.getAPI(SpeakerAPI.class);
-                s.beep();
-            } catch (ApiNotFoundException anfex) {
-                log.error("Unable to beep: ", anfex);
-            } catch (DeviceNotFoundException dnfex) {
-                log.error("Unable to beep: ", dnfex);
-            } catch (NameNotFoundException nnfex) {
-                log.debug("Unable to beep: ", nnfex);
-            }
-        } else
-            play(stdBeep);
+        play(stdBeep);
     }
 
-    /** Plays a series of notes through the default speaker * */
+    /**
+     * Plays a series of notes through the default speaker.
+     * Null argument or zero length array plays the standard beep.
+     */
     public static void play(Note[] n) {
         try {
             DeviceManager dm = InitialNaming.lookup(DeviceManager.NAME);
             Device dev = dm.getDevice("speaker0");
             SpeakerAPI s = dev.getAPI(SpeakerAPI.class);
-            s.playNote(n);
+            if (n == null || n.length == 0) {
+                s.beep();
+            } else {
+                s.playNote(n);
+            }
         } catch (ApiNotFoundException anfex) {
             log.error("Unable to beep: ", anfex);
         } catch (DeviceNotFoundException dnfex) {
@@ -91,6 +82,9 @@ public class SpeakerUtils {
         }
 
     }
+
+    /** What to play as the standard beep (null = a simple beep) * */
+    public static Note[] stdBeep = new Note[0];
 
     /** Defines a scale * */
     public static final Note[] SCALE =

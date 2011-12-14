@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -51,13 +51,13 @@ public class KeyboardLayoutArgument extends StringArgument {
     }
 
     @Override
-    public void doComplete(CompletionInfo completion, String partial, int flags) {
+    public void doComplete(CompletionInfo completions, String partial, int flags) {
         try {
             KeyboardLayoutManager mgr = InitialNaming.lookup(KeyboardLayoutManager.NAME);
             // collect matching devices
             for (String layout : mgr.layouts()) {
                 if (layout.startsWith(partial)) {
-                    completion.addCompletion(layout);
+                    completions.addCompletion(layout);
                 }
             }
         } catch (NameNotFoundException ex) {

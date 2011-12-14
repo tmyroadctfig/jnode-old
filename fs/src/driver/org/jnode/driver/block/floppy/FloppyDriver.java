@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -287,6 +287,11 @@ public class FloppyDriver extends Driver implements FSBlockDeviceAPI, RemovableD
      */
     public void eject()
         throws IOException {
+        throw new IOException("Unsupported operation");
+    }
+
+    @Override
+    public void load() throws IOException {
         throw new IOException("Unsupported operation");
     }
 

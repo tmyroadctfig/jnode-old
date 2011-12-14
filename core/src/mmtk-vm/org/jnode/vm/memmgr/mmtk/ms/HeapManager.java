@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,7 +22,7 @@ package org.jnode.vm.memmgr.mmtk.ms;
 
 import org.jnode.annotation.Inline;
 import org.jnode.vm.classmgr.VmClassLoader;
-import org.jnode.vm.memmgr.GCStatistics;
+import org.jnode.vm.facade.GCStatistics;
 import org.jnode.vm.memmgr.HeapHelper;
 import org.jnode.vm.memmgr.mmtk.BaseMmtkHeapManager;
 import org.vmmagic.unboxed.Address;

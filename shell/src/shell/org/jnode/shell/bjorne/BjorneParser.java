@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -107,7 +107,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jnode.shell.IncompleteCommandException;
 import org.jnode.shell.ShellSyntaxException;
 
 /**
@@ -122,14 +121,11 @@ public class BjorneParser {
     private final BjorneTokenizer tokens;
     private BjorneCompleter completer;
     
-    private final String continuationPrompt;
-    
     private final List<RedirectionNode> hereRedirections = new ArrayList<RedirectionNode>();
     private boolean allowLineBreaks;
 
-    public BjorneParser(BjorneTokenizer tokens, String continuationPrompt) {
+    public BjorneParser(BjorneTokenizer tokens) {
         this.tokens = tokens;
-        this.continuationPrompt = continuationPrompt;
     }
 
     /**
@@ -142,18 +138,21 @@ public class BjorneParser {
      */
     public CommandNode parse() throws ShellSyntaxException {
         hereRedirections.clear();
-        List<CommandNode> commands = new LinkedList<CommandNode>();
-        while (peek().getTokenType() != TOK_END_OF_STREAM) {
-            CommandNode command = parseList();
-            commands.add(command);
+        CommandNode command = parseOptList();
+        if (command != null) {
             allowLineBreaks();
+            captureHereDocuments();
+        } else {
+            noLineBreaks();
+            if (optNext(TOK_END_OF_LINE_BIT) != null) {
+                command = new SimpleCommandNode(CMD_COMMAND, new BjorneToken[0]);
+            }
         }
-        captureHereDocuments();
-        return listToNode(commands);
+        return command;
     }
     
     /**
-     * Parse a 'complete_command' capturing completions.parseAndOr
+     * Parse a 'complete_command' capturing completions.
      * 
      * @param completer holder object for capturing completion information.
      * @return the CommandNode representing the complete command.
@@ -170,14 +169,14 @@ public class BjorneParser {
     }
 
     /**
-     * Parse 'list ::= list separator_op and_or | and_or'
+     * Parse 'list ::= list separator_op and_or | and_or' or empty
      * 
      * @return the CommandNode representing the list.
      * @throws ShellSyntaxException
      */
-    private CommandNode parseList() throws ShellSyntaxException {
+    private CommandNode parseOptList() throws ShellSyntaxException {
         List<CommandNode> commands = new LinkedList<CommandNode>();
-        CommandNode command = parseAndOr();
+        CommandNode command = parseOptAndOr();
         while (command != null) {
             commands.add(command);
             BjorneToken token = expectPeek(
@@ -225,7 +224,7 @@ public class BjorneParser {
     }
 
     private CommandNode parseOptAndOr() throws ShellSyntaxException {
-        allowLineBreaks();
+        // allowLineBreaks();
         if (optPeek(TOK_LBRACE_BIT | TOK_LPAREN_BIT | TOK_COMMAND_NAME_BITS | TOK_FUNCTION_NAME_BITS |  
                 TOK_IF_BIT | TOK_WHILE_BIT | TOK_UNTIL_BIT | TOK_CASE_BIT | TOK_FOR_BIT | 
                 TOK_IO_NUMBER_BIT | TOK_LESS_BIT | TOK_GREAT_BIT | TOK_DLESS_BIT | 
@@ -293,7 +292,6 @@ public class BjorneParser {
         List<BjorneToken> assignments = new LinkedList<BjorneToken>();
         List<RedirectionNode> redirects = new LinkedList<RedirectionNode>();
         List<BjorneToken> words = new LinkedList<BjorneToken>();
-        boolean builtin = false;
 
         // Deal with cmd_prefix'es before the command name; i.e. assignments and
         // redirections
@@ -339,27 +337,17 @@ public class BjorneParser {
                         redirects.add(parseRedirect());
                     }
                 }
-                String commandWord = words.get(0).getText();
-                builtin = BjorneInterpreter.isBuiltin(commandWord);
-                // FIXME ... built-in commands should use the Syntax mechanisms so
-                // that completion, help, etc will work as expected.
             } 
-        } catch (IncompleteCommandException ex) {
-            if (completer != null) {
-                completer.setCommand(new SimpleCommandNode(CMD_COMMAND, 
-                        words.toArray(new BjorneToken[words.size()]), builtin));
-            }
-            throw ex;
         } catch (ShellSyntaxException ex) {
             if (completer != null) {
                 completer.setCommand(words.size() == 0 ? null : 
                     new SimpleCommandNode(CMD_COMMAND, 
-                            words.toArray(new BjorneToken[words.size()]), builtin));
+                            words.toArray(new BjorneToken[words.size()])));
             }
             throw ex;
         }
         SimpleCommandNode res = new SimpleCommandNode(CMD_COMMAND, 
-                words.toArray(new BjorneToken[words.size()]), builtin);
+                words.toArray(new BjorneToken[words.size()]));
         if (completer != null) {
             completer.setCommand(words.size() == 0 ? null : res);
         }
@@ -389,8 +377,6 @@ public class BjorneParser {
     }
 
     private CommandNode parseFunctionBody() throws ShellSyntaxException {
-        // TODO ... need to set the context to 'rule 9' while parsing the
-        // function body
         CommandNode body = parseCompoundCommand();
         body.setRedirects(parseOptRedirects());
         return body;
@@ -501,7 +487,7 @@ public class BjorneParser {
     private CommandNode parseBraceGroup() throws ShellSyntaxException {
         next();
         CommandNode compoundList = parseCompoundList(TOK_RBRACE_BIT);
-        expectPeek(TOK_RBRACE_BIT);
+        expectNext(TOK_RBRACE_BIT, RULE_1_CONTEXT);
         compoundList.setNodeType(CMD_BRACE_GROUP);
         return compoundList;
     }
@@ -693,21 +679,14 @@ public class BjorneParser {
         return token;
     }
     
-    private BjorneToken next() throws IncompleteCommandException {
+    private BjorneToken next() throws ShellSyntaxException {
         if (allowLineBreaks) {
             doLineBreaks(0L, false);
         }
         return tokens.next();
     }
     
-    private BjorneToken peek() throws IncompleteCommandException {
-        if (allowLineBreaks) {
-            doLineBreaks(0L, false);
-        }
-        return tokens.peek();
-    }
-    
-    private BjorneToken peekEager() throws IncompleteCommandException {
+    private BjorneToken peekEager() throws ShellSyntaxException {
         if (allowLineBreaks) {
             doLineBreaks(0L, true);
         }
@@ -721,9 +700,8 @@ public class BjorneParser {
         if (((1L << tt) & expectedSet) == 0L) {
             if (mandatory) {
                 if (tt == TOK_END_OF_STREAM) {
-                    throw new IncompleteCommandException(
-                            "EOF reached while looking for " + BjorneToken.formatExpectedSet(expectedSet), 
-                            continuationPrompt);
+                    throw new ShellSyntaxException(
+                            "EOF reached while looking for " + BjorneToken.formatExpectedSet(expectedSet));
                 } else {
                     throw new ShellSyntaxException(
                             "expected " + BjorneToken.formatExpectedSet(expectedSet) + " but got " + token);
@@ -765,16 +743,26 @@ public class BjorneParser {
         }
     }
     
-    private void skipLineBreaks() throws IncompleteCommandException {
+    private void skipLineBreaks() throws ShellSyntaxException {
         this.allowLineBreaks = true;
         doLineBreaks(0L, false);
     }
 
-    private void allowLineBreaks() throws IncompleteCommandException {
+    private void allowLineBreaks() throws ShellSyntaxException {
         this.allowLineBreaks = true;
     }
 
-    private void doLineBreaks(long expectedSet, boolean needMore) throws IncompleteCommandException {
+    private void noLineBreaks() throws ShellSyntaxException {
+        this.allowLineBreaks = false;
+    }
+
+    /**
+     * Skip optional linebreaks.
+     * @param expectedSet the tokens expected after the line breaks
+     * @param needMore if {@code true} we need a token after the line breaks,
+     *     otherwise, it is OK to have no more tokens.
+     */
+    private void doLineBreaks(long expectedSet, boolean needMore) throws ShellSyntaxException {
         // NB: use tokens.peek() / next() rather than the wrappers here!!
         this.allowLineBreaks = false;
         BjorneToken token = tokens.peek();
@@ -782,9 +770,8 @@ public class BjorneParser {
         if (tt == TOK_END_OF_STREAM) {
             captureCompletions(token, expectedSet);
             if (needMore) {
-                throw new IncompleteCommandException(
-                        "EOF reached while looking for optional linebreak(s)", 
-                        continuationPrompt);
+                throw new ShellSyntaxException(
+                        "EOF reached while looking for optional linebreak(s)");
             } 
         } else if (tt == TOK_END_OF_LINE) {
             tokens.next();
@@ -797,9 +784,8 @@ public class BjorneParser {
                 } else if (tt == TOK_END_OF_STREAM) {
                     captureCompletions(token, expectedSet);
                     if (needMore) {
-                        throw new IncompleteCommandException(
-                                "EOF reached while dealing with optional linebreak(s)", 
-                                continuationPrompt);
+                        throw new ShellSyntaxException(
+                                "EOF reached while dealing with optional linebreak(s)");
                     } else {
                         break;
                     }
@@ -810,16 +796,32 @@ public class BjorneParser {
         }
     }
 
-    private void captureHereDocuments() throws IncompleteCommandException {
+    /**
+     * Capture all current HERE documents, dealing with TAB stripping (if required)
+     * and recording on the relevant redirection object.  We don't do expansions at
+     * this point, but we set the flag to say if expansion is required.
+     * 
+     * @throws ShellSyntaxException
+     */
+    private void captureHereDocuments() throws ShellSyntaxException {
         for (RedirectionNode redirection : hereRedirections) {
             StringBuilder sb = new StringBuilder();
-            String marker = redirection.getArg().getText();
+            String rawMarker = redirection.getArg().getText();
+            String marker = BjorneContext.dequote(rawMarker).toString();
             boolean trimTabs = redirection.getRedirectionType() == TOK_DLESSDASH;
             while (true) {
-                String line = tokens.readHereLine(trimTabs);
+                String line = tokens.readRawLine();
                 if (line == null) {
-                    throw new IncompleteCommandException("EOF reached while looking for '" +
-                            marker + "' to end a HERE document", continuationPrompt);
+                    throw new ShellSyntaxException("EOF reached while looking for '" +
+                            marker + "' to end a HERE document");
+                }
+                if (trimTabs) {
+                    int len = line.length();
+                    int i;
+                    for (i = 0; i < len && line.charAt(i) == '\t'; i++) { /**/  }
+                    if (i > 0) {
+                        line = line.substring(i);
+                    }
                 }
                 if (line.equals(marker)) {
                     break;
@@ -827,6 +829,7 @@ public class BjorneParser {
                 sb.append(line).append('\n');
             }
             redirection.setHereDocument(sb.toString());
+            redirection.setHereDocumentExpandable(marker.equals(rawMarker));
         }
         hereRedirections.clear();
     }
@@ -840,5 +843,10 @@ public class BjorneParser {
         } else {
             return new ListCommandNode(CMD_LIST, commands);
         }
+    }
+
+    public String getContinuationPrompt() {
+        // FIXME ... use PS2, PS4 or whatever as appropriate.
+        return "> ";
     }
 }

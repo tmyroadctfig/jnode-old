@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,8 +27,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import org.jnode.assembler.ObjectResolver;
 import org.jnode.assembler.x86.X86TextAssembler;
-import org.jnode.vm.Vm;
-import org.jnode.vm.VmArchitecture;
+import org.jnode.vm.VmImpl;
+import org.jnode.vm.BaseVmArchitecture;
 import org.jnode.vm.VmSystemClassLoader;
 import org.jnode.vm.bytecode.BytecodeParser;
 import org.jnode.vm.bytecode.BytecodeViewer;
@@ -43,6 +43,9 @@ import org.jnode.vm.x86.X86CpuID;
 import org.jnode.vm.x86.compiler.l1a.X86Level1ACompiler;
 
 /**
+ * Bytecode to native compiler test.
+ * Runt this class in the root directory of the JNode source tree.
+ *
  * @author epr
  */
 public class CompilerTest {
@@ -70,8 +73,9 @@ public class CompilerTest {
 //            "org.jnode.vm.SoftByteCodes",
 //            "org.jnode.vm.VmSystem",
 //      "org.jnode.vm.VmStacReader",
-        "org.jnode.vm.classmgr.VmType",
+//        "org.jnode.vm.classmgr.VmType",
 //            "org.jnode.test.ArrayLongTest",
+        "org.jnode.test.ArrayTest",
 //            "org.jnode.test.Linpack",
 //            "org.jnode.test.MultiANewArrayTest",
 //            "org.jnode.test.Sieve",
@@ -111,11 +115,16 @@ public class CompilerTest {
         } else {
             arch = new VmX86Architecture32();
         }
-        final VmSystemClassLoader cl = new VmSystemClassLoader(new File(dir)
-            .toURL(), arch);
-        VmType.initializeForBootImage(cl);
-        final Vm vm = new Vm("?", arch, cl.getSharedStatics(), false, cl, null);
+        File classes = new File("./core/build/classes/").getCanonicalFile();
+        File classlib = new File("./all/lib/classlib.jar").getCanonicalFile();
+        final VmSystemClassLoader cl = new VmSystemClassLoader(new java.net.URL[]{
+            classes.toURI().toURL(),
+            new java.net.URL("jar:" + classlib.toURI().toURL() + "!/"),
+        }, arch);
+
+        final VmImpl vm = new VmImpl("?", arch, cl.getSharedStatics(), false, cl, null);
         vm.toString();
+        VmType.initializeForBootImage(cl);
         System.out.println("Architecture: " + arch.getFullName());
 
         //final ObjectResolver resolver = new DummyResolver();
@@ -138,6 +147,7 @@ public class CompilerTest {
                 final int cnt = type.getNoDeclaredMethods();
                 for (int i = 0; i < cnt; i++) {
                     final VmMethod method = type.getDeclaredMethod(i);
+                    System.out.println("Compiling method " + clsName + "#" + method.getName());
                     counts[ci]++;
                     compile(method, arch, cs[ci], cpuId, ci + 1);
                 }
@@ -151,7 +161,7 @@ public class CompilerTest {
         }
     }
 
-    static void compile(VmMethod method, VmArchitecture arch, NativeCodeCompiler c, X86CpuID cpuId,
+    static void compile(VmMethod method, BaseVmArchitecture arch, NativeCodeCompiler c, X86CpuID cpuId,
                         int level) throws IOException {
         final String cname = method.getDeclaringClass().getName();
         final String mname = method.getName();

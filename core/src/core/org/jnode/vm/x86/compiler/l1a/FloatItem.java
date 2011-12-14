@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,14 +17,14 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.x86.X86Assembler;
 import org.jnode.assembler.x86.X86Register;
 import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Patrik Reali
@@ -52,7 +52,7 @@ final class FloatItem extends WordItem {
     }
 
     /**
-     * @see org.jnode.vm.x86.compiler.l1a.WordItem#cloneConstant()
+     * @see org.jnode.vm.x86.compiler.l1a.WordItem#cloneConstant(EmitterContext)
      */
     protected WordItem cloneConstant(EmitterContext ec) {
         return factory.createFConst(ec, getValue());
@@ -73,8 +73,8 @@ final class FloatItem extends WordItem {
      * @return
      */
     final float getValue() {
-        if (Vm.VerifyAssertions) {
-            Vm._assert(isConstant(), "kind == Kind.CONSTANT");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(isConstant(), "kind == Kind.CONSTANT");
         }
         return value;
     }

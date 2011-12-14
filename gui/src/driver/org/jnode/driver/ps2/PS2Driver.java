@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -51,7 +51,7 @@ abstract class PS2Driver extends Driver implements CharacterDeviceAPI, PS2Consta
      * @see org.jnode.system.IRQHandler#handleInterrupt(int)
      */
     public void handleScancode(int b) {
-        queue.push((byte) b);
+        queue.enQueue((byte) b);
     }
 
     /**
@@ -89,7 +89,7 @@ abstract class PS2Driver extends Driver implements CharacterDeviceAPI, PS2Consta
         // FIXME: proper exception handling (if end of queue -> IOException)
         int i;
         for (i = 0; i < dst.remaining(); i++) {
-            dst.put(queue.pop());
+            dst.put(queue.deQueue());
         }
         return i;
     }

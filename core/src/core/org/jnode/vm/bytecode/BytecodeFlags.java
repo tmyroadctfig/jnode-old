@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -31,4 +31,5 @@ public interface BytecodeFlags {
     public static final byte F_START_OF_EXCEPTIONHANDLER = 0x08;
     public static final byte F_START_OF_INSTRUCTION = 0x10;
     public static final byte F_YIELDPOINT = 0x20;
+    public static final byte F_RET_TARGET = 0x40;
 }

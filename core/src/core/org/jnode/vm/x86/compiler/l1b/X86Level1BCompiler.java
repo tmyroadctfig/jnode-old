@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1b;
 
 import org.jnode.assembler.NativeStream;
@@ -34,6 +34,8 @@ import org.jnode.vm.compiler.OptimizingBytecodeVisitor;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.x86.X86CpuID;
 import org.jnode.vm.x86.compiler.AbstractX86Compiler;
+
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.L1B_COMPILER_MAGIC;
 
 /**
  * Native code compiler for the Intel x86 architecture.

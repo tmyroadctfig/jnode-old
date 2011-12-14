@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.build;
 
 import java.io.PrintWriter;
@@ -26,13 +26,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Set;
+
 import org.jnode.assembler.BootImageNativeStream;
 import org.jnode.assembler.Label;
 import org.jnode.assembler.NativeStream;
 import org.jnode.assembler.x86.X86BinaryAssembler;
-import org.jnode.system.BootLog;
-import org.jnode.vm.BootableObject;
-import org.jnode.vm.VmSystemObject;
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.vm.classmgr.VmArrayClass;
 import org.jnode.vm.classmgr.VmClassLoader;
 import org.jnode.vm.classmgr.VmClassType;
@@ -40,6 +39,8 @@ import org.jnode.vm.classmgr.VmField;
 import org.jnode.vm.classmgr.VmInstanceField;
 import org.jnode.vm.classmgr.VmNormalClass;
 import org.jnode.vm.classmgr.VmType;
+import org.jnode.vm.objects.BootableObject;
+import org.jnode.vm.objects.VmSystemObject;
 import org.vmmagic.unboxed.UnboxedObject;
 
 public class ObjectEmitter {
@@ -191,7 +192,7 @@ public class ObjectEmitter {
                 throw new BuildException(ex);
             }
             if (!fieldInfo.isExact()) {
-                BootLog.warn("Use of in-exact matching class (" + clsName
+                BootLogInstance.get().warn("Use of in-exact matching class (" + clsName
                     + ") in bootimage at " + location);
             }
             legalInstanceClasses.add(clsName);
@@ -333,7 +334,7 @@ public class ObjectEmitter {
 
     /**
      * Allocate and write and object of a given type.
-     * 
+     *
      * @param cls
      * @param obj
      * @param vmType
@@ -460,7 +461,7 @@ public class ObjectEmitter {
                             + jdkField.getName() + " of class "
                             + cls.getName(), ex);
                     } catch (JNodeClassNotFoundException ex) {
-                        BootLog
+                        BootLogInstance.get()
                             .warn("JNode class not found "
                                 + ex.getMessage());
                         value = null;

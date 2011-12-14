@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -437,16 +437,16 @@ public abstract class Argument<V> {
      * non-trivial completion.  Completions should be registered by calling one
      * of the 'addCompletion' methods on the CompletionInfo.
      * 
-     * @param completion the CompletionInfo object for registering any completions.
+     * @param completions the CompletionInfo object for registering any completions.
      * @param partial the argument string to be completed.
      */
-    public final void complete(CompletionInfo completion, String partial, int flags) {
+    public final void complete(CompletionInfo completions, String partial, int flags) {
         if (isSet() && !isMultiple()) {
             throw new SyntaxMultiplicityException("this argument cannot be repeated");
         }
         flags = (flags & ~NONOVERRIDABLE_FLAGS) | this.flags;
         checkFlags(flags);
-        doComplete(completion, partial, flags);
+        doComplete(completions, partial, flags);
     }
 
     /**
@@ -462,11 +462,11 @@ public abstract class Argument<V> {
      * an override should avoid posting completions that would not be accepted
      * by the {@link #doAccept} method, as this will lead to confusing behavior.
      * 
-     * @param completion the {@link CompletionInfo} object for posting possible
+     * @param completions the {@link CompletionInfo} object for posting possible
      *    completions.
      * @param partial the argument string to be completed.
      */
-    public void doComplete(CompletionInfo completion, String partial, int flags) {
+    public void doComplete(CompletionInfo completions, String partial, int flags) {
         // set no completion
     }
 

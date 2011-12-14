@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,7 +20,6 @@
  
 package org.jnode.util;
 
-import org.jnode.vm.VmSystem;
 
 
 /**
@@ -39,21 +38,6 @@ public class TimeUtils {
             return true;
         } catch (InterruptedException ex) {
             return false;
-        }
-    }
-
-    /**
-     * Wait for ms milliseconds in a busy waiting loop.
-     * This method is very CPU intensive, so be carefull.
-     *
-     * @param ms
-     */
-    public static void loop(long ms) {
-        final long start = VmSystem.currentKernelMillis();
-        while (true) {
-            if ((start + ms) <= VmSystem.currentKernelMillis()) {
-                break;
-            }
         }
     }
 

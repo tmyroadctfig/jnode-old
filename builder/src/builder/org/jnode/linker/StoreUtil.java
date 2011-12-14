@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -119,7 +119,7 @@ public class StoreUtil {
      * @param out
      * @param e_ident
      * @param address
-     * @return
+     * @return the number of bytes stored
      * @throws IOException
      */
     public static int storeAddr(OutputStream out, byte[] e_ident,
@@ -136,8 +136,8 @@ public class StoreUtil {
      *
      * @param out
      * @param e_ident
-     * @param address
-     * @return
+     * @param off
+     * @return the number of bytes stored
      * @throws IOException
      */
     public static int storeOff(OutputStream out, byte[] e_ident,
@@ -154,8 +154,8 @@ public class StoreUtil {
      *
      * @param out
      * @param e_ident
-     * @param address
-     * @return
+     * @param xword
+     * @return the number of bytes stored
      * @throws IOException
      */
     public static int storeXword(OutputStream out, byte[] e_ident,

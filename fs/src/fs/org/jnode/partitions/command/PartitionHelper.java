@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,7 +35,9 @@ import org.jnode.driver.bus.ide.IDEConstants;
 import org.jnode.driver.bus.ide.IDEDevice;
 import org.jnode.fs.fat.BootSector;
 import org.jnode.fs.fat.GrubBootSector;
+import org.jnode.partitions.ibm.IBMPartitionTable;
 import org.jnode.partitions.ibm.IBMPartitionTableEntry;
+import org.jnode.partitions.ibm.IBMPartitionTableType;
 import org.jnode.partitions.ibm.IBMPartitionTypes;
 import org.jnode.partitions.ibm.MasterBootRecord;
 
@@ -51,22 +53,26 @@ public class PartitionHelper {
 
     private final MasterBootRecord MBR;
     private BootSector bs;
-    
+
     private final PrintWriter out;
 
-    public PartitionHelper(String deviceId, PrintWriter out) throws DeviceNotFoundException, ApiNotFoundException,
-            IOException, NameNotFoundException {
+    public PartitionHelper(String deviceId, PrintWriter out) throws DeviceNotFoundException,
+            ApiNotFoundException, IOException, NameNotFoundException {
         this((IDEDevice) DeviceUtils.getDeviceManager().getDevice(deviceId), out);
     }
 
-    public PartitionHelper(IDEDevice device, PrintWriter out) throws DeviceNotFoundException, ApiNotFoundException,
-            IOException {
+    public PartitionHelper(IDEDevice device, PrintWriter out) throws DeviceNotFoundException,
+            ApiNotFoundException, IOException {
         this.current = device;
         this.api = current.getAPI(BlockDeviceAPI.class);
         this.MBR = new MasterBootRecord(api);
         this.out = out;
 
         reloadMBR();
+    }
+
+    public IDEDevice getDevice() {
+        return current;
     }
 
     public void initMbr() throws DeviceNotFoundException, ApiNotFoundException, IOException {
@@ -76,7 +82,8 @@ public class PartitionHelper {
         bs = new GrubBootSector(PLAIN_MASTER_BOOT_SECTOR);
 
         if (MBR.containsPartitionTable()) {
-            out.println("This device already contains a partition table. Copy the already existing partitions.");
+            out
+                    .println("This device already contains a partition table. Copy the already existing partitions.");
 
             for (int i = 0; i < 4; i++) {
                 final IBMPartitionTableEntry oldEntry = oldMBR.getPartition(i);
@@ -89,8 +96,6 @@ public class PartitionHelper {
             bs.getPartition(2).setSystemIndicator(IBMPartitionTypes.PARTTYPE_EMPTY);
             bs.getPartition(3).setSystemIndicator(IBMPartitionTypes.PARTTYPE_EMPTY);
         }
-
-        // reloadMBR();
     }
 
     public void write() throws IOException, Exception {
@@ -117,9 +122,21 @@ public class PartitionHelper {
         bs = new BootSector(MBR.array());
     }
 
-    private void checkMBR() throws IOException {
+    public void checkMBR() throws IOException {
         if (!MBR.containsPartitionTable())
-            throw new IOException("This device doesn't contain a valid MBR, use --initmbr.");
+            throw new IOException("This device doesn't contain a valid partition table.");
+    }
+
+    public IBMPartitionTable getPartitionTable() {
+        return new IBMPartitionTable(new IBMPartitionTableType(), MBR.array(), current);
+    }
+
+    public int getNbPartitions() {
+        return bs.getNbPartitions();
+    }
+
+    public IBMPartitionTableEntry getPartition(int partNr) {
+        return bs.getPartition(partNr);
     }
 
     public void modifyPartition(int id, boolean bootIndicator, long start, long size,
@@ -139,10 +156,6 @@ public class PartitionHelper {
         entry.setSystemIndicator(fs);
         entry.setStartLba(start);
         entry.setNrSectors(nbSectors);
-    }
-
-    public int getNbPartitions() {
-        return bs.getNbPartitions();
     }
 
     public void deletePartition(int partNumber) throws IOException {
@@ -165,8 +178,8 @@ public class PartitionHelper {
         bs.getPartition(partNumber).setBootIndicator(!currentStatus);
     }
 
-    private static final byte PLAIN_MASTER_BOOT_SECTOR[] = {
-        (byte) 0xEB, (byte) 0x48, (byte) 0x90, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+    private static final byte PLAIN_MASTER_BOOT_SECTOR[] =
+    {(byte) 0xEB, (byte) 0x48, (byte) 0x90, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,

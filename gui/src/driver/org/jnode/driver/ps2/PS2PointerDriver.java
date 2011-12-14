@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -28,7 +28,7 @@ import org.jnode.driver.DeviceException;
 import org.jnode.driver.DriverException;
 import org.jnode.driver.input.AbstractPointerDriver;
 import org.jnode.driver.input.PointerInterpreter;
-import org.jnode.system.IRQResource;
+import org.jnode.system.resource.IRQResource;
 import org.jnode.util.NumberUtils;
 import org.jnode.util.TimeoutException;
 

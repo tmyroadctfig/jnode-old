@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -382,8 +382,7 @@ public class BoxWorld extends JComponent implements WindowListener, KeyListener,
     // *************************************
     // ************************************************************************************
 
-    // ----------------------------------KEY
-    // EVENTS----------------------------------------
+    // ----------------------------------KEY EVENTS----------------------------------------
 
     public void keyPressed(KeyEvent e) {
         if (gameMode == START_MODE) {
@@ -406,8 +405,7 @@ public class BoxWorld extends JComponent implements WindowListener, KeyListener,
         }
     }
 
-    // ----------------------------------MOUSE
-    // EVENTS---------------------------------------
+    // ----------------------------------MOUSE EVENTS---------------------------------------
     public void mousePressed(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (this.contains(e.getX(), e.getY())) {
@@ -450,8 +448,7 @@ public class BoxWorld extends JComponent implements WindowListener, KeyListener,
         }
     }
 
-    // ----------------------------------ACTION
-    // EVENTS-------------------------------------
+    // ----------------------------------ACTION EVENTS-------------------------------------
     // FROM MENU
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
@@ -1332,7 +1329,7 @@ public class BoxWorld extends JComponent implements WindowListener, KeyListener,
     public static void main(String[] argv) {
         BoxWorld bw = new BoxWorld();
         bw.init();
-        Frame frame = new JFrame("Boxworld");
+        Frame frame = new JFrame("BoxWorld");
         frame.setResizable(false);
         frame.add(bw);
         frame.addWindowListener(bw);

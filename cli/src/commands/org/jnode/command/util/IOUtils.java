@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,6 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+ 
 package org.jnode.command.util;
 
 import java.io.BufferedInputStream;
@@ -66,7 +67,7 @@ public final class IOUtils {
     /**
      * Call the close method of a list of Closeable objects.
      *
-     * If the flush paramater is set to true, and an object implements
+     * If the flush parameter is set to true, and an object implements
      * the Flushable interface, then the flush method will be called before
      * the close method is called.
      *
@@ -121,7 +122,7 @@ public final class IOUtils {
     }
     
     /**
-     * Copies data from an Inputstream to an OutputStream.
+     * Copies data from an InputStream to an OutputStream.
      *
      * This method allocates a 4096 byte buffer each time it is called.
      *
@@ -129,7 +130,6 @@ public final class IOUtils {
      *
      * @param in the stream to read from
      * @param out the stream to write to
-     * @param bufferSize the size of buffer to use for the copy
      * @return the number of bytes read from the input stream
      * @throws NullPointerException if either in or out are null
      * @throws IOException if an I/O error occurs
@@ -139,7 +139,7 @@ public final class IOUtils {
     }
     
     /**
-     * Copies data from an Inputstream to an OutputStream.
+     * Copies data from an InputStream to an OutputStream.
      *
      * This method allocates a buffer of 'bufferSize' when it is called.
      *
@@ -432,7 +432,7 @@ public final class IOUtils {
      *
      * @param in the reader to read user input from.
      * @param out the writer to send the prompt to the user
-     * @param str the prompt to send to the user
+     * @param prompt the prompt to send to the user
      * @return true if the user said yes, false if no
      */
     public static boolean promptYesOrNo(Reader in, PrintWriter out, String prompt) {
@@ -457,7 +457,7 @@ public final class IOUtils {
      *
      * @param in the reader to read user input from.
      * @param out the writer to send the prompt to the user
-     * @param str the prompt to send to the user
+     * @param prompt the prompt to send to the user
      * @param defaultChoice if the user inputs no reply, this value is returned
      * @return true if the user said yes, false if no
      * @throws NullPointerException if in, out or str are null
@@ -503,7 +503,7 @@ public final class IOUtils {
      *
      * @param in the reader to read user input from.
      * @param out the writer to send the prompt to the user
-     * @param str the prompt to send to the user
+     * @param prompt the prompt to send to the user
      * @return the string captured from the user, or null if an I/O error occurred.
      * @throws NullPointerException if in, out or str are null
      */
@@ -556,7 +556,7 @@ public final class IOUtils {
      *
      * @param reader the source to read from
      * @param max the max number of lines to read, if this is -1 Integer.MAX_VALUE is used
-     * @returns a list of strings, possibly empty, or null if there was an exception.
+     * @return a list of strings, possibly empty, or null if there was an exception.
      * @throws NullPointerException if reader is null
      */
     public static List<String> readLines(Reader reader, int max) {
@@ -572,7 +572,7 @@ public final class IOUtils {
      *
      * @param reader the source to read from
      * @param max the max number of lines to read, if this is -1 Integer.MAX_VALUE is used
-     * @returns a list of strings, possibly empty, or null if there was an exception.
+     * @return a list of strings, possibly empty, or null if there was an exception.
      * @throws NullPointerException if reader is null
      */
     public static List<String> readLines(BufferedReader reader, int max) {

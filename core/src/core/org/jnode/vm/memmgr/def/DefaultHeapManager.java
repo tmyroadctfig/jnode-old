@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,23 +22,25 @@ package org.jnode.vm.memmgr.def;
 
 import java.io.PrintWriter;
 
-import org.jnode.vm.MemoryBlockManager;
-import org.jnode.vm.VmArchitecture;
-import org.jnode.vm.VmMagic;
 import org.jnode.annotation.Inline;
 import org.jnode.annotation.MagicPermission;
+import org.jnode.vm.BaseVmArchitecture;
+import org.jnode.vm.MemoryBlockManager;
+import org.jnode.vm.VmMagic;
 import org.jnode.vm.classmgr.ObjectFlags;
 import org.jnode.vm.classmgr.ObjectLayout;
 import org.jnode.vm.classmgr.VmClassLoader;
 import org.jnode.vm.classmgr.VmClassType;
 import org.jnode.vm.classmgr.VmNormalClass;
 import org.jnode.vm.classmgr.VmType;
-import org.jnode.vm.memmgr.GCStatistics;
+import org.jnode.vm.facade.GCStatistics;
+import org.jnode.vm.facade.HeapStatistics;
+import org.jnode.vm.facade.ObjectFilter;
+import org.jnode.vm.facade.ObjectVisitor;
+import org.jnode.vm.facade.VmProcessor;
 import org.jnode.vm.memmgr.HeapHelper;
-import org.jnode.vm.memmgr.HeapStatistics;
 import org.jnode.vm.memmgr.VmHeapManager;
 import org.jnode.vm.scheduler.Monitor;
-import org.jnode.vm.scheduler.VmProcessor;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Extent;
 import org.vmmagic.unboxed.Word;
@@ -55,7 +57,7 @@ public final class DefaultHeapManager extends VmHeapManager {
      * When this percentage of the free memory has been allocated, a GC is
      * triggered (0..1.0)
      */
-    public static float GC_TRIGGER_PERCENTAGE = 0.75f;
+    public static final float GC_TRIGGER_PERCENTAGE = 0.75f;
 
     /**
      * The boot heap
@@ -230,7 +232,7 @@ public final class DefaultHeapManager extends VmHeapManager {
     protected void initialize() {
         // Set the basic fields
         helper.bootArchitecture(false);
-        final VmArchitecture arch = VmProcessor.current().getArchitecture();
+        final BaseVmArchitecture arch = getCurrentProcessor().getArchitecture();
         final int slotSize = arch.getReferenceSize();
 
         // Initialize the boot heap.
@@ -253,7 +255,7 @@ public final class DefaultHeapManager extends VmHeapManager {
     public void start() {
         // Create a Heap monitor
         heapMonitor = new Monitor();
-        final VmArchitecture arch = VmProcessor.current().getArchitecture();
+        final BaseVmArchitecture arch = getCurrentProcessor().getArchitecture();
         this.gcManager = new GCManager(this, arch);
         this.gcThread = new GCThread(gcManager, heapMonitor);
         this.finalizerThread = new FinalizerThread(this);
@@ -392,7 +394,7 @@ public final class DefaultHeapManager extends VmHeapManager {
             return null;
         }
         final Address end = start.add(size);
-        final int slotSize = VmProcessor.current().getArchitecture()
+        final int slotSize = getCurrentProcessor().getArchitecture()
             .getReferenceSize();
         final VmDefaultHeap heap = VmDefaultHeap.setupHeap(helper, start,
             defaultHeapClass, slotSize);
@@ -446,24 +448,32 @@ public final class DefaultHeapManager extends VmHeapManager {
         return gcManager.getStatistics();
     }
 
-    public HeapStatistics getHeapStatistics() {
+    /**
+     * {@inheritDoc}
+     */
+    public HeapStatistics getHeapStatistics(ObjectFilter objectFilter) {
         final DefHeapStatistics heapStatistics = new DefHeapStatistics();
+        heapStatistics.setObjectFilter(objectFilter);
         final HeapStatisticsVisitor heapStatisticsVisitor = new HeapStatisticsVisitor(
             heapStatistics);
 
+        accept(heapStatisticsVisitor, false);
+
+        return heapStatistics;
+    }
+    
+    private void accept(ObjectVisitor visitor, boolean locking) {
         VmDefaultHeap heap = firstNormalHeap;
         final Word zero = Word.zero();
 
         while (heap != null) {
-            heap.walk(heapStatisticsVisitor, false, zero, zero);
+            heap.walk(visitor, locking, zero, zero);
             heap = heap.getNext();
         }
-
-        return heapStatistics;
     }
-
+    
     /**
-     * @see org.jnode.vm.memmgr.VmHeapManager#createProcessorHeapData(org.jnode.vm.scheduler.VmProcessor)
+     * @see org.jnode.vm.memmgr.VmHeapManager#createProcessorHeapData(org.jnode.vm.facade.VmProcessor)
      */
     public Object createProcessorHeapData(VmProcessor cpu) {
         // No need here, so return null.

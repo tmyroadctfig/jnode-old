@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,10 +30,6 @@ import static org.jnode.shell.bjorne.BjorneToken.TOK_LESS;
 import static org.jnode.shell.bjorne.BjorneToken.TOK_LESSAND;
 import static org.jnode.shell.bjorne.BjorneToken.TOK_LESSGREAT;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -48,13 +44,12 @@ import org.jnode.shell.CommandInterpreter;
 import org.jnode.shell.CommandLine;
 import org.jnode.shell.CommandShell;
 import org.jnode.shell.Completable;
-import org.jnode.shell.IncompleteCommandException;
 import org.jnode.shell.ShellException;
 import org.jnode.shell.ShellFailureException;
 import org.jnode.shell.ShellSyntaxException;
 import org.jnode.shell.io.CommandIO;
 import org.jnode.shell.io.CommandOutput;
-import org.jnode.shell.syntax.CommandSyntaxException;
+import org.jnode.vm.VmExit;
 
 /**
  * This is the JNode implementation of the Bourne Shell language.  The long term
@@ -127,33 +122,40 @@ public class BjorneInterpreter implements CommandInterpreter {
     public static final int FLAG_PIPE = 0x0010;
 
     public static final CommandNode EMPTY = 
-        new SimpleCommandNode(CMD_EMPTY, new BjorneToken[0], false);
+        new SimpleCommandNode(CMD_EMPTY, new BjorneToken[0]);
 
-    private static HashMap<String, BjorneBuiltin> BUILTINS = 
-        new HashMap<String, BjorneBuiltin>();
+    static HashMap<String, BjorneBuiltin.Factory> BUILTINS = 
+        new HashMap<String, BjorneBuiltin.Factory>();
     
     private static boolean DEBUG = false;
     
     private static long subshellCount;
 
     static {
-        BUILTINS.put("alias", new AliasBuiltin());
-        BUILTINS.put("break", new BreakBuiltin());
-        BUILTINS.put("continue", new ContinueBuiltin());
-        BUILTINS.put("exit", new ExitBuiltin());
-        BUILTINS.put("export", new ExportBuiltin());
-        BUILTINS.put("return", new ReturnBuiltin());
-        BUILTINS.put("set", new SetBuiltin());
-        BUILTINS.put("shift", new ShiftBuiltin());
-        BUILTINS.put("source", new SourceBuiltin());
-        BUILTINS.put("unalias", new UnaliasBuiltin());
-        BUILTINS.put(".", new SourceBuiltin());
-        BUILTINS.put(":", new ColonBuiltin());
+        BUILTINS.put("alias", AliasBuiltin.FACTORY);
+        BUILTINS.put("break", BreakBuiltin.FACTORY);
+        BUILTINS.put("continue", ContinueBuiltin.FACTORY);
+        BUILTINS.put("exit", ExitBuiltin.FACTORY);
+        BUILTINS.put("export", ExportBuiltin.FACTORY);
+        BUILTINS.put("read", ReadBuiltin.FACTORY);
+        BUILTINS.put("readonly", ReadonlyBuiltin.FACTORY);
+        BUILTINS.put("return", ReturnBuiltin.FACTORY);
+        BUILTINS.put("set", SetBuiltin.FACTORY);
+        BUILTINS.put("shift", ShiftBuiltin.FACTORY);
+        BUILTINS.put("source", SourceBuiltin.FACTORY);
+        BUILTINS.put("unalias", UnaliasBuiltin.FACTORY);
+        BUILTINS.put("unset", UnsetBuiltin.FACTORY);
+        BUILTINS.put(".", SourceBuiltin.FACTORY);
+        BUILTINS.put(":", ColonBuiltin.FACTORY);
     }
 
     private CommandShell shell;
 
     private BjorneContext context;
+    
+    private BjorneParser parser;
+    
+    private Reader reader;
 
     public BjorneInterpreter() {
         this.context = new BjorneContext(this);
@@ -165,46 +167,26 @@ public class BjorneInterpreter implements CommandInterpreter {
     }
 
     @Override
-    public int interpret(CommandShell shell, String command) throws ShellException {
-        try {
-            return interpret(shell, command, null, false);
-        } catch (BjorneControlException ex) {
-            switch (ex.getControl()) {
-                case BjorneInterpreter.BRANCH_EXIT:
-                    // FIXME this is not right.  If 'exit' is run in an interactive
-                    // shell, the shell needs to exit.
-                    return ex.getCount();
-                case BjorneInterpreter.BRANCH_BREAK:
-                    throw new ShellSyntaxException(
-                            "'break' has been executed in an inappropriate context");
-                case BjorneInterpreter.BRANCH_CONTINUE:
-                    throw new ShellSyntaxException(
-                            "'continue' has been executed in an inappropriate context");
-                case BjorneInterpreter.BRANCH_RETURN:
-                    throw new ShellSyntaxException(
-                            "'return' has been executed in an inappropriate context");
-                default:
-                    throw new ShellFailureException("control exception with bad control code (" +
-                            ex.getControl() + ")");
-            }
-        }
-    }
-
-    @Override
-    public Completable parsePartial(CommandShell shell, String partial) throws ShellSyntaxException {
+    public synchronized Completable parsePartial(CommandShell shell, String partial) throws ShellSyntaxException {
         bindShell(shell);
         BjorneTokenizer tokens = new BjorneTokenizer(partial);
-        BjorneCompleter completions = new BjorneCompleter(context);
+        BjorneCompleter completer = new BjorneCompleter(context);
         try {
-            new BjorneParser(tokens, "> ").parse(completions);
+            parser = new BjorneParser(tokens);
+            parser.parse(completer);
         } catch (ShellSyntaxException ex) {
-            // squelch both syntax and incomplete command exceptions.
+            if (DEBUG) {
+                System.err.println("exception in parsePartial: " + ex);
+                ex.printStackTrace();
+            }
+        } finally {
+            parser = null;
         }
-        return completions;
+        return completer;
     }
     
     @Override
-    public boolean help(CommandShell shell, String partial, PrintWriter pw) throws ShellException {
+    public synchronized boolean help(CommandShell shell, String partial, PrintWriter pw) throws ShellException {
         // TODO Auto-generated method stub
         return false;
     }
@@ -219,11 +201,10 @@ public class BjorneInterpreter implements CommandInterpreter {
         }
     }
 
-    int interpret(CommandShell shell, String command, StringWriter capture, boolean source) 
+    synchronized int interpret(CommandShell shell, Reader reader, boolean script, 
+            StringWriter capture, boolean source) 
         throws ShellException {
         BjorneContext myContext;
-        // FIXME ... I think there is something wrong / incomplete with the way I'm handling
-        // the contexts here ...
         if (capture == null) {
             bindShell(shell);
             myContext = this.context;
@@ -231,65 +212,58 @@ public class BjorneInterpreter implements CommandInterpreter {
             myContext = new BjorneContext(this);
             myContext.setIO(1, new CommandOutput(capture), true);
         }
-        BjorneTokenizer tokens = new BjorneTokenizer(command);
-        CommandNode tree = new BjorneParser(tokens, "> ").parse();
-        if (tree == null) {
-            // An empty command line
+        BjorneTokenizer tokens = new BjorneTokenizer(reader);
+        // (Save the current parser and reader objects in the case where we are called
+        // recursively ... to interpret a back-tick command.)
+        BjorneParser savedParser = this.parser;
+        Reader savedReader = this.reader;
+        this.reader = reader;
+        parser = new BjorneParser(tokens);
+        try {
+            do {
+                CommandNode tree = this.parser.parse();
+                if (tree == null) {
+                    break;
+                }
+                if (DEBUG) {
+                    System.err.println(tree);
+                }
+                tree.execute((BjorneContext) myContext);
+            } while (script);
             return myContext.getLastReturnCode();
+        } finally {
+            this.parser = savedParser;
+            this.reader = savedReader;
         }
-        if (DEBUG) {
-            System.err.println(tree);
-        }
-        return tree.execute((BjorneContext) myContext);
-    }
-    
-    @Override
-    public boolean supportsMultilineCommands() {
-        return true;
     }
 
     @Override
-    public int interpret(CommandShell shell, Reader reader, String alias, String[] args) 
+    public int interpret(CommandShell shell, Reader reader, boolean script, String alias, String[] args) 
         throws ShellException {
         context.setCommand(alias == null ? "" : alias);
         context.setArgs(args == null ? new String[0] : args);
         try {
-            BufferedReader br = new BufferedReader(reader);
-            String line;
-            int rc = 0;
-            while ((line = br.readLine()) != null) {
-                boolean done = false;
-                do {
-                    try {
-                        rc = interpret(shell, line, null, false);
-                        done = true;
-                    } catch (BjorneControlException ex) {
-                        switch (ex.getControl()) {
-                            case BjorneInterpreter.BRANCH_EXIT:
-                                // The script will exit immediately
-                                return ex.getCount();
-                            case BjorneInterpreter.BRANCH_BREAK:
-                                throw new ShellSyntaxException(
-                                    "'break' has been executed in an inappropriate context");
-                            case BjorneInterpreter.BRANCH_CONTINUE:
-                                throw new ShellSyntaxException(
-                                    "'continue' has been executed in an inappropriate context");
-                            case BjorneInterpreter.BRANCH_RETURN:
-                                throw new ShellSyntaxException(
-                                    "'return' has been executed in an inappropriate context");
-                        }
-                    } catch (IncompleteCommandException ex) {
-                        String continuation = br.readLine();
-                        if (continuation == null) {
-                            throw ex;
-                        }
-                        line = line + "\n" + continuation;
-                    }
-                } while (!done);
+            return interpret(shell, reader, script, null, false);
+        } catch (BjorneControlException ex) {
+            switch (ex.getControl()) {
+                case BjorneInterpreter.BRANCH_EXIT:
+                    // The script will exit immediately
+                    return ex.getCount();
+                case BjorneInterpreter.BRANCH_BREAK:
+                    throw new ShellSyntaxException(
+                            "'break' has been executed in an inappropriate context");
+                case BjorneInterpreter.BRANCH_CONTINUE:
+                    throw new ShellSyntaxException(
+                            "'continue' has been executed in an inappropriate context");
+                case BjorneInterpreter.BRANCH_RETURN:
+                    throw new ShellSyntaxException(
+                            "'return' has been executed in an inappropriate context");
+                default:
+                    throw new ShellFailureException(
+                            "unknown 'control' in BjorneControlException");
             }
-            return rc;
-        } catch (IOException ex) {
-            throw new ShellException("Problem reading command file: " + ex.getMessage(), ex);
+        } catch (VmExit ex) {
+            return ex.getStatus();
         } finally {
             if (reader != null) {
                 try {
@@ -300,16 +274,31 @@ public class BjorneInterpreter implements CommandInterpreter {
             }
         }
     }
-
+    
     @Override
-    public int interpret(CommandShell shell, File file, String alias, String[] args) throws ShellException {
+    public String getPrompt(CommandShell shell, boolean continuation) {
         try {
-            return interpret(shell, new FileReader(file), alias, args);
-        } catch (FileNotFoundException ex) {
-            throw new ShellException("Problem reading command file: " + ex.getMessage(), ex);
+            String res = context.variable(continuation ? "PS2" : "PS1");
+            return (res == null) ? "$ " : expandPrompt(res);
+        } catch (ShellSyntaxException ex) {
+            return "$ ";
         }
     }
+
+    private String expandPrompt(String prompt) {
+        // FIXME implement
+        return prompt;
+    }
+
+    @Override
+    public boolean supportsMultiline() {
+        return true;
+    }
     
+    Reader getReader() {
+        return this.reader;
+    }
+
     private void bindShell(CommandShell shell) {
         if (this.shell != shell) {
             if (this.shell != null) {
@@ -324,36 +313,43 @@ public class BjorneInterpreter implements CommandInterpreter {
     }
 
     int executeCommand(CommandLine cmdLine, BjorneContext context, CommandIO[] streams, 
-            Properties sysProps, Map<String, String> env, boolean isBuiltin)
+            Properties sysProps, Map<String, String> env)
         throws ShellException {
-        if (isBuiltin) {
-            // FIXME ... built-in commands should use the Syntax mechanisms so
-            // that completion, help, etc will work as expected.
-            BjorneBuiltin builtin = BUILTINS.get(cmdLine.getCommandName());
-            return builtin.invoke(cmdLine, this, context);
+        String commandName = cmdLine.getCommandName();
+        if (isBuiltin(commandName)) {
+            BjorneBuiltinCommandInfo builtin = BUILTINS.get(commandName).buildCommandInfo(context);
+            cmdLine.setCommandInfo(builtin);
         } else {
-            cmdLine.setStreams(streams);
-            try {
-                return shell.invoke(cmdLine, sysProps, env);
-            } catch (CommandSyntaxException ex) {
-                throw new ShellException("Command arguments don't match syntax", ex);
+            CommandNode body = context.getFunction(commandName);
+            if (body != null) {
+                context.evaluateRedirectionsAndPushHolders(body.getRedirects(), streams);
+                String[] savedArgs = context.getArgs();
+                try {
+                    context.setArgs(cmdLine.getArguments());
+                    return body.execute(context);
+                } finally {
+                    context.popHolders();
+                    context.setArgs(savedArgs);
+                }
             }
         }
+        cmdLine.setStreams(streams);
+        return shell.invoke(cmdLine, sysProps, env);
     }
 
-    public BjorneContext createContext() throws ShellFailureException {
+    BjorneContext createContext() throws ShellFailureException {
         return new BjorneContext(this);
     }
 
-    public CommandShell getShell() {
+    CommandShell getShell() {
         return shell;
     }
 
-    public PrintStream resolvePrintStream(CommandIO commandIOIF) {
+    PrintStream resolvePrintStream(CommandIO commandIOIF) {
         return shell.resolvePrintStream(commandIOIF);
     }
 
-    public InputStream resolveInputStream(CommandIO stream) {
+    InputStream resolveInputStream(CommandIO stream) {
         return shell.resolveInputStream(stream);
     }
     
@@ -361,7 +357,7 @@ public class BjorneInterpreter implements CommandInterpreter {
         return subshellCount++;
     }
 
-    public String getUniqueName() {
+    String getUniqueName() {
         return getName() + "-" + getSubshellNumber();
     }
 }

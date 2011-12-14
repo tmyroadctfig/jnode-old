@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,9 +21,9 @@
 package org.jnode.vm.compiler;
 
 import org.jnode.assembler.NativeStream;
-import org.jnode.vm.Vm;
 import org.jnode.vm.classmgr.VmAddressMap;
 import org.jnode.vm.classmgr.VmMethod;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
@@ -146,7 +146,7 @@ public final class CompiledMethod {
      */
     public final int getCompiledCodeId() {
         if (ccId < 0) {
-            ccId = Vm.getCompiledMethods().createId();
+            ccId = VmUtils.getVm().getCompiledMethods().createId();
         }
         return ccId;
     }

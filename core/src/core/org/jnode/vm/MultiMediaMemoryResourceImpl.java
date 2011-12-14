@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,12 +20,12 @@
  
 package org.jnode.vm;
 
-import org.jnode.system.MultiMediaMemoryResource;
+import org.jnode.system.resource.MultiMediaMemoryResource;
 import org.jnode.annotation.MagicPermission;
 import org.vmmagic.unboxed.Address;
 
 /**
- * Implementation class for {@link org.jnode.system.MultiMediaMemoryResource}.
+ * Implementation class for {@link org.jnode.system.resource.MultiMediaMemoryResource}.
  *
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
@@ -51,7 +51,7 @@ final class MultiMediaMemoryResourceImpl extends MemoryResourceImpl implements
     }
 
     /**
-     * @see org.jnode.system.MultiMediaMemoryResource#setARGB32bpp(int[], int, int, int)
+     * @see org.jnode.system.resource.MultiMediaMemoryResource#setARGB32bpp(int[], int, int, int)
      */
     public final void setARGB32bpp(int[] src, int srcOfs, int dstPtr, int length) {
         if (srcOfs < 0) {

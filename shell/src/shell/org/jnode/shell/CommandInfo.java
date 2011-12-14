@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -39,7 +39,7 @@ import org.jnode.shell.syntax.SyntaxBundle;
  * @author crawley@jnode.org
  * @author chris boertien
  */
-public final class CommandInfo {
+public class CommandInfo {
     
     private final Class<?> clazz;
     private final String commandName;
@@ -81,6 +81,24 @@ public final class CommandInfo {
         this.commandName = commandName;
         this.syntaxBundle = syntaxBundle;
         this.argBundle = argBundle;
+    }
+    
+    /**
+     * Creates a CommandInfo object for a builtin command.
+     *
+     * @param clazz the designated {@code Class} for executing the command
+     * @param commandName the name, or alias, for the command
+     * @param syntaxBundle the syntax definition to parse the command line against
+     * @param instance a prebuilt command instance
+     */
+    CommandInfo(Class<?> clazz, String commandName, SyntaxBundle syntaxBundle, 
+            ArgumentBundle argBundle, Command instance) {
+        this.clazz = clazz;
+        this.internal = true;
+        this.commandName = commandName;
+        this.syntaxBundle = syntaxBundle;
+        this.instance = instance;
+        this.argBundle = instance.getArgumentBundle();
     }
     
     /**
@@ -162,6 +180,16 @@ public final class CommandInfo {
     }
     
     /**
+     * Gets the syntax bundle attached when the CommandInfo was created.
+     * 
+     * @return the initial syntax bundle.
+     */
+    public SyntaxBundle getSyntaxBundle() {
+        return syntaxBundle;
+    }
+
+    
+    /**
      * Perform command line argument parsing in preparation to invoking a command.
      * This locates the command's class and a suitable command line syntax, then
      * parses against the Syntax, binding the command arguments to Argument objects
@@ -171,9 +199,8 @@ public final class CommandInfo {
      * will have been previously supplied to parse against.
      *
      * @param cmdLine the command line containing the tokens to parse against the argument bundle.
-     * @throws CommandSyntaxException if the chosen syntax doesn't match the command
-     *                                line arguments.
-     * @throws ShellException for problems instantiating the command class.
+     * @throws ShellException for problems instantiating the command class, or problems parsing
+     *         the command arguments.
      */
     public void parseCommandLine(CommandLine cmdLine) throws ShellException {
         try {
@@ -191,9 +218,9 @@ public final class CommandInfo {
                 bundle.parse(cmdLine, syntaxBundle);
             }
         } catch (InstantiationException ex) {
-            throw new ShellException("Command class cannot be instantiated", ex);
+            throw new ShellInvocationException("Command class cannot be instantiated", ex);
         } catch (IllegalAccessException ex) {
-            throw new ShellException("Command class cannot be instantiated", ex);
+            throw new ShellInvocationException("Command class cannot be instantiated", ex);
         }
     }
 }

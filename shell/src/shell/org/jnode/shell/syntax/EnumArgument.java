@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -69,11 +69,11 @@ public abstract class EnumArgument<E extends Enum<E>> extends Argument<E> {
     }
     
     @Override
-    public void doComplete(CompletionInfo completion, String partial, int flags) {
+    public void doComplete(CompletionInfo completions, String partial, int flags) {
         for (E e : clazz.getEnumConstants()) {
             String eName = e.name();
             if (eName.startsWith(partial)) {
-                completion.addCompletion(eName);
+                completions.addCompletion(eName);
             }
         }
     }

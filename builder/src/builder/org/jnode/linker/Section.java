@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -181,7 +181,7 @@ public class Section {
     /**
      * Gets the name of this section.
      *
-     * @return
+     * @return the name of this section
      */
     public String getName() {
         return elf.getSHString(sh_name);

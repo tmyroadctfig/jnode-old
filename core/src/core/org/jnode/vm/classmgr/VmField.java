@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -133,9 +133,8 @@ public abstract class VmField extends VmMember {
             if (slot == -1) {
                 throw new ClassFormatError("Invalid field: " + this.getName());
             }
-            //todo add annotations
             javaField = new Field(d_class.asClass(), getName(), getType().asClass(), getModifiers(), slot,
-                getSignature(), null);
+                getSignature(), getRawAnnotations());
             javaFieldHolder.set(javaField);
         }
         return javaField;
@@ -157,8 +156,8 @@ public abstract class VmField extends VmMember {
     }
 
     public String getMangledName() {
-        return mangleClassName(declaringClass.getName())
-            + mangle("." + getName() + '.' + getSignature());
+        return Mangler.mangleClassName(declaringClass.getName())
+            + Mangler.mangle("." + getName() + '.' + getSignature());
     }
 
     /**

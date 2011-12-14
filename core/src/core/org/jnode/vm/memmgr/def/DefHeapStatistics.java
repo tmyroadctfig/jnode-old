@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,38 +20,50 @@
  
 package org.jnode.vm.memmgr.def;
 
+import java.io.IOException;
 import java.util.TreeMap;
 
 import org.jnode.util.NumberUtils;
-import org.jnode.vm.memmgr.HeapStatistics;
+import org.jnode.vm.facade.HeapStatistics;
+import org.jnode.vm.facade.NoObjectFilter;
+import org.jnode.vm.facade.ObjectFilter;
+import org.jnode.vm.objects.VmSystemObject;
 
 /**
  * @author Martin Husted Hartvig (hagar@jnode.org)
  */
 
-final class DefHeapStatistics extends HeapStatistics {
+final class DefHeapStatistics extends VmSystemObject implements HeapStatistics {
 
     private int minInstanceCount = 0;
     private long minTotalSize = 0;
+    private ObjectFilter objectFilter = NoObjectFilter.INSTANCE;
     private final TreeMap<String, HeapCounter> countData = new TreeMap<String, HeapCounter>();
 
-    private static final char newline = '\n';
-
+    private static final char NEWLINE = '\n';
+    private static final String USAGE = " memory usage=";
+    private static final String NO_MATCHING_OBJECT = "No object is matching criteria";
+    private static final String SUMMARY = "Summary : ";
+    private static final String CLASSES = " classe(s) ";
+    private static final String INSTANCES = " instances(s) ";
+    
     public boolean contains(String classname) {
-        return countData.containsKey(classname);
+    	// If we don't accept this class, we pretend to have it already to (maybe) avoid unnecessary work
+    	// and memory allocation (we also hope to avoid a call to add(String, int)).
+        return !objectFilter.accept(classname) || countData.containsKey(classname);
     }
 
     public void add(String className, int size) {
-        HeapCounter count = (HeapCounter) countData.get(className);
-
-        if (count == null) {
-            count = new HeapCounter(className, size);
-            countData.put(className, count);
-        }
-
-        count.inc();
-
-        count = null;
+    	if (objectFilter.accept(className)) {	    	
+	        HeapCounter count = (HeapCounter) countData.get(className);
+	
+	        if (count == null) {
+	            count = new HeapCounter(className, size);
+	            countData.put(className, count);
+	        }
+	
+	        count.inc();
+    	}
     }
 
     /**
@@ -73,22 +85,78 @@ final class DefHeapStatistics extends HeapStatistics {
     public void setMinimumTotalSize(long bytes) {
         this.minTotalSize = bytes;
     }
-
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setObjectFilter(ObjectFilter objectFilter) {
+        this.objectFilter = (objectFilter == null) ? NoObjectFilter.INSTANCE : objectFilter;
+    }
+    
+    /**
+     * {@inheritDoc}
+     * @throws IOException 
+     */
+    public void writeTo(Appendable a) throws IOException {
         boolean first = true;
 
-        for (HeapCounter c : countData.values()) {
-            if ((c.getInstanceCount() >= minInstanceCount) && (c.getTotalSize() >= minTotalSize)) {
-                if (first) {
-                    first = false;
-                } else {
-                    sb.append(newline);
+        if (countData.isEmpty()) {
+            a.append(NO_MATCHING_OBJECT);
+        } else {
+            int nbClasses = 0;
+            int nbInstances = 0;
+            int totalSize = 0;
+            
+            for (HeapCounter c : countData.values()) {
+                if ((c.getInstanceCount() >= minInstanceCount) && (c.getTotalSize() >= minTotalSize)) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        a.append(NEWLINE);
+                    }
+                    c.append(a);
+                    
+                    nbClasses++;
+                    nbInstances += c.getInstanceCount();
+                    totalSize += c.getTotalSize();
                 }
-                c.append(sb);
+            }
+            
+            if (nbClasses == 0) {
+                a.append(NO_MATCHING_OBJECT);                
+            } else {
+                a.append(NEWLINE);
+                a.append(SUMMARY).append(Integer.toString(nbClasses)).append(CLASSES);
+                a.append(Integer.toString(nbInstances)).append(INSTANCES);
+                appendUsage(a, totalSize);
             }
         }
+        a.append(NEWLINE);
+    }
+    
+    private static void appendUsage(Appendable a, long size) throws IOException {
+        a.append(USAGE);
+        if (size >= 1024) {
+            a.append(NumberUtils.toBinaryByte(size)).append(" (");
+            a.append(Long.toString(size)).append("b)");
+        } else {
+            a.append(Long.toString(size)).append('b');
+        }
 
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        try {
+            writeTo(sb);
+        } catch (IOException e) {
+            // normally, it will never happen 
+            throw new RuntimeException(e);
+        }
         return sb.toString();
     }
 
@@ -97,8 +165,6 @@ final class DefHeapStatistics extends HeapStatistics {
         private final String name;
         private int instanceCount;
         private int objectSize = 0;
-
-        private static final String usage = " memory usage=";
 
         public HeapCounter(String objectName, int objectSize) {
             this.name = objectName;
@@ -122,19 +188,13 @@ final class DefHeapStatistics extends HeapStatistics {
             return objectSize * (long) instanceCount;
         }
 
-        public void append(StringBuilder sb) {
-            sb.append(name);
-            sb.append("  #");
-            sb.append(instanceCount);
+        public void append(Appendable a) throws IOException {
+            a.append(name);
+            a.append("  #");
+            a.append(Integer.toString(instanceCount));
 
             if (objectSize != 0) {
-                sb.append(usage);
-                long size = getTotalSize();
-                if (size >= 1024) {
-                    sb.append(NumberUtils.size(size) + " (" + getTotalSize() + "b)");
-                } else {
-                    sb.append(size + "b");
-                }
+                appendUsage(a, getTotalSize());
             }
         }
     }

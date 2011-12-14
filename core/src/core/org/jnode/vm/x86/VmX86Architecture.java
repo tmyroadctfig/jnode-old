@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,23 +23,23 @@ package org.jnode.vm.x86;
 import java.nio.ByteOrder;
 import java.util.HashMap;
 
+import org.jnode.annotation.Internal;
+import org.jnode.annotation.MagicPermission;
 import org.jnode.assembler.x86.X86Constants;
-import org.jnode.system.BootLog;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
-import org.jnode.vm.MemoryMapEntry;
+import org.jnode.bootlog.BootLogInstance;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
 import org.jnode.vm.Unsafe;
-import org.jnode.vm.Vm;
-import org.jnode.vm.VmArchitecture;
+import org.jnode.vm.BaseVmArchitecture;
 import org.jnode.vm.VmMagic;
 import org.jnode.vm.VmMultiMediaSupport;
 import org.jnode.vm.VmSystem;
-import org.jnode.annotation.Internal;
-import org.jnode.annotation.MagicPermission;
 import org.jnode.vm.classmgr.VmIsolatedStatics;
 import org.jnode.vm.classmgr.VmSharedStatics;
 import org.jnode.vm.compiler.NativeCodeCompiler;
+import org.jnode.vm.facade.MemoryMapEntry;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.scheduler.IRQManager;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.scheduler.VmScheduler;
@@ -56,7 +56,7 @@ import org.vmmagic.unboxed.Offset;
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
 @MagicPermission
-public abstract class VmX86Architecture extends VmArchitecture {
+public abstract class VmX86Architecture extends BaseVmArchitecture {
 
     /**
      * Start address of the boot image (1Mb)
@@ -163,11 +163,11 @@ public abstract class VmX86Architecture extends VmArchitecture {
             } else if ("L1A".equalsIgnoreCase(compiler)) {
                 this.compilers[1] = new X86Level1ACompiler();
             } else { 
-                BootLog.warn("JNode native compiler '" + compiler + "' is unknown.");
+                BootLogInstance.get().warn("JNode native compiler '" + compiler + "' is unknown.");
             }
         } 
         if (this.compilers[1] == null) {
-            BootLog.warn("JNode native compiler defaulting to 'L1A'");
+            BootLogInstance.get().warn("JNode native compiler defaulting to 'L1A'");
             this.compilers[1] = new X86Level1ACompiler();
         }
         this.testCompilers = null;
@@ -238,7 +238,7 @@ public abstract class VmX86Architecture extends VmArchitecture {
     }
 
     /**
-     * @see org.jnode.vm.VmArchitecture#initializeProcessors(ResourceManager)
+     * @see org.jnode.vm.BaseVmArchitecture#initializeProcessors(ResourceManager)
      */
     protected final void initializeProcessors(ResourceManager rm) {
         // Mark current cpu as bootprocessor
@@ -255,12 +255,12 @@ public abstract class VmX86Architecture extends VmArchitecture {
         final MPFloatingPointerStructure mp = MPFloatingPointerStructure.find(
             rm, ResourceOwner.SYSTEM);
         if (mp == null) {
-            BootLog.info("No MP table found");
+            BootLogInstance.get().info("No MP table found");
             // No MP table found.
             return;
         }
         try {
-            BootLog.info("Found " + mp);
+            BootLogInstance.get().info("Found " + mp);
             this.mpConfigTable = mp.getMPConfigTable();
         } finally {
             mp.release();
@@ -277,7 +277,7 @@ public abstract class VmX86Architecture extends VmArchitecture {
             localAPIC = new LocalAPIC(rm, owner, mpConfigTable
                 .getLocalApicAddress());
         } catch (ResourceNotFreeException ex) {
-            BootLog.error("Cannot claim APIC region");
+            BootLogInstance.get().error("Cannot claim APIC region");
             return;
         }
 
@@ -297,7 +297,7 @@ public abstract class VmX86Architecture extends VmArchitecture {
                         ioAPIC.dump(System.out);
                         break;
                     } catch (ResourceNotFreeException ex) {
-                        BootLog.error("Cannot claim I/O APIC region ", ex);
+                        BootLogInstance.get().error("Cannot claim I/O APIC region ", ex);
                     }
                 }
             }
@@ -307,7 +307,7 @@ public abstract class VmX86Architecture extends VmArchitecture {
             // Detect Hyper threading on current (bootstrap) processor
             VmX86Processor.detectAndstartLogicalProcessors(rm);
         } catch (ResourceNotFreeException ex) {
-            BootLog.error("Cannot claim region for logical processor startup",
+            BootLogInstance.get().error("Cannot claim region for logical processor startup",
                 ex);
         }
 
@@ -337,18 +337,18 @@ public abstract class VmX86Architecture extends VmArchitecture {
             final int apicId = cpuEntry.getApicID();
             // New CPU
             final VmX86Processor newCpu = (VmX86Processor) createProcessor(
-                apicId, Vm.getVm().getSharedStatics(), bootCpu
+                apicId, VmUtils.getVm().getSharedStatics(), bootCpu
                 .getIsolatedStatics(), bootCpu.getScheduler());
             initX86Processor(newCpu);
             try {
                 newCpu.startup(rm);
             } catch (ResourceNotFreeException ex) {
-                BootLog.error("Cannot claim region for processor startup", ex);
+                BootLogInstance.get().error("Cannot claim region for processor startup", ex);
             }
         }
 
         // If there is more then one CPU, start sending timeslice interrupts now
-        BootLog.info("Activating timeslice interrupts");
+        BootLogInstance.get().info("Activating timeslice interrupts");
         bootCpu.activateTimeSliceInterrupts();
     }
 
@@ -434,7 +434,7 @@ public abstract class VmX86Architecture extends VmArchitecture {
     }
 
     /**
-     * @see org.jnode.vm.VmArchitecture#createMemoryMap()
+     * @see org.jnode.vm.BaseVmArchitecture#createMemoryMap()
      */
     protected MemoryMapEntry[] createMemoryMap() {
         final int cnt = UnsafeX86.getMultibootMMapLength();
@@ -457,7 +457,7 @@ public abstract class VmX86Architecture extends VmArchitecture {
     }
 
     /**
-     * @see org.jnode.vm.VmArchitecture#createMultiMediaSupport()
+     * @see org.jnode.vm.BaseVmArchitecture#createMultiMediaSupport()
      */
     protected VmMultiMediaSupport createMultiMediaSupport() {
         final X86CpuID id = (X86CpuID) VmProcessor.current().getCPUID();

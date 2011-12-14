@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,15 +17,16 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
 import org.jnode.vm.bytecode.StackException;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
+ * @author Levente S\u00e1ntha
  */
 class ItemStack {
 
@@ -51,11 +52,15 @@ class ItemStack {
 
     /**
      * Constructor; create and initialize stack with default size
+     *
+     * @param expectedKind
+     * @param maxSize
      */
     ItemStack(int expectedKind, int maxSize) {
         this.expectedKind = expectedKind;
         this.maxSize = maxSize;
-        reset();
+        stack = new Item[Math.min(8, maxSize)];
+        tos = 0;
     }
 
 //    /**
@@ -77,7 +82,7 @@ class ItemStack {
     /**
      * Grow the stack capacity.
      */
-    private final void grow() {
+    private void grow() {
         if (stack.length == maxSize) {
             throw new StackException("Stack full");
         } else {
@@ -126,11 +131,44 @@ class ItemStack {
         return (stack[tos - 1] == item);
     }
 
-    final void pop() {
+    /**
+     * Finds the position of the specified item on the stack starting from the top.
+     *
+     * @param item the item to find
+     * @return the position of the item or -1 if not found
+     */
+    final int stackLocation(Item item) {
+        int ret = -1;
+
+        int i = tos - 1;
+        while ((i >= 0) && (stack[i] != item))
+            i--;
+
+        if (i >= 0)
+            ret = tos - 1 - i;
+
+        return ret;
+    }
+
+    /**
+     * Exchanges the item at the specified position with the top item.
+     *
+     * @param pos the position of the item
+     */
+    final void makeTop(int pos) {
+        Item tmp = stack[tos - 1];
+        stack[tos - 1] = stack[tos - 1 - pos];
+        stack[tos - 1 - pos] = tmp;
+    }
+
+    final void pop(EmitterContext ec) {
         if (tos <= 0) {
             throw new Error("Stack is empty");
         }
         tos--;
+        Item item = stack[tos];
+        if (item.getKind() != 0)
+            item.release(ec);
     }
 
     final void pop(Item item) {
@@ -150,8 +188,8 @@ class ItemStack {
     }
 
     final void push(Item item) {
-        if (Vm.VerifyAssertions)
-            Vm._assert(item.getKind() == expectedKind,
+        if (VmUtils.verifyAssertions())
+            VmUtils._assert(item.getKind() == expectedKind,
                 "item.getKind() == expectedKind");
         if (tos == stack.length) {
             grow();
@@ -161,9 +199,14 @@ class ItemStack {
 
     /**
      * Reset this stack. The stack will be empty afterwards.
+     *
+     * @param ec
      */
-    final void reset() {
-        stack = new Item[Math.min(8, maxSize)];
+    final void reset(EmitterContext ec) {
+        while (tos != 0) {
+            pop(ec);
+        }
+
         tos = 0;
     }
 

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -129,7 +129,7 @@ public class FatShortDirEntry extends FatDirEntry {
         } catch (CharacterCodingException ex) {
             log.debug("CharacterCodingException: CodePage error");
             log.debug("go on with standard decoding");
-            baseName = new String(base);
+            baseName = base;
         }
 
         if (ncase.isLowerBase())
@@ -149,7 +149,7 @@ public class FatShortDirEntry extends FatDirEntry {
         } catch (CharacterCodingException ex) {
             log.debug("CharacterCodingException: CodePage error");
             log.debug("go on with standard decoding");
-            extName = new String(ext);
+            extName = ext;
         }
 
         if (ncase.isLowerExt())

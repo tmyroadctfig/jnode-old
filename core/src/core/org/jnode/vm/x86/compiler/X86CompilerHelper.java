@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,7 +30,6 @@ import org.jnode.assembler.x86.X86Register;
 import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.assembler.x86.X86Register.GPR64;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
 import org.jnode.annotation.PrivilegedActionPragma;
 import org.jnode.vm.classmgr.VmArray;
 import org.jnode.vm.classmgr.VmInstanceField;
@@ -41,9 +40,15 @@ import org.jnode.vm.classmgr.VmStaticField;
 import org.jnode.vm.classmgr.VmType;
 import org.jnode.vm.classmgr.VmTypeState;
 import org.jnode.vm.compiler.EntryPoints;
-import org.jnode.vm.memmgr.VmWriteBarrier;
+import org.jnode.vm.facade.VmUtils;
+import org.jnode.vm.facade.VmWriteBarrier;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.x86.X86CpuID;
+
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.BITS32;
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.BITS64;
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.INTSIZE;
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.PROCESSOR64;
 
 /**
  * Helpers class used by the X86 compilers.
@@ -51,7 +56,7 @@ import org.jnode.vm.x86.X86CpuID;
  * @author epr
  * @author patrik_reali
  */
-public class X86CompilerHelper implements X86CompilerConstants {
+public class X86CompilerHelper {
 
     /**
      * Address size ax register (EAX/RAX)
@@ -98,7 +103,7 @@ public class X86CompilerHelper implements X86CompilerConstants {
      */
     public final int SLOTSIZE;
 
-    private final EntryPoints entryPoints;
+    private EntryPoints entryPoints;
 
     private VmMethod method;
 
@@ -110,11 +115,11 @@ public class X86CompilerHelper implements X86CompilerConstants {
 
     private final Map<Integer, Label> addressLabels = new HashMap<Integer, Label>();
 
-    private final boolean debug = Vm.getVm().isDebugMode();
+    private final boolean debug = VmUtils.getVm().isDebugMode();
 
     private final AbstractX86StackManager stackMgr;
 
-    private final X86Assembler os;
+    private X86Assembler os;
 
     private final Map<VmType<?>, Label> classInitLabels = new HashMap<VmType<?>, Label>();
 
@@ -152,6 +157,11 @@ public class X86CompilerHelper implements X86CompilerConstants {
         this.stackMgr = stackMgr;
         final X86CpuID cpuId = (X86CpuID) os.getCPUID();
         haveCMOV = cpuId.hasFeature(X86CpuID.FEAT_CMOV);
+    }
+
+    public void reset(X86Assembler x86Assembler, EntryPoints entryPoints) {
+        this.os = x86Assembler;
+        this.entryPoints = entryPoints;
     }
 
     /**
@@ -557,7 +567,7 @@ public class X86CompilerHelper implements X86CompilerConstants {
         final int offset = entryPoints.getVmProcessorIsolatedStaticsTable()
             .getOffset();
         if (os.isCode32()) {
-            Vm.getVm().getCounter("### load " + dst.getName()).inc();
+            VmUtils.getVm().getCounter("### load " + dst.getName()).inc();
             // os.writeXOR(dst, dst);
             os.writePrefix(X86Constants.FS_PREFIX);
             // os.writeMOV(INTSIZE, dst, dst, offset);
@@ -644,10 +654,10 @@ public class X86CompilerHelper implements X86CompilerConstants {
      */
     public final void writePutstaticWriteBarrier(VmStaticField field,
                                                  GPR valueReg, GPR scratchReg) {
-        if (Vm.VerifyAssertions) {
-            Vm._assert(scratchReg.getSize() == this.ADDRSIZE,
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(scratchReg.getSize() == this.ADDRSIZE,
                 "scratchReg wrong size");
-            Vm._assert(valueReg.getSize() == this.ADDRSIZE,
+            VmUtils._assert(valueReg.getSize() == this.ADDRSIZE,
                 "valueReg wrong size");
         }
         if (field.isObjectRef()) {
@@ -687,8 +697,8 @@ public class X86CompilerHelper implements X86CompilerConstants {
      */
     public final void writeGetStaticsEntry(Label curInstrLabel, GPR dst,
                                            VmSharedStaticsEntry entry) {
-        if (Vm.VerifyAssertions) {
-            Vm._assert(dst.getSize() == BITS32, "dst wrong size");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(dst.getSize() == BITS32, "dst wrong size");
         }
         writeLoadSTATICS(curInstrLabel, "gs", true);
         os.writeMOV(INTSIZE, dst, this.STATICS, getSharedStaticsOffset(entry));
@@ -705,8 +715,8 @@ public class X86CompilerHelper implements X86CompilerConstants {
      */
     public final void writeGetStaticsEntry(Label curInstrLabel, GPR dst,
                                            VmIsolatedStaticsEntry entry, GPR tmp) {
-        if (Vm.VerifyAssertions) {
-            Vm._assert(dst.getSize() == BITS32, "dst wrong size");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(dst.getSize() == BITS32, "dst wrong size");
         }
         writeLoadIsolatedStatics(curInstrLabel, "gs", tmp);
         os.writeMOV(INTSIZE, dst, tmp, getIsolatedStaticsOffset(entry));

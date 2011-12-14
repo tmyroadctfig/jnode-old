@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,13 +27,14 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.WritableRaster;
+
 import org.apache.log4j.Logger;
 import org.jnode.awt.font.TextRenderer;
 import org.jnode.awt.font.renderer.GlyphRenderer;
 import org.jnode.awt.font.renderer.RenderCache;
 import org.jnode.awt.font.renderer.RenderContext;
 import org.jnode.driver.video.Surface;
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author epr
@@ -83,7 +84,7 @@ public abstract class AbstractTextRenderer implements TextRenderer {
         if ((r == null) || (r.getWidth() < fontSizeUp) || (r.getHeight() < fontSizeUp)) {
             r = GlyphRenderer.createRaster(fontSizeUp, fontSizeUp);
             ctx.setObject(ALPHA_RASTER, r);
-            Vm.getVm().getCounter(ALPHA_RASTER).inc();
+            VmUtils.getVm().getCounter(ALPHA_RASTER).inc();
         }
         return r;
     }

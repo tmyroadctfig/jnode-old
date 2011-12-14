@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -36,16 +36,16 @@ import org.jnode.net.HardwareAddress;
 import org.jnode.net.SocketBuffer;
 import org.jnode.net.ethernet.EthernetAddress;
 import org.jnode.net.ethernet.EthernetConstants;
-import org.jnode.system.IOResource;
-import org.jnode.system.IRQHandler;
-import org.jnode.system.IRQResource;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
+import org.jnode.system.resource.IOResource;
+import org.jnode.system.resource.IRQHandler;
+import org.jnode.system.resource.IRQResource;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
 import org.jnode.util.AccessControllerUtils;
-import org.jnode.util.Counter;
 import org.jnode.util.NumberUtils;
 import org.jnode.util.TimeoutException;
+import org.jnode.vm.objects.Counter;
 
 /**
  * @author Fabien Lesire (galatnm at gmail dot com)
@@ -177,7 +177,7 @@ public class EEPRO100Core extends AbstractDeviceCore implements IRQHandler, EEPR
         for (y = 0, x = 0, sum = 0; x < eeSize; x++) {
             int value = doEepromCmd((eeReadCmd | (x << 16)), 27);
             eeprom[x] = value;
-            sum += new Integer(value).shortValue();
+            sum += (short) value;
             if (x < 3) {
                 hwAddrArr[y++] = (byte) value;
                 hwAddrArr[y++] = (byte) (value >> 8);
@@ -407,7 +407,7 @@ public class EEPRO100Core extends AbstractDeviceCore implements IRQHandler, EEPR
         regs.setReg16(SCBeeprom, EE_ENB);
         eepromDelay(2);
         regs.setReg16(SCBeeprom, (EE_ENB & ~EE_CS));
-        return NumberUtils.toUnsigned(new Integer(retVal).shortValue());
+        return NumberUtils.toUnsigned((short) retVal);
     }
 
     // --- OTHER METHODS

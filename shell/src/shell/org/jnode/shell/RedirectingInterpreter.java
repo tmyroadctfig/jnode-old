@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -39,7 +39,6 @@ import org.jnode.shell.io.CommandIO;
 import org.jnode.shell.io.CommandInput;
 import org.jnode.shell.io.CommandOutput;
 import org.jnode.shell.syntax.Argument;
-import org.jnode.shell.syntax.CommandSyntaxException;
 import org.jnode.shell.syntax.FileArgument;
 
 /**
@@ -69,7 +68,7 @@ public class RedirectingInterpreter extends DefaultInterpreter implements
     }
 
     @Override
-    public int interpret(CommandShell shell, String line) throws ShellException {
+    protected int interpret(CommandShell shell, String line) throws ShellException {
         Tokenizer tokenizer = new Tokenizer(line, REDIRECTS_FLAG);
         List<CommandDescriptor> commands = new LinkedList<CommandDescriptor>();
         parse(tokenizer, commands, false);
@@ -245,12 +244,7 @@ public class RedirectingInterpreter extends DefaultInterpreter implements
                         desc.toFileName.text + "': " + ex.getMessage());
             }
             desc.commandLine.setStreams(new CommandIO[] {in, out, err, CommandLine.DEFAULT_STDERR});
-            try {
-                return shell.invoke(desc.commandLine, null, null);
-            } catch (CommandSyntaxException ex) {
-                throw new ShellException(
-                        "Command arguments don't match syntax", ex);
-            }
+            return shell.invoke(desc.commandLine, null, null);
         } finally {
             try {
                 if (desc.fromFileName != null) {

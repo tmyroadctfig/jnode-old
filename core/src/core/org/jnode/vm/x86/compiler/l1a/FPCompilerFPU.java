@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.Label;
@@ -28,9 +28,9 @@ import org.jnode.assembler.x86.X86Register.FPU;
 import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.assembler.x86.X86Register.GPR32;
 import org.jnode.assembler.x86.X86Register.GPR64;
-import org.jnode.system.BootLog;
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
@@ -38,9 +38,11 @@ import org.jnode.vm.Vm;
 final class FPCompilerFPU extends FPCompiler {
 
     /**
+     * @param bcv
      * @param os
      * @param ec
      * @param vstack
+     * @param arrayDataOffset
      */
     public FPCompilerFPU(X86BytecodeVisitor bcv, X86Assembler os,
                          EmitterContext ec, VirtualStack vstack, int arrayDataOffset) {
@@ -50,8 +52,6 @@ final class FPCompilerFPU extends FPCompiler {
     /**
      * fadd / dadd
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     final void add(int type) {
@@ -70,7 +70,7 @@ final class FPCompilerFPU extends FPCompiler {
             final FPUStack fpuStack = vstack.fpuStack;
             final FPU reg = prepareForOperation(os, ec, vstack, fpuStack, v2, v1, true);
             final Item result = fpuStack.getItem(reg);
-            fpuStack.pop();
+            fpuStack.pop(ec);
 
             // Calculate
             os.writeFADDP(reg);
@@ -83,9 +83,6 @@ final class FPCompilerFPU extends FPCompiler {
     /**
      * fcmpg, fcmpl, dcmpg, dcmpl
      *
-     * @param os
-     * @param ec
-     * @param vstack
      * @param gt
      * @param type
      * @param curInstrLabel
@@ -120,8 +117,8 @@ final class FPCompilerFPU extends FPCompiler {
         }
 
         // Pop fpu stack twice (FUCOMPP)
-        fpuStack.pop();
-        fpuStack.pop();
+        fpuStack.pop(ec);
+        fpuStack.pop(ec);
 
         final Label gtLabel = new Label(curInstrLabel + "gt");
         final Label ltLabel = new Label(curInstrLabel + "lt");
@@ -165,9 +162,6 @@ final class FPCompilerFPU extends FPCompiler {
 
     /**
      * f2x / d2x
-     *
-     * @param ec
-     * @param vstack
      */
     final void convert(int fromType, int toType) {
         final ItemFactory ifac = ec.getItemFactory();
@@ -191,8 +185,6 @@ final class FPCompilerFPU extends FPCompiler {
     /**
      * fdiv / ddiv
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     final void div(int type) {
@@ -211,7 +203,7 @@ final class FPCompilerFPU extends FPCompiler {
             final FPUStack fpuStack = vstack.fpuStack;
             final FPU reg = prepareForOperation(os, ec, vstack, fpuStack, v2, v1, false);
             final Item result = fpuStack.getItem(reg);
-            fpuStack.pop();
+            fpuStack.pop(ec);
 
             // Calculate
             os.writeFDIVP(reg);
@@ -230,15 +222,15 @@ final class FPCompilerFPU extends FPCompiler {
      * @param vstack
      * @param items
      */
-    static final void ensureStackCapacity(X86Assembler os, EmitterContext ec,
-                                          VirtualStack vstack, int items) {
+    static void ensureStackCapacity(X86Assembler os, EmitterContext ec,
+                                    VirtualStack vstack, int items) {
         final FPUStack fpuStack = vstack.fpuStack;
         if (!fpuStack.hasCapacity(items)) {
-            BootLog.debug("Flush FPU stack;\n  fpuStack=" + fpuStack
+            BootLogInstance.get().debug("Flush FPU stack;\n  fpuStack=" + fpuStack
                 + ",\n  vstack  =" + vstack);
             vstack.push(ec);
-            if (Vm.VerifyAssertions)
-                Vm._assert(fpuStack.hasCapacity(items), "Out of FPU stack");
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(fpuStack.hasCapacity(items), "Out of FPU stack");
         }
     }
 
@@ -249,8 +241,8 @@ final class FPCompilerFPU extends FPCompiler {
      * @param fpuStack
      * @param fpuReg
      */
-    private static final void fxchST1(X86Assembler os, FPUStack fpuStack,
-                                      FPU fpuReg) {
+    private static void fxchST1(X86Assembler os, FPUStack fpuStack,
+                                FPU fpuReg) {
         // We need reg to be ST1, if not swap
         if (fpuReg != X86Register.ST1) {
             // Swap reg with ST0
@@ -263,8 +255,6 @@ final class FPCompilerFPU extends FPCompiler {
     /**
      * fmul / dmul
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     final void mul(int type) {
@@ -283,7 +273,7 @@ final class FPCompilerFPU extends FPCompiler {
             final FPUStack fpuStack = vstack.fpuStack;
             final FPU reg = prepareForOperation(os, ec, vstack, fpuStack, v2, v1, true);
             final Item result = fpuStack.getItem(reg);
-            fpuStack.pop();
+            fpuStack.pop(ec);
 
             // Calculate
             os.writeFMULP(reg);
@@ -296,8 +286,6 @@ final class FPCompilerFPU extends FPCompiler {
     /**
      * fneg / dneg
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     final void neg(int type) {
@@ -322,10 +310,16 @@ final class FPCompilerFPU extends FPCompiler {
 
     /**
      * Make sure that the given operand is on the top on the FPU stack.
+     *
+     * @param os
+     * @param ec
+     * @param vstack
+     * @param fpuStack
+     * @param left
      */
     private static void prepareForOperation(X86Assembler os,
-                                                  EmitterContext ec, VirtualStack vstack, FPUStack fpuStack,
-                                                  Item left) {
+                                            EmitterContext ec, VirtualStack vstack, FPUStack fpuStack,
+                                            Item left) {
         final boolean onFpu = left.isFPUStack();
 
         // If the FPU stack will be full in this operation, we flush the vstack
@@ -355,12 +349,18 @@ final class FPCompilerFPU extends FPCompiler {
      * <p/>
      * The item at ST0 is popped of the given fpuStack stack.
      *
+     * @param os
+     * @param ec
+     * @param vstack
+     * @param fpuStack
      * @param left
      * @param right
+     * @param commutative
+     * @return
      */
     private static FPU prepareForOperation(X86Assembler os,
-                                                 EmitterContext ec, VirtualStack vstack, FPUStack fpuStack,
-                                                 Item left, Item right, boolean commutative) {
+                                           EmitterContext ec, VirtualStack vstack, FPUStack fpuStack,
+                                           Item left, Item right, boolean commutative) {
         final boolean lOnFpu = left.isFPUStack();
         final boolean rOnFpu = right.isFPUStack();
         final FPU reg;
@@ -407,7 +407,7 @@ final class FPCompilerFPU extends FPCompiler {
         } else if (lOnFpu) {
             // Left operand is on FPU stack, right is not
             right.pushToFPU(ec); // Now right is on top
-            // BootLog.debug("left.kind=" + left.getKind());
+            // BootLogInstance.get().debug("left.kind=" + left.getKind());
             reg = fpuStack.getRegister(left);
             if (!commutative) {
                 FPUHelper.fxch(os, fpuStack, reg);
@@ -424,8 +424,6 @@ final class FPCompilerFPU extends FPCompiler {
     /**
      * frem / drem
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     final void rem(int type) {
@@ -447,7 +445,7 @@ final class FPCompilerFPU extends FPCompiler {
             fxchST1(os, fpuStack, reg);
 
             // Pop the fpuStack.tos
-            fpuStack.pop();
+            fpuStack.pop(ec);
 
             // Calculate
             os.writeFXCH(X86Register.ST1);
@@ -462,8 +460,6 @@ final class FPCompilerFPU extends FPCompiler {
     /**
      * fsub / dsub
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     final void sub(int type) {
@@ -482,7 +478,7 @@ final class FPCompilerFPU extends FPCompiler {
             final FPUStack fpuStack = vstack.fpuStack;
             final FPU reg = prepareForOperation(os, ec, vstack, fpuStack, v2, v1, false);
             final Item result = fpuStack.getItem(reg);
-            fpuStack.pop();
+            fpuStack.pop(ec);
 
             // Calculate
             os.writeFSUBP(reg);

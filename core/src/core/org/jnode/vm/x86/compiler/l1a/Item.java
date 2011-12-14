@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,11 +17,12 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.x86.X86Register;
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.Vm;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * This class is the base of all virtual stack items. To improve performance and
@@ -75,7 +76,7 @@ abstract class Item {
          */
         static final byte LOCAL = 0x20;
 
-        public static final String toString(int kind) {
+        public static String toString(int kind) {
             switch (kind) {
                 case STACK:
                     return "STACK";
@@ -117,11 +118,13 @@ abstract class Item {
 
     /**
      * Initialize a blank item.
+     *
+     * @param factory
      */
     protected Item(ItemFactory factory) {
         this.factory = factory;
         if (false) {
-            final Vm vm = Vm.getVm();
+            final Vm vm = VmUtils.getVm();
             final String name = getClass().getName();
             vm.getCounterGroup(name).getCounter("new").inc();
         }
@@ -135,7 +138,7 @@ abstract class Item {
      * @param xmm
      */
     protected final void initialize(byte kind, short offsetToFP, X86Register.XMM xmm) {
-        if (Vm.VerifyAssertions) Vm._assert(kind > 0, "Invalid kind");
+        if (VmUtils.verifyAssertions()) VmUtils._assert(kind > 0, "Invalid kind");
         this.kind = kind;
         this.offsetToFP = offsetToFP;
         this.xmm = xmm;
@@ -185,6 +188,8 @@ abstract class Item {
 
     /**
      * Is this item on the stack
+     *
+     * @return
      */
     final boolean isStack() {
         return (kind == Kind.STACK);
@@ -192,6 +197,8 @@ abstract class Item {
 
     /**
      * Is this item in a general purpose register
+     *
+     * @return
      */
     final boolean isGPR() {
         return (kind == Kind.GPR);
@@ -199,6 +206,8 @@ abstract class Item {
 
     /**
      * Is this item in a SSE register
+     *
+     * @return
      */
     final boolean isXMM() {
         return (kind == Kind.XMM);
@@ -206,6 +215,8 @@ abstract class Item {
 
     /**
      * Is this item on the FPU stack
+     *
+     * @return
      */
     final boolean isFPUStack() {
         return (kind == Kind.FPUSTACK);
@@ -213,6 +224,8 @@ abstract class Item {
 
     /**
      * Is this item a local variable
+     *
+     * @return
      */
     final boolean isLocal() {
         return (kind == Kind.LOCAL);
@@ -220,6 +233,8 @@ abstract class Item {
 
     /**
      * Is this item a constant
+     *
+     * @return
      */
     final boolean isConstant() {
         return (kind == Kind.CONSTANT);
@@ -240,11 +255,12 @@ abstract class Item {
      * Gets the offset from this item to the FramePointer register. This is only
      * valid if this item has a LOCAL kind.
      *
+     * @param ec
      * @return
      */
     short getOffsetToFP(EmitterContext ec) {
-        if (Vm.VerifyAssertions) {
-            Vm._assert(isLocal(), "kind == Kind.LOCAL");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(isLocal(), "kind == Kind.LOCAL");
         }
         return offsetToFP;
     }
@@ -256,8 +272,8 @@ abstract class Item {
      * @return
      */
     final X86Register.XMM getXMM() {
-        if (Vm.VerifyAssertions) {
-            Vm._assert(isXMM(), "kind == Kind.XMM");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(isXMM(), "kind == Kind.XMM");
         }
         return xmm;
     }
@@ -265,10 +281,11 @@ abstract class Item {
     /**
      * Is this item located at the given FP offset.
      *
+     * @param offset
      * @return
      */
     boolean isAtOffset(int offset) {
-        if (Vm.VerifyAssertions) Vm._assert(kind == Kind.LOCAL, "kind == Kind.LOCAL");
+        if (VmUtils.verifyAssertions()) VmUtils._assert(kind == Kind.LOCAL, "kind == Kind.LOCAL");
         return (offsetToFP == offset);
     }
 
@@ -297,6 +314,9 @@ abstract class Item {
     /**
      * Load item into a register / two registers / an FPU register depending on
      * its type, if its kind matches the mask
+     *
+     * @param eContext
+     * @param mask
      */
     final void loadIf(EmitterContext eContext, int mask) {
         if ((kind & mask) > 0) {
@@ -306,6 +326,9 @@ abstract class Item {
 
     /**
      * Load item into an XMM register if its kind matches the mask
+     *
+     * @param eContext
+     * @param mask
      */
     final void loadToXMMIf(EmitterContext eContext, int mask) {
         if ((kind & mask) > 0) {
@@ -331,6 +354,8 @@ abstract class Item {
     /**
      * Push the value of this item on the FPU stack. The item itself is not
      * changed in any way.
+     *
+     * @param ec
      */
     abstract void pushToFPU(EmitterContext ec);
 
@@ -364,6 +389,9 @@ abstract class Item {
 
     /**
      * Spill this item if it uses the given register.
+     *
+     * @param ec
+     * @param reg
      */
     final void spillIfUsing(EmitterContext ec, X86Register reg) {
         if (uses(reg)) {
@@ -382,7 +410,7 @@ abstract class Item {
     /**
      * enquire whether the item uses a volatile register
      *
-     * @param reg
+     * @param pool
      * @return true, when this item uses a volatile register.
      */
     abstract boolean usesVolatileRegister(X86RegisterPool pool);
@@ -390,6 +418,8 @@ abstract class Item {
     /**
      * Verify the consistency of the state of this item.
      * Throw an exception is the state is inconsistent.
+     *
+     * @param ec
      */
     protected abstract void verifyState(EmitterContext ec);
 

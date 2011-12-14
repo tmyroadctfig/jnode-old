@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,7 +34,7 @@ import org.jnode.driver.block.floppy.FloppyParameters;
 import org.jnode.driver.block.floppy.FloppyReadSectorCommand;
 import org.jnode.driver.block.floppy.FloppySeekCommand;
 import org.jnode.driver.block.floppy.FloppyWriteSectorCommand;
-import org.jnode.system.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceNotFreeException;
 
 public interface FloppyDeviceFactory {
     /**

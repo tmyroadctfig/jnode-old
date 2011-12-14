@@ -24,12 +24,6 @@ help         Output these messages
 			<arg value="-s"/>
 			<arg value="${root.dir}"/>
 			<arg value="${basedir}/src/test/org/jnode/test/shell/bjorne/bjorne-shell-tests.xml"/>
-		</java>
-		<java classpathref="cp-test" classname="org.jnode.test.shell.harness.TestHarness">
-			<arg value="-E"/>
-			<arg value="-v"/>
-			<arg value="-s"/>
-			<arg value="${root.dir}"/>
 			<arg value="${basedir}/src/test/org/jnode/test/shell/bjorne/bjorne-builtin-tests.xml"/>
 		</java>
 	</target>
@@ -45,9 +39,12 @@ help         Output these messages
 	</target>
 
 	<target name="all-junit">
+		<delete dir="${basedir}/reports/junit"/>
+		<mkdir dir="${basedir}/reports/junit"/>
 		<junit showoutput="on" printsummary="on" fork="on">
 			<classpath refid="cp-test"/>
-			<batchtest fork="yes">
+			<formatter type="plain"/>
+			<batchtest fork="yes" todir="${basedir}/reports/junit">
 				<fileset dir="${basedir}/src/test">
 					<include name="**/*Test.java" />
 					<!-- 

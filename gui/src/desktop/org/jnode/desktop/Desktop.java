@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -28,18 +28,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+
 import javax.swing.DefaultDesktopManager;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+
 import org.apache.log4j.Logger;
 import org.jnode.awt.JNodeAwtContext;
 import org.jnode.awt.JNodeToolkit;
 import org.jnode.plugin.ExtensionPoint;
 import org.jnode.plugin.PluginClassLoader;
-import org.jnode.vm.Vm;
 import org.jnode.vm.VmSystem;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
@@ -110,7 +112,7 @@ public class Desktop implements Runnable {
         welcomeLbl.setSize(welcomeLbl.getPreferredSize());
         desktop.add(welcomeLbl, (Integer) (JLayeredPane.DEFAULT_LAYER - 1));
 
-        final JLabel versionLbl = new JLabel("version " + Vm.getVm().getVersion());
+        final JLabel versionLbl = new JLabel("version " + VmUtils.getVm().getVersion());
         versionLbl.setForeground(Color.WHITE);
         versionLbl.setFont(versionLbl.getFont().deriveFont(14.0f));
         versionLbl.setSize(versionLbl.getPreferredSize());

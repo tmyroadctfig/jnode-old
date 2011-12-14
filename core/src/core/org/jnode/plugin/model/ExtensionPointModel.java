@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,7 +22,6 @@ package org.jnode.plugin.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jnode.nanoxml.XMLElement;
 import org.jnode.plugin.Extension;
 import org.jnode.plugin.ExtensionPoint;
@@ -220,7 +219,7 @@ final class ExtensionPointModel extends PluginModelObject implements
     }
 
     /**
-     * @see org.jnode.vm.VmSystemObject#verifyBeforeEmit()
+     * @see org.jnode.vm.objects.VmSystemObject#verifyBeforeEmit()
      */
     public void verifyBeforeEmit() {
         super.verifyBeforeEmit();

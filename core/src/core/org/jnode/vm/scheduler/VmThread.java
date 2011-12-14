@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,21 +17,9 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.scheduler;
 
-import org.jnode.util.NumberUtils;
-import org.jnode.vm.ObjectVisitor;
-import org.jnode.vm.Unsafe;
-import org.jnode.vm.Vm;
-import org.jnode.vm.VmAccessControlContext;
-import org.jnode.vm.VmAccessController;
-import org.jnode.vm.VmMagic;
-import org.jnode.vm.VmStackFrame;
-import org.jnode.vm.VmStackReader;
-import org.jnode.vm.VmSystem;
-import org.jnode.vm.VmSystemObject;
-import org.jnode.vm.isolate.VmIsolate;
 import org.jnode.annotation.Inline;
 import org.jnode.annotation.Internal;
 import org.jnode.annotation.KernelSpace;
@@ -40,11 +28,24 @@ import org.jnode.annotation.MagicPermission;
 import org.jnode.annotation.PrivilegedActionPragma;
 import org.jnode.annotation.SharedStatics;
 import org.jnode.annotation.Uninterruptible;
+import org.jnode.util.NumberUtils;
+import org.jnode.vm.Unsafe;
+import org.jnode.vm.VmAccessControlContext;
+import org.jnode.vm.VmAccessController;
+import org.jnode.vm.VmImpl;
+import org.jnode.vm.VmMagic;
+import org.jnode.vm.VmStackFrame;
+import org.jnode.vm.VmStackReader;
+import org.jnode.vm.VmSystem;
 import org.jnode.vm.classmgr.ObjectFlags;
 import org.jnode.vm.classmgr.VmIsolatedStatics;
 import org.jnode.vm.classmgr.VmMethod;
 import org.jnode.vm.classmgr.VmType;
-import org.jnode.vm.memmgr.VmHeapManager;
+import org.jnode.vm.facade.ObjectVisitor;
+import org.jnode.vm.facade.VmHeapManager;
+import org.jnode.vm.facade.VmUtils;
+import org.jnode.vm.isolate.VmIsolate;
+import org.jnode.vm.objects.VmSystemObject;
 import org.vmmagic.pragma.UninterruptiblePragma;
 import org.vmmagic.unboxed.Address;
 
@@ -55,7 +56,7 @@ import org.vmmagic.unboxed.Address;
  */
 @SharedStatics
 @MagicPermission
-public abstract class VmThread extends VmSystemObject {
+public abstract class VmThread extends VmSystemObject implements org.jnode.vm.facade.VmThread {
 
     /**
      * If the stackpointer grows to this distance from the size of the stack, a
@@ -259,11 +260,7 @@ public abstract class VmThread extends VmSystemObject {
         this.id = (1 << ObjectFlags.THREAD_ID_SHIFT);
         MonitorManager.testThreadId(this.id);
         this.isolatedStatics = isolatedStatics;
-        if (Vm.isRunningVm()) {
-            VmMagic.currentProcessor().getScheduler().registerThread(this);
-        } else {
-            Vm.getVm().getScheduler().registerThread(this);
-        }
+        getScheduler().registerThread(this);
     }
 
     /**
@@ -290,7 +287,7 @@ public abstract class VmThread extends VmSystemObject {
         this.isolatedStatics = isolatedStatics;
         this.javaThread = javaThread;
         this.threadState = CREATED;
-        this.stackSize = DEFAULT_STACK_SLOTS * Vm.getArch().getReferenceSize();
+        this.stackSize = DEFAULT_STACK_SLOTS * VmUtils.getVm().getArch().getReferenceSize();
         this.id = createId();
         MonitorManager.testThreadId(this.id);
         this.context = VmAccessController.getContext();
@@ -328,9 +325,7 @@ public abstract class VmThread extends VmSystemObject {
     }
 
     /**
-     * Get the Thread to which this VmThread belongs
-     *
-     * @return The java thread
+     * {@inheritDoc}
      */
     public final Thread asThread() {
         if (javaThread == null) {
@@ -735,7 +730,7 @@ public abstract class VmThread extends VmSystemObject {
      * Gets the thread this thread is waiting for (or null).
      *
      * @return the VmThread for the thread that this one is
-     * waiting for, or {@code null}.
+     *         waiting for, or {@code null}.
      */
     @KernelSpace
     final VmThread getWaitForThread() {
@@ -1204,15 +1199,10 @@ public abstract class VmThread extends VmSystemObject {
     }
 
     /**
-     * Visit all objects on the stack and register state of this thread.
-     *
-     * @param visitor
-     * @param heapManager
-     * @return {@code true} if the last visit returned {@code true} or no visit was
-     * made, {@code false} otherwise.
+     * {@inheritDoc}
      */
-    public abstract boolean visit(ObjectVisitor visitor,
-                                  VmHeapManager heapManager);
+    public abstract boolean accept(ObjectVisitor visitor,
+                                   VmHeapManager heapManager);
 
     /**
      * @return the requiredProcessor
@@ -1261,7 +1251,7 @@ public abstract class VmThread extends VmSystemObject {
             current.inException = true;
         }
 
-        if (Vm.getHeapManager().isLowOnMemory()) {
+        if (VmUtils.getVm().getHeapManager().isLowOnMemory()) {
             return null;
         }
 
@@ -1316,7 +1306,7 @@ public abstract class VmThread extends VmSystemObject {
             }
             final VmType<?> sClass = vmClass.getSuperClass();
             if (lastClass != null && sClass != lastClass && vmClass != lastClass) {
-                break; 
+                break;
             }
             final String mname = method.getName();
             if (mname == null) {
@@ -1419,5 +1409,9 @@ public abstract class VmThread extends VmSystemObject {
     @Uninterruptible
     final void setLastOwnedMonitor(Monitor lastOwnedMonitor) {
         this.lastOwnedMonitor = lastOwnedMonitor;
+    }
+
+    private VmScheduler getScheduler() {
+        return ((VmImpl) VmUtils.getVm()).getScheduler();
     }
 }

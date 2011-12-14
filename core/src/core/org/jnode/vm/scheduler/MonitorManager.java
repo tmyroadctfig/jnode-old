@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,12 +20,12 @@
  
 package org.jnode.vm.scheduler;
 
-import org.jnode.util.NumberUtils;
-import org.jnode.vm.Unsafe;
-import org.jnode.vm.VmMagic;
 import org.jnode.annotation.Internal;
 import org.jnode.annotation.MagicPermission;
 import org.jnode.annotation.Uninterruptible;
+import org.jnode.util.NumberUtils;
+import org.jnode.vm.Unsafe;
+import org.jnode.vm.VmMagic;
 import org.jnode.vm.classmgr.ObjectFlags;
 import org.jnode.vm.classmgr.ObjectLayout;
 import org.vmmagic.unboxed.Address;

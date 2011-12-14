@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,10 +30,10 @@ import org.jnode.driver.DriverException;
 import org.jnode.driver.sound.speaker.Note;
 import org.jnode.driver.sound.speaker.SpeakerAPI;
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.IOResource;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
+import org.jnode.system.resource.IOResource;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
 import org.jnode.util.AccessControllerUtils;
 
 /**
@@ -86,6 +86,7 @@ public class PCSpeakerDriver extends Driver implements SpeakerAPI {
 
     /** A routine that releases all the resources back to the operating system. * */
     public void stopDevice() throws DriverException {
+        noSound();
         getDevice().unregisterAPI(SpeakerAPI.class);
         pitIO.release();
         speakIO.release();
@@ -140,6 +141,11 @@ public class PCSpeakerDriver extends Driver implements SpeakerAPI {
 
         // restore the speaker port
         speakIO.outPortByte(SPEAKER_PORT, oldPort);
+    }
+
+    public void noSound() {
+        int val = speakIO.inPortByte(SPEAKER_PORT);
+        speakIO.outPortByte(SPEAKER_PORT, val & 0xFC);
     }
 
     private IOResource claimPorts(final ResourceManager rm, final ResourceOwner owner,

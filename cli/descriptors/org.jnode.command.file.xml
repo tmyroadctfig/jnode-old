@@ -26,6 +26,7 @@
   <extension point="org.jnode.shell.aliases">
     <alias name="cat"     class="org.jnode.command.file.CatCommand"/>
     <alias name="cd"      class="org.jnode.command.file.CdCommand" internal="yes"/>
+    <alias name="cmp"     class="org.jnode.command.file.CmpCommand"/>
     <alias name="cp"      class="org.jnode.command.file.CpCommand"/>
     <alias name="cut"     class="org.jnode.command.file.CutCommand"/>
     <alias name="del"     class="org.jnode.command.file.DeleteCommand"/>
@@ -44,6 +45,7 @@
     <alias name="rm"      class="org.jnode.command.file.DeleteCommand"/>
     <alias name="sort"    class="org.jnode.command.file.SortCommand"/>
     <alias name="tail"    class="org.jnode.command.file.TailCommand"/>
+    <alias name="tee"     class="org.jnode.command.file.TeeCommand"/>
     <alias name="touch"   class="org.jnode.command.file.TouchCommand"/>
     <alias name="wc"      class="org.jnode.command.file.WcCommand"/>
   </extension>
@@ -72,6 +74,12 @@
     <syntax alias="cd">
       <empty description="change the current directory to the 'user.home' directory"/>
       <argument argLabel="directory" description="change the current directory to 'directory'"/>
+    </syntax>
+    <syntax alias="cmp">
+      <sequence description="compare two files">
+        <argument argLabel="file1"/>
+        <argument argLabel="file2"/>
+      </sequence>
     </syntax>
     <syntax alias="cp">
       <sequence description="copy files or directories">
@@ -111,7 +119,7 @@
           <option argLabel="force"       shortName="f" longName="force" />
           <option argLabel="interactive" shortName="i" longName="interactive" />
           <option argLabel="verbose"     shortName="v" longName="verbose" />
-          <option argLabel="one-fs"      longName="one-file-system"/>
+          <option argLabel="onefs"       longName="one-file-system"/>
         </optionSet>
         <repeat minCount="1">
           <argument argLabel="paths"/>
@@ -146,21 +154,44 @@
       </sequence>
     </syntax>
     <syntax alias="dir">
-      <empty description="list the current directory"/>
-      <argument argLabel="path" description="list a file or directory"/>
+      <sequence description="list files or directories">
+        <optional>
+            <option argLabel="humanReadable" shortName="l"/>
+        </optional>
+        <optional>
+            <repeat>
+                <argument argLabel="path" description="list a file or directory"/>
+            </repeat>
+        </optional>
+      </sequence>
     </syntax>
     <syntax alias="du">
-      <sequence description="print file sizes">
+      <sequence description="Disk Usage - report the amount of disk space used by the specified directory and for each subdirectory.">
         <repeat minCount="0">
           <argument argLabel="directory" description="directory to start printing sizes recursively"/>
         </repeat>
         <optionSet>
-          <option argLabel="sum"            shortName="s" longName="summarize"/>
-          <option argLabel="all"            shortName="a" longName="all"/>
-          <option argLabel="human-readable" shortName="h" longName="human-readable"/>
+          <option argLabel="all"            		shortName="a" longName="all"/>
+          <option argLabel="block-size-1"	        shortName="b" longName="bytes"/>
+          <option argLabel="total"            		shortName="c" longName="total"/>
+          <option argLabel="derefArgs"            	shortName="D" longName="dereference-args"/>
+          <option argLabel="human-readable-1024"	shortName="h" longName="human-readable"/>
+          <option argLabel="human-readable-1000"	shortName="H" longName="si"/>
+          <option argLabel="block-size-1024"        shortName="k" longName="kilobytes"/>
+          <option argLabel="count-links"        	shortName="l" longName="count-links"/>
+          <option argLabel="dereference"	        shortName="L" longName="dereference"/>
+          <option argLabel="max-depth"	        	shortName=""  longName="max-depth"/> <!-- max-depth has no shortname -->
+          <option argLabel="block-size-1024x1024"   shortName="m" longName="megabytes"/>
+          <option argLabel="summarize"		        shortName="s" longName="summarize"/>
+          <option argLabel="separate-dirs"	        shortName="S" longName="separate-dirs"/>
+          <option argLabel="one-file-system"	    shortName="x" longName="one-file-system"/> <!-- can't test this currently -->
+          <option argLabel="exclude"		        shortName=""  longName="exclude"/> <!-- exclude has no shortname -->
+          <option argLabel="exclude-from"	        shortName="X" longName="exclude-from"/>
+          <option argLabel="block-size-custom"	    shortName="B" longName="block-size"/> <!-- not in man page, but works on unix like systems -->
+          <option argLabel="filesystem-block-size"	shortName=""  longName="fs-block-size"/> <!-- testing -->
         </optionSet>
       </sequence>
-    </syntax>    
+    </syntax>
     <syntax alias="find">
       <sequence description="find files or directories">
         <repeat minCount="0">
@@ -261,10 +292,16 @@
       <option argLabel="url" shortName="u" longName="url" description="print a hex dump of a URL"/>
     </syntax>
     <syntax alias="ls">
-      <empty description="list the current directory"/>
-      <repeat>
-        <argument argLabel="path" description="list files or directories"/>
-      </repeat>
+      <sequence description="list files or directories">
+        <optional>
+            <option argLabel="humanReadable" shortName="l"/>
+        </optional>
+        <optional>
+            <repeat>
+                <argument argLabel="path" description="list a file or directory"/>
+            </repeat>
+        </optional>
+      </sequence>
     </syntax>
     <syntax alias="md5sum">
       <empty description="Calculates the MD5 digest for standard input"/>
@@ -345,6 +382,16 @@
           <option argLabel="verbose"   shortName="v" longName="verbose"/>
           <option argLabel="bytes"     shortName="c" longName="bytes"/>
           <option argLabel="lines"     shortName="n" longName="lines"/>
+        </optionSet>
+        <repeat>
+          <argument argLabel="files"/>
+        </repeat>
+      </sequence>
+    </syntax>
+    <syntax alias="tee">
+      <sequence>
+        <optionSet label="globals">
+          <option argLabel="append"    shortName="a" longName="append"/>
         </optionSet>
         <repeat>
           <argument argLabel="files"/>

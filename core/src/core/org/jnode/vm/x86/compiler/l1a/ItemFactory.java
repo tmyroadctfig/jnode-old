@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,21 +17,21 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import java.util.ArrayList;
-
 import org.jnode.assembler.x86.X86Register;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
 import org.jnode.vm.classmgr.VmConstString;
 import org.jnode.vm.compiler.IllegalModeException;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
 final class ItemFactory {
+    public static final boolean CHECK_BALANCED_ITEM_FACTORY = true;
 
     private static ThreadLocal itemFactory = new ThreadLocal();
 
@@ -47,12 +47,16 @@ final class ItemFactory {
 
     private int createCount = 0;
 
-    protected int releaseCount = 0;
+    private int getOrCreateCount = 0;
+
+    private int releaseCount = 0;
 
     /**
      * Create a constant item
      *
+     * @param ec
      * @param val
+     * @return
      */
     final IntItem createIConst(EmitterContext ec, int val) {
         final IntItem item = (IntItem) getOrCreate(JvmType.INT);
@@ -63,7 +67,9 @@ final class ItemFactory {
     /**
      * Create a constant item
      *
+     * @param ec
      * @param val
+     * @return
      */
     final FloatItem createFConst(EmitterContext ec, float val) {
         final FloatItem item = (FloatItem) getOrCreate(JvmType.FLOAT);
@@ -74,7 +80,9 @@ final class ItemFactory {
     /**
      * Create a constant item
      *
+     * @param ec
      * @param val
+     * @return
      */
     final RefItem createAConst(EmitterContext ec, VmConstString val) {
         final RefItem item = (RefItem) getOrCreate(JvmType.REFERENCE);
@@ -85,7 +93,9 @@ final class ItemFactory {
     /**
      * Create a constant item
      *
+     * @param ec
      * @param val
+     * @return
      */
     final LongItem createLConst(EmitterContext ec, long val) {
         final LongItem item = (LongItem) getOrCreate(JvmType.LONG);
@@ -96,7 +106,9 @@ final class ItemFactory {
     /**
      * Create a constant item
      *
+     * @param ec
      * @param val
+     * @return
      */
     final DoubleItem createDConst(EmitterContext ec, double val) {
         final DoubleItem item = (DoubleItem) getOrCreate(JvmType.DOUBLE);
@@ -108,6 +120,7 @@ final class ItemFactory {
      * Create a stack item.
      *
      * @param jvmType
+     * @return
      */
     public Item createStack(int jvmType) {
         final Item item = getOrCreate(jvmType);
@@ -119,6 +132,7 @@ final class ItemFactory {
      * Create an FPU stack item.
      *
      * @param jvmType
+     * @return
      */
     public Item createFPUStack(int jvmType) {
         final Item item = getOrCreate(jvmType);
@@ -130,6 +144,8 @@ final class ItemFactory {
      * Create an LOCAL item.
      *
      * @param jvmType
+     * @param ebpOffset
+     * @return
      */
     public Item createLocal(int jvmType, short ebpOffset) {
         final Item item = getOrCreate(jvmType);
@@ -141,6 +157,8 @@ final class ItemFactory {
      * Create an XMM item.
      *
      * @param jvmType
+     * @param xmm
+     * @return
      */
     public Item createLocal(int jvmType, X86Register.XMM xmm) {
         final Item item = getOrCreate(jvmType);
@@ -151,8 +169,10 @@ final class ItemFactory {
     /**
      * Create a word register item.
      *
+     * @param ec
      * @param jvmType
      * @param reg
+     * @return
      */
     public WordItem createReg(EmitterContext ec, int jvmType, X86Register reg) {
         final WordItem item = (WordItem) getOrCreate(jvmType);
@@ -163,9 +183,11 @@ final class ItemFactory {
     /**
      * Create a doubleword register item.
      *
+     * @param ec
      * @param jvmType
      * @param lsb
      * @param msb
+     * @return
      */
     public DoubleWordItem createReg(EmitterContext ec, int jvmType, X86Register.GPR lsb, X86Register.GPR msb) {
         if (!ec.getStream().isCode32()) {
@@ -179,9 +201,10 @@ final class ItemFactory {
     /**
      * Create a doubleword register item.
      *
+     * @param ec
      * @param jvmType
-     * @param lsb
-     * @param msb
+     * @param reg
+     * @return
      */
     public DoubleWordItem createReg(EmitterContext ec, int jvmType, X86Register.GPR64 reg) {
         final DoubleWordItem item = (DoubleWordItem) getOrCreate(jvmType);
@@ -196,19 +219,21 @@ final class ItemFactory {
      */
     @SuppressWarnings("unchecked")
     final <T extends Item> void release(T item) {
-        releaseCount++;
-        if (Vm.VerifyAssertions) {
-            Vm._assert(item.getKind() == 0, "Item is not yet released");
+        if (CHECK_BALANCED_ITEM_FACTORY) {
+            releaseCount++;
+        }
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(item.getKind() == 0, "Item is not yet released");
         }
         final ArrayList<T> list = (ArrayList<T>) getList(item.getType());
-        if (Vm.VerifyAssertions) {
-            Vm._assert(!list.contains(item), "Item already released");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(!list.contains(item), "Item already released");
         }
         list.add(item);
 
         if (false) {
             final String name = item.getClass().getName();
-            Vm.getVm().getCounterGroup(name).getCounter("release").inc();
+            VmUtils.getVm().getCounterGroup(name).getCounter("release").inc();
         }
     }
 
@@ -216,16 +241,20 @@ final class ItemFactory {
      * Get an item out of the cache or if not present, create a new one.
      *
      * @param jvmType
+     * @return
      */
-    private final Item getOrCreate(int jvmType) {
+    private Item getOrCreate(int jvmType) {
+        if (CHECK_BALANCED_ITEM_FACTORY) {
+            getOrCreateCount++;
+        }
         final ArrayList<? extends Item> list = getList(jvmType);
         final Item item;
         if (list.isEmpty()) {
             item = createNew(jvmType);
         } else {
             item = (Item) list.remove(list.size() - 1);
-            if (Vm.VerifyAssertions)
-                Vm._assert(item.getKind() == 0, "kind == 0, but " + item.getKind());
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(item.getKind() == 0, "kind == 0, but " + item.getKind());
         }
         return item;
     }
@@ -234,8 +263,9 @@ final class ItemFactory {
      * Gets the cache array for a given type.
      *
      * @param jvmType
+     * @return
      */
-    private final ArrayList<? extends Item> getList(int jvmType) {
+    private ArrayList<? extends Item> getList(int jvmType) {
         switch (jvmType) {
             case JvmType.INT:
                 return intItems;
@@ -256,9 +286,12 @@ final class ItemFactory {
      * Create a new item of a given type.
      *
      * @param jvmType
+     * @return
      */
-    private final Item createNew(int jvmType) {
-        createCount++;
+    private Item createNew(int jvmType) {
+        if (CHECK_BALANCED_ITEM_FACTORY) {
+            createCount++;
+        }
         switch (jvmType) {
             case JvmType.INT:
                 return new IntItem(this);
@@ -283,13 +316,23 @@ final class ItemFactory {
 
     /**
      * Gets the item factory. This item factory is singleton per thread.
+     *
+     * @return
      */
-    static final ItemFactory getFactory() {
+    static ItemFactory getFactory() {
         ItemFactory fac = (ItemFactory) itemFactory.get();
         if (fac == null) {
             fac = new ItemFactory();
             itemFactory.set(fac);
         }
         return fac;
+    }
+
+    boolean isBalanced() {
+        return getOrCreateCount == releaseCount;
+    }
+
+    void balance() {
+        getOrCreateCount = releaseCount = 0;
     }
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,7 +24,9 @@ import java.io.PrintWriter;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.naming.NameNotFoundException;
+
 import org.apache.log4j.Logger;
 import org.jnode.driver.Device;
 import org.jnode.driver.DeviceAlreadyRegisteredException;
@@ -33,15 +35,15 @@ import org.jnode.driver.DeviceManager;
 import org.jnode.driver.Driver;
 import org.jnode.driver.DriverException;
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.IOResource;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
+import org.jnode.system.resource.IOResource;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
 import org.jnode.util.AccessControllerUtils;
 import org.jnode.util.NumberUtils;
 import org.jnode.vm.VirtualMemoryRegion;
-import org.jnode.vm.Vm;
-import org.jnode.vm.VmArchitecture;
+import org.jnode.vm.facade.VmArchitecture;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.work.Work;
 import org.jnode.work.WorkUtils;
 import org.vmmagic.unboxed.Address;
@@ -243,7 +245,7 @@ final class PCIDriver extends Driver implements DeviceInfoAPI, PCIBusAPI, PCICon
      */
     protected void remapDeviceAddresses(List<PCIDevice> devices) {
         log.debug("Remapping pci devices");
-        final VmArchitecture arch = Vm.getArch();
+        final VmArchitecture arch = VmUtils.getVm().getArch();
         final Address start = arch.getStart(VirtualMemoryRegion.DEVICE);
         final Address end = arch.getEnd(VirtualMemoryRegion.DEVICE);
         for (PCIDevice dev : devices) {
@@ -481,10 +483,10 @@ final class PCIDriver extends Driver implements DeviceInfoAPI, PCIBusAPI, PCICon
                                   final ResourceOwner owner) throws ResourceNotFreeException,
         DriverException {
         try {
-            return (IOResource) AccessControllerUtils
-                .doPrivileged(new PrivilegedExceptionAction() {
+            return AccessControllerUtils
+                .doPrivileged(new PrivilegedExceptionAction<IOResource>() {
 
-                    public Object run() throws ResourceNotFreeException {
+                    public IOResource run() throws ResourceNotFreeException {
                         return rm.claimIOResource(owner, PCI_FIRST_PORT,
                             PCI_LAST_PORT - PCI_FIRST_PORT + 1);
                     }

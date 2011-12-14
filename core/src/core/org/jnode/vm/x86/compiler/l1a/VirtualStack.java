@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,14 +17,13 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
-import org.jnode.assembler.x86.X86Assembler;
 import org.jnode.assembler.x86.X86Register;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
 import org.jnode.vm.bytecode.TypeStack;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.x86.compiler.AbstractX86StackManager;
 
 /**
@@ -56,17 +55,19 @@ final class VirtualStack {
     /**
      * Constructor; create and initialize stack with default size
      */
-    VirtualStack(X86Assembler os) {
-        this.operandStack = checkOperandStack ? new ItemStack(Item.Kind.STACK,
-            Integer.MAX_VALUE) : null;
-        reset();
-    }
-
-    void reset() {
+    VirtualStack() {
+        this.operandStack = checkOperandStack ? new ItemStack(Item.Kind.STACK, Integer.MAX_VALUE) : null;
         stack = new Item[8];
         tos = 0;
+    }
+
+    void reset(EmitterContext ec) {
+        while (!isEmpty())
+            pop().release(ec);
+
+        tos = 0;
         if (checkOperandStack) {
-            operandStack.reset();
+            operandStack.reset(ec);
         }
     }
 
@@ -217,11 +218,11 @@ final class VirtualStack {
      * fpuStack.
      */
     void push(Item item) {
-        if (Vm.VerifyAssertions)
-            Vm._assert(item.getKind() > 0, "Kind > 0");
+        if (VmUtils.verifyAssertions())
+            VmUtils._assert(item.getKind() > 0, "Kind > 0");
         if ((item.isStack()) && (tos > 0)) {
-            if (Vm.VerifyAssertions)
-                Vm._assert(stack[tos - 1].isStack(),
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(stack[tos - 1].isStack(),
                     "stack[ tos - 1].isStack()");
         }
 
@@ -286,8 +287,8 @@ final class VirtualStack {
         int cnt = 0;
         while (i < tos) {
             final Item item = stack[i];
-            if (Vm.VerifyAssertions)
-                Vm._assert(item.getKind() != Item.Kind.STACK,
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(item.getKind() != Item.Kind.STACK,
                     "item.getKind() != Item.Kind.STACK");
             item.push(ec);
             i++;
@@ -296,12 +297,12 @@ final class VirtualStack {
         return cnt;
     }
 
-    /**
-     * Push items on the virtual stack to the actual stack until there are no
-     * more volative registers in use on the stack.
-     *
-     * @param ec
-     */
+//    /**
+//     * Push items on the virtual stack to the actual stack until there are no
+//     * more volative registers in use on the stack.
+//     *
+//     * param ec
+//     */
     // final int pushAllVolatile(EmitterContext ec) {
     // int i = 0;
     // while ((i < tos) && stack[i].isStack()) {
@@ -346,6 +347,10 @@ final class VirtualStack {
     // }
     //
 
+    /**
+     * @param reg
+     * @return
+     */
     boolean uses(X86Register reg) {
         for (int i = 0; i < tos; i++) {
             if (stack[i].uses(reg)) {
@@ -371,6 +376,7 @@ final class VirtualStack {
     /**
      * Push items (kind = STACK) on stack for each type in the given typestack.
      *
+     * @param ifac
      * @param tstack May be null or empty
      */
     final void pushAll(ItemFactory ifac, TypeStack tstack) {
@@ -436,42 +442,41 @@ final class VirtualStack {
 
         /**
          * @see org.jnode.vm.x86.compiler.AbstractX86StackManager#writePUSH(int,
-         *      org.jnode.assembler.x86.Register)
+         *      org.jnode.assembler.x86.X86Register.GPR)
          */
         public void writePUSH(int jvmType, X86Register.GPR reg) {
             final Item item = ifac.createReg(ec, jvmType, reg);
             final boolean ok = pool.request(reg, item);
-            if (Vm.VerifyAssertions)
-                Vm._assert(ok, "request");
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(ok, "request");
             push(item);
         }
 
         /**
          * @see org.jnode.vm.x86.compiler.AbstractX86StackManager#writePUSH64(int,
-         *      org.jnode.assembler.x86.Register,
-         *      org.jnode.assembler.x86.Register)
+         *      org.jnode.assembler.x86.X86Register.GPR, org.jnode.assembler.x86.X86Register.GPR)
          */
         public void writePUSH64(int jvmType, X86Register.GPR lsbReg,
                                 X86Register.GPR msbReg) {
             final Item item = ifac.createReg(ec, jvmType, lsbReg, msbReg);
             final boolean lsbOk = pool.request(lsbReg, item);
             final boolean msbOk = pool.request(msbReg, item);
-            if (Vm.VerifyAssertions) {
-                Vm._assert(lsbOk, "request-lsb");
-                Vm._assert(msbOk, "request-msb");
+            if (VmUtils.verifyAssertions()) {
+                VmUtils._assert(lsbOk, "request-lsb");
+                VmUtils._assert(msbOk, "request-msb");
             }
             push(item);
         }
 
         /**
          * @see org.jnode.vm.x86.compiler.AbstractX86StackManager#writePUSH64(int,
-         *      GPR64)
+         *      org.jnode.assembler.x86.X86Register.GPR64)
          */
         public void writePUSH64(int jvmType, X86Register.GPR64 reg) {
             final Item item = ifac.createReg(ec, jvmType, reg);
             final boolean ok = pool.request(reg, item);
-            if (Vm.VerifyAssertions)
-                Vm._assert(ok, "request");
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(ok, "request");
             push(item);
         }
 

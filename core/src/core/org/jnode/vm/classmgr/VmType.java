@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.classmgr;
 
 import gnu.java.lang.VMClassHelper;
@@ -30,15 +30,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 
-import org.jnode.assembler.NativeStream;
-import org.jnode.vm.JvmType;
-import org.jnode.vm.LoadCompileService;
-import org.jnode.vm.Unsafe;
-import org.jnode.vm.Vm;
-import org.jnode.vm.VmMagic;
-import org.jnode.vm.VmReflection;
-import org.jnode.vm.VmSystemClassLoader;
-import org.jnode.vm.InternString;
 import org.jnode.annotation.Inline;
 import org.jnode.annotation.KernelSpace;
 import org.jnode.annotation.LoadStatics;
@@ -46,11 +37,20 @@ import org.jnode.annotation.MagicPermission;
 import org.jnode.annotation.NoInline;
 import org.jnode.annotation.SharedStatics;
 import org.jnode.annotation.Uninterruptible;
+import org.jnode.assembler.NativeStream;
+import org.jnode.permission.JNodePermission;
+import org.jnode.vm.InternString;
+import org.jnode.vm.JvmType;
+import org.jnode.vm.LoadCompileService;
+import org.jnode.vm.Unsafe;
+import org.jnode.vm.VmMagic;
+import org.jnode.vm.VmReflection;
+import org.jnode.vm.VmSystemClassLoader;
 import org.jnode.vm.compiler.CompileError;
 import org.jnode.vm.compiler.CompiledIMT;
 import org.jnode.vm.compiler.NativeCodeCompiler;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.isolate.VmIsolateLocal;
-import org.jnode.security.JNodePermission;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.ObjectReference;
 
@@ -770,7 +770,7 @@ public abstract class VmType<T> extends VmAnnotatedElement implements
      */
     public final String getMangledName() {
         if (mangledName == null) {
-            mangledName = mangleClassName(name);
+            mangledName = Mangler.mangleClassName(name);
         }
         return mangledName;
     }
@@ -815,7 +815,7 @@ public abstract class VmType<T> extends VmAnnotatedElement implements
     }
 
     public final String toString() {
-        return "_CL_" + mangleClassName(getName());
+        return "_CL_" + Mangler.mangleClassName(getName());
     }
 
     /**
@@ -1128,7 +1128,7 @@ public abstract class VmType<T> extends VmAnnotatedElement implements
      * Can only be called during bootstrapping.
      */
     public final void setAlwaysInitialized() {
-        Vm._assert(!Vm.isRunningVm());
+        VmUtils._assert(!VmUtils.isRunningVm());
         state |= VmTypeState.ST_ALWAYS_INITIALIZED;
     }
 
@@ -1612,7 +1612,7 @@ public abstract class VmType<T> extends VmAnnotatedElement implements
                 // arrayClass.link();
             }
             if (mmType == null) {
-                Vm.notifyClassResolved(this);
+                VmUtils.notifyClassResolved(this);
             }
             this.state |= VmTypeState.ST_LINKED;
         }
@@ -1784,7 +1784,7 @@ public abstract class VmType<T> extends VmAnnotatedElement implements
         if (!isCompiling()) {
             if (loader.isCompileRequired()) {
                 state |= VmTypeState.ST_COMPILING;
-                // BootLog.debug("Compiling " + getName());
+                // BootLogInstance.get().debug("Compiling " + getName());
 
                 // Compile the superclass (if any)
                 if (superClass != null) {
@@ -2175,7 +2175,7 @@ public abstract class VmType<T> extends VmAnnotatedElement implements
      * Verify this object before it is written into the bootimage by the
      * bootimage builder.
      *
-     * @see org.jnode.vm.VmSystemObject#verifyBeforeEmit()
+     * @see org.jnode.vm.objects.VmSystemObject#verifyBeforeEmit()
      */
     public void verifyBeforeEmit() {
         super.verifyBeforeEmit();
@@ -2275,7 +2275,7 @@ public abstract class VmType<T> extends VmAnnotatedElement implements
 
     /**
      * @return String
-     * @see org.jnode.vm.VmSystemObject#getExtraInfo()
+     * @see org.jnode.vm.objects.VmSystemObject#getExtraInfo()
      */
     public String getExtraInfo() {
         return "Modifiers: " + Modifier.toString(modifiers);
@@ -2433,6 +2433,7 @@ public abstract class VmType<T> extends VmAnnotatedElement implements
      */
     private static final JNodePermission GETVMCLASS = new JNodePermission("getVmClass");
     private static int FIELD_OFFSET = -1;
+
     public static <V> VmType<V> fromClass(Class<V> clazz) {
         if (FIELD_OFFSET == -1) {
             FIELD_OFFSET = ((VmInstanceField) ClassClass.getDeclaredField("vmClass")).getOffset();
@@ -2441,7 +2442,7 @@ public abstract class VmType<T> extends VmAnnotatedElement implements
 //        final SecurityManager sm = System.getSecurityManager();
 //        if (sm != null) { //todo: misplaced securty check -> stack overflow in gnu.testlet.
 //                          //todo:                            TestSecurityManager.checkPermission
-                            //todo secure this method
+        //todo secure this method
 //            sm.checkPermission(GETVMCLASS);
 //        }
 

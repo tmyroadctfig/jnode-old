@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -150,6 +150,15 @@ public class TaskBar extends JPanel {
                 lfMenu.add(item);
             }
         }
+
+        //todo fix nimbus startup
+//        JMenuItem nimbus = new JMenuItem("Nimbus");
+//        lfMenu.add(nimbus);
+//        nimbus.addActionListener(new SetLFAction("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel") {
+//            public void actionPerformed(ActionEvent e) {
+//                super.actionPerformed(e);
+//            }
+//        });
 
         JMenuItem metal_theme = new JMenuItem("Metal Default");
         lfMenu.add(metal_theme);

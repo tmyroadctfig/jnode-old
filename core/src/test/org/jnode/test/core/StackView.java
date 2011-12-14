@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,11 +23,11 @@ package org.jnode.test.core;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import org.jnode.util.NumberUtils;
-import org.jnode.vm.Vm;
 import org.jnode.vm.classmgr.Signature;
 import org.jnode.vm.classmgr.VmCompiledCode;
 import org.jnode.vm.classmgr.VmMethod;
 import org.jnode.vm.classmgr.VmType;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.scheduler.VmThread;
 import org.jnode.vm.x86.VmX86StackReader;
 import org.jnode.vm.x86.VmX86Thread;
@@ -101,7 +101,7 @@ public class StackView {
                 final Address child = ptr.loadAddress();
                 if (child != null) {
                     System.out.print(NumberUtils.hex(ptr.toInt()) + " ");
-                    if (Vm.getHeapManager().isObject(child)) {
+                    if (VmUtils.getVm().getHeapManager().isObject(child)) {
                         System.out.println(child);
                     } else {
                         System.out.println(NumberUtils.hex(child.toInt()));
@@ -128,7 +128,7 @@ public class StackView {
                 System.out.println("--------------------------------------------------------------------------");
                 System.out.println("Stack frame:    " + NumberUtils.hex(stackFrame.toInt()));
 
-                VmCompiledCode cc = Vm.getCompiledMethods().get(ccid);
+                VmCompiledCode cc = VmUtils.getVm().getCompiledMethods().get(ccid);
                 VmMethod vmMethod = cc.getMethod();
                 int noArguments = vmMethod.getNoArguments();
                 VmType[] args = new VmType[noArguments];
@@ -162,7 +162,7 @@ public class StackView {
                     ptr = ptr.add(slotSize);
                     System.out.print(NumberUtils.hex(ptr.toInt()) + " Arg" + (i + 1) + " = ");
                     Address child = ptr.loadAddress();
-                    if (Vm.getHeapManager().isObject(child)) {
+                    if (VmUtils.getVm().getHeapManager().isObject(child)) {
                         System.out.println("Class: " + child.getClass() + " Value: " + child);
                     } else {
                         System.out.println(NumberUtils.hex(child.toInt()));

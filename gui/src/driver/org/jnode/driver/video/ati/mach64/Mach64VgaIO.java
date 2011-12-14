@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,7 +22,7 @@ package org.jnode.driver.video.ati.mach64;
 
 import org.jnode.driver.video.vgahw.VgaConstants;
 import org.jnode.driver.video.vgahw.VgaIO;
-import org.jnode.system.MemoryResource;
+import org.jnode.system.resource.MemoryResource;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,10 +23,11 @@ package org.jnode.shell.bjorne;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Iterator;
 
-import org.jnode.shell.CommandLine;
-import org.jnode.shell.ShellException;
+import org.jnode.shell.syntax.Argument;
+import org.jnode.shell.syntax.ArgumentSyntax;
+import org.jnode.shell.syntax.FileArgument;
+import org.jnode.shell.syntax.SyntaxBundle;
 
 /**
  * The 'source' built-in executes commands read from a file in the
@@ -37,44 +38,48 @@ import org.jnode.shell.ShellException;
  * @author crawley@jnode.org
  */
 final class SourceBuiltin extends BjorneBuiltin {
-    @SuppressWarnings("deprecation")
-    public int invoke(CommandLine command, BjorneInterpreter interpreter,
-            BjorneContext context) throws ShellException {
-        Iterator<String> it = command.iterator();
-        if (!it.hasNext()) {
-            error("source: filename argument required", context);
-            return 1;
+    private static final SyntaxBundle SYNTAX = 
+        new SyntaxBundle("source", new ArgumentSyntax("script"));
+    
+    static final Factory FACTORY = new Factory() {
+        public BjorneBuiltinCommandInfo buildCommandInfo(BjorneContext context) {
+            return new BjorneBuiltinCommandInfo("source", SYNTAX, new SourceBuiltin(), context);
         }
-        String fileName = it.next();
-        File file = new File(fileName);
-        long size = file.length();
-        String commandStr;
-        FileReader fin = null;
+    };
+    
+    private final FileArgument argScript = new FileArgument(
+            "script", Argument.MANDATORY, "the script to be executed");
+    
+    
+    private SourceBuiltin() {
+        super("run commands from a script file in the current shell context");
+        registerArguments(argScript);
+    }
+    
+    @Override
+    public void execute() throws Exception {
+        File file = argScript.getValue();
+        FileReader reader = null;
         try {
-            fin = new FileReader(file);
-            if (size > 1000000) {
-                // Since we are going to read the whole script into memory, we
-                // need to set some limit on the script's file size ...
-                error("source: " + fileName + ": file too big", context);
-                return 1;
+            reader = new FileReader(file);
+
+            // TODO ... implement args.
+            BjorneContext pc = getParentContext();
+            int rc = pc.getInterpreter().interpret(pc.getShell(), reader, true, "", new String[0]);
+            if (rc != 0) {
+                exit(rc);
             }
-            char[] buffer = new char[(int) size];
-            int nosRead = fin.read(buffer);
-            commandStr = new String(buffer, 0, nosRead);
         } catch (IOException ex) {
-            error("source: " + fileName + ": " + ex.getMessage(), context);
-            return 1;
+            getError().getPrintWriter().println("source: " + file + ": " + ex.getMessage());
+            exit(1);
         } finally {
-            if (fin != null) {
+            if (reader != null) {
                 try {
-                    fin.close();
+                    reader.close();
                 } catch (IOException ex) {
                     /* blah */
                 }
             }
         }
-        // TODO ... implement args.
-        return interpreter.interpret(interpreter.getShell(), commandStr,
-                null, true);
     }
 }

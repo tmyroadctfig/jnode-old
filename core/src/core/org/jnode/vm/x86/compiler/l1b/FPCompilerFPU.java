@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1b;
 
 import org.jnode.assembler.Label;
@@ -28,9 +28,9 @@ import org.jnode.assembler.x86.X86Register.FPU;
 import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.assembler.x86.X86Register.GPR32;
 import org.jnode.assembler.x86.X86Register.GPR64;
-import org.jnode.system.BootLog;
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
@@ -234,11 +234,11 @@ final class FPCompilerFPU extends FPCompiler {
                                           VirtualStack vstack, int items) {
         final FPUStack fpuStack = vstack.fpuStack;
         if (!fpuStack.hasCapacity(items)) {
-            BootLog.debug("Flush FPU stack;\n  fpuStack=" + fpuStack
+            BootLogInstance.get().debug("Flush FPU stack;\n  fpuStack=" + fpuStack
                 + ",\n  vstack  =" + vstack);
             vstack.push(ec);
-            if (Vm.VerifyAssertions)
-                Vm._assert(fpuStack.hasCapacity(items), "Out of FPU stack");
+            if (VmUtils.verifyAssertions())
+                VmUtils._assert(fpuStack.hasCapacity(items), "Out of FPU stack");
         }
     }
 
@@ -324,8 +324,8 @@ final class FPCompilerFPU extends FPCompiler {
      * Make sure that the given operand is on the top on the FPU stack.
      */
     private static void prepareForOperation(X86Assembler os,
-                                                  EmitterContext ec, VirtualStack vstack, FPUStack fpuStack,
-                                                  Item left) {
+                                            EmitterContext ec, VirtualStack vstack, FPUStack fpuStack,
+                                            Item left) {
         final boolean onFpu = left.isFPUStack();
 
         // If the FPU stack will be full in this operation, we flush the vstack
@@ -359,8 +359,8 @@ final class FPCompilerFPU extends FPCompiler {
      * @param right
      */
     private static FPU prepareForOperation(X86Assembler os,
-                                                 EmitterContext ec, VirtualStack vstack, FPUStack fpuStack,
-                                                 Item left, Item right, boolean commutative) {
+                                           EmitterContext ec, VirtualStack vstack, FPUStack fpuStack,
+                                           Item left, Item right, boolean commutative) {
         final boolean lOnFpu = left.isFPUStack();
         final boolean rOnFpu = right.isFPUStack();
         final FPU reg;
@@ -407,7 +407,7 @@ final class FPCompilerFPU extends FPCompiler {
         } else if (lOnFpu) {
             // Left operand is on FPU stack, right is not
             right.pushToFPU(ec); // Now right is on top
-            // BootLog.debug("left.kind=" + left.getKind());
+            // BootLogInstance.get().debug("left.kind=" + left.getKind());
             reg = fpuStack.getRegister(left);
             if (!commutative) {
                 FPUHelper.fxch(os, fpuStack, reg);

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -125,6 +125,12 @@ public class IsolateCommandThreadImpl implements CommandThread {
     public int getReturnCode() {
         // FIXME ... maybe we should check that the thread has terminated.
         return rc;
+    }
+    
+    @Override
+    public Throwable getTerminatingException() {
+        // FIXME ... implement this
+        return null;
     }
 
     @Override

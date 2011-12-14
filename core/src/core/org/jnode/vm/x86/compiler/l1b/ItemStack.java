@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,12 +17,12 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1b;
 
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
 import org.jnode.vm.bytecode.StackException;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
@@ -150,8 +150,8 @@ class ItemStack {
     }
 
     final void push(Item item) {
-        if (Vm.VerifyAssertions)
-            Vm._assert(item.getKind() == expectedKind,
+        if (VmUtils.verifyAssertions())
+            VmUtils._assert(item.getKind() == expectedKind,
                 "item.getKind() == expectedKind");
         if (tos == stack.length) {
             grow();

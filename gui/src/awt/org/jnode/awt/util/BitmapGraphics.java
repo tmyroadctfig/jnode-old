@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -31,8 +31,8 @@ import java.awt.image.DataBufferUShort;
 import java.awt.image.Raster;
 import javax.naming.NamingException;
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.MemoryResource;
-import org.jnode.system.ResourceManager;
+import org.jnode.system.resource.MemoryResource;
+import org.jnode.system.resource.ResourceManager;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)

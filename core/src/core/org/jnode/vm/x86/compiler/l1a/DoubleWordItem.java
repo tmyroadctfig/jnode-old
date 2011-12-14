@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.x86.X86Assembler;
@@ -26,14 +26,15 @@ import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.assembler.x86.X86Register.GPR32;
 import org.jnode.assembler.x86.X86Register.GPR64;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
-import org.jnode.vm.x86.compiler.X86CompilerConstants;
+import org.jnode.vm.facade.VmUtils;
+
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.BITS64;
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.INTSIZE;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-public abstract class DoubleWordItem extends Item implements
-    X86CompilerConstants {
+public abstract class DoubleWordItem extends Item {
 
     /**
      * LSB Register in 32-bit mode
@@ -52,16 +53,21 @@ public abstract class DoubleWordItem extends Item implements
 
     /**
      * Initialize a blank item.
+     *
+     * @param factory
      */
     protected DoubleWordItem(ItemFactory factory) {
         super(factory);
     }
 
     /**
+     * @param ec
      * @param kind
      * @param offsetToFP
      * @param lsb
      * @param msb
+     * @param reg
+     * @param xmm
      */
     protected final void initialize(EmitterContext ec, byte kind, short offsetToFP,
                                     X86Register.GPR lsb, X86Register.GPR msb, X86Register.GPR64 reg,
@@ -70,9 +76,9 @@ public abstract class DoubleWordItem extends Item implements
         this.lsb = (GPR32) lsb;
         this.msb = (GPR32) msb;
         this.reg = reg;
-        if (Vm.VerifyAssertions) {
+        if (VmUtils.verifyAssertions()) {
             if (isGPR()) {
-                Vm._assert(((lsb != null) && (msb != null)) || (reg != null));
+                VmUtils._assert(((lsb != null) && (msb != null)) || (reg != null));
             }
             verifyState(ec);
         }
@@ -129,6 +135,7 @@ public abstract class DoubleWordItem extends Item implements
     /**
      * Create a clone of this item, which must be a constant.
      *
+     * @param ec
      * @return the clone
      */
     protected abstract DoubleWordItem cloneConstant(EmitterContext ec);
@@ -148,6 +155,7 @@ public abstract class DoubleWordItem extends Item implements
      * Gets the offset from the LSB part of this item to the FramePointer
      * register. This is only valid if this item has a LOCAL kind.
      *
+     * @param ec
      * @return the offset
      */
     final int getLsbOffsetToFP(EmitterContext ec) {
@@ -157,15 +165,16 @@ public abstract class DoubleWordItem extends Item implements
     /**
      * Gets the register holding the LSB part of this item in 32-bit mode.
      *
+     * @param ec
      * @return the register
      */
     final X86Register.GPR getLsbRegister(EmitterContext ec) {
         if (!ec.getStream().isCode32()) {
             throw new Error("Can only be used in 32-bit mode");
         }
-        if (Vm.VerifyAssertions) {
-            Vm._assert(isGPR(), "kind == Kind.REGISTER");
-            Vm._assert(lsb != null, "lsb != null");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(isGPR(), "kind == Kind.REGISTER");
+            VmUtils._assert(lsb != null, "lsb != null");
         }
         return lsb;
     }
@@ -174,6 +183,7 @@ public abstract class DoubleWordItem extends Item implements
      * Gets the offset from the MSB part of this item to the FramePointer
      * register. This is only valid if this item has a LOCAL kind.
      *
+     * @param ec
      * @return the offset
      */
     final int getMsbOffsetToFP(EmitterContext ec) {
@@ -183,15 +193,16 @@ public abstract class DoubleWordItem extends Item implements
     /**
      * Gets the register holding the MSB part of this item in 32-bit mode.
      *
+     * @param ec
      * @return the register
      */
     final X86Register.GPR getMsbRegister(EmitterContext ec) {
         if (!ec.getStream().isCode32()) {
             throw new Error("Can only be used in 32-bit mode");
         }
-        if (Vm.VerifyAssertions) {
-            Vm._assert(isGPR(), "kind == Kind.GPR");
-            Vm._assert(msb != null, "msb != null");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(isGPR(), "kind == Kind.GPR");
+            VmUtils._assert(msb != null, "msb != null");
         }
         return msb;
     }
@@ -199,15 +210,16 @@ public abstract class DoubleWordItem extends Item implements
     /**
      * Gets the register holding this item in 64-bit mode.
      *
+     * @param ec
      * @return the register
      */
     final X86Register.GPR64 getRegister(EmitterContext ec) {
         if (!ec.getStream().isCode64()) {
             throw new Error("Can only be used in 64-bit mode");
         }
-        if (Vm.VerifyAssertions) {
-            Vm._assert(isGPR(), "kind == Kind.REGISTER");
-            Vm._assert(reg != null, "reg != null reg=" + reg + " lsb=" + lsb
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(isGPR(), "kind == Kind.REGISTER");
+            VmUtils._assert(reg != null, "reg != null reg=" + reg + " lsb=" + lsb
                 + " msb=" + msb);
         }
         return reg;
@@ -217,8 +229,8 @@ public abstract class DoubleWordItem extends Item implements
      * Gets the offset from this item to the FramePointer register. This is only
      * valid if this item has a LOCAL kind.
      *
-     * @return In 32-bit mode, use {@link #getLsbOffsetToFP()}or
-     *         {@link #getMsbOffsetToFP()}instead.
+     * @return In 32-bit mode, use {@link #getLsbOffsetToFP(EmitterContext)} or
+     *         {@link #getMsbOffsetToFP(EmitterContext)} instead.
      */
     final short getOffsetToFP(EmitterContext ec) {
         if (ec.getStream().isCode32()) {
@@ -248,9 +260,9 @@ public abstract class DoubleWordItem extends Item implements
                     vstack.push(ec);
                     r = (X86Register.GPR) pool.request(JvmType.INT, this);
                 }
-                if (Vm.VerifyAssertions) {
-                    Vm._assert(r != null, "r != null");
-                    Vm._assert(l != null, "l != null");
+                if (VmUtils.verifyAssertions()) {
+                    VmUtils._assert(r != null, "r != null");
+                    VmUtils._assert(l != null, "l != null");
                 }
                 loadTo32(ec, l, r);
             } else {
@@ -260,13 +272,13 @@ public abstract class DoubleWordItem extends Item implements
                     vstack.push(ec);
                     r = (GPR64) pool.request(getType(), this);
                 }
-                if (Vm.VerifyAssertions) {
-                    Vm._assert(r != null, "r != null");
+                if (VmUtils.verifyAssertions()) {
+                    VmUtils._assert(r != null, "r != null");
                 }
                 loadTo64(ec, r);
             }
         }
-        if (Vm.VerifyAssertions) {
+        if (VmUtils.verifyAssertions()) {
             verifyState(ec);
         }
     }
@@ -288,10 +300,10 @@ public abstract class DoubleWordItem extends Item implements
         }
 
         // os.log("LongItem.log called "+Integer.toString(kind));
-        if (Vm.VerifyAssertions) {
-            Vm._assert(lsb != msb, "lsb != msb");
-            Vm._assert(lsb != null, "lsb != null");
-            Vm._assert(msb != null, "msb != null");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(lsb != msb, "lsb != msb");
+            VmUtils._assert(lsb != null, "lsb != null");
+            VmUtils._assert(msb != null, "msb != null");
         }
 
         switch (getKind()) {
@@ -392,8 +404,8 @@ public abstract class DoubleWordItem extends Item implements
             throw new RuntimeException("Can only be used in 64-bit mode.");
         }
 
-        if (Vm.VerifyAssertions) {
-            Vm._assert(reg != null, "reg != null");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(reg != null, "reg != null");
         }
 
         switch (getKind()) {
@@ -437,6 +449,7 @@ public abstract class DoubleWordItem extends Item implements
     /**
      * Load my constant to the given os in 32-bit mode.
      *
+     * @param ec
      * @param os
      * @param lsb
      * @param msb
@@ -447,6 +460,7 @@ public abstract class DoubleWordItem extends Item implements
     /**
      * Load my constant to the given os in 64-bit mode.
      *
+     * @param ec
      * @param os
      * @param reg
      */
@@ -470,8 +484,8 @@ public abstract class DoubleWordItem extends Item implements
                     lsb = (X86Register.GPR) ec.getGPRPool()
                         .request(JvmType.INT);
                 }
-                if (Vm.VerifyAssertions)
-                    Vm._assert(lsb != null, "lsb != null");
+                if (VmUtils.verifyAssertions())
+                    VmUtils._assert(lsb != null, "lsb != null");
                 X86Register.GPR msb = (X86Register.GPR) ec.getGPRPool()
                     .request(JvmType.INT);
                 if (msb == null) {
@@ -479,8 +493,8 @@ public abstract class DoubleWordItem extends Item implements
                     msb = (X86Register.GPR) ec.getGPRPool()
                         .request(JvmType.INT);
                 }
-                if (Vm.VerifyAssertions)
-                    Vm._assert(msb != null, "msb != null");
+                if (VmUtils.verifyAssertions())
+                    VmUtils._assert(msb != null, "msb != null");
                 loadTo32(ec, lsb, msb);
             } else {
                 GPR64 r = (GPR64) ec.getGPRPool().request(getType());
@@ -488,8 +502,8 @@ public abstract class DoubleWordItem extends Item implements
                     ec.getVStack().push(ec);
                     r = (GPR64) ec.getGPRPool().request(getType());
                 }
-                if (Vm.VerifyAssertions) {
-                    Vm._assert(r != null, "r != null");
+                if (VmUtils.verifyAssertions()) {
+                    VmUtils._assert(r != null, "r != null");
                 }
                 loadTo64(ec, r);
             }
@@ -591,6 +605,7 @@ public abstract class DoubleWordItem extends Item implements
     /**
      * Push my constant on the stack using the given os.
      *
+     * @param ec
      * @param os
      */
     protected abstract void pushConstant(EmitterContext ec, X86Assembler os);
@@ -650,7 +665,7 @@ public abstract class DoubleWordItem extends Item implements
                 stack.fpuStack.pop(this);
                 stack.fpuStack.push(this);
                 return;
-                // break;
+            // break;
 
             case Kind.STACK:
                 if (VirtualStack.checkOperandStack) {
@@ -680,9 +695,10 @@ public abstract class DoubleWordItem extends Item implements
     }
 
     /**
+     * @param ec
      * @see org.jnode.vm.x86.compiler.l1a.Item#release(EmitterContext)
      */
-    private final void cleanup(EmitterContext ec) {
+    private void cleanup(EmitterContext ec) {
         // assertCondition(!ec.getVStack().contains(this), "Cannot release while
         // on vstack");
         final X86RegisterPool pool = ec.getGPRPool();
@@ -721,7 +737,7 @@ public abstract class DoubleWordItem extends Item implements
         setKind((byte) 0);
     }
 
-    private final X86Register request(EmitterContext ec, X86RegisterPool pool) {
+    private X86Register request(EmitterContext ec, X86RegisterPool pool) {
         final X86Assembler os = ec.getStream();
         final X86Register r;
         if (os.isCode32()) {
@@ -729,23 +745,23 @@ public abstract class DoubleWordItem extends Item implements
         } else {
             r = pool.request(getType());
         }
-        if (Vm.VerifyAssertions) {
-            Vm._assert(r != null, "r != null");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(r != null, "r != null");
         }
         return r;
     }
 
     /**
-     * @see org.jnode.vm.x86.compiler.l1a.Item#spill(EmitterContext, Register)
+     * @see org.jnode.vm.x86.compiler.l1a.Item#spill(EmitterContext, org.jnode.assembler.x86.X86Register)
      */
     final void spill(EmitterContext ec, X86Register reg) {
         final X86Assembler os = ec.getStream();
-        if (Vm.VerifyAssertions) {
-            Vm._assert(getKind() == Kind.GPR);
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(getKind() == Kind.GPR);
             if (os.isCode32()) {
-                Vm._assert((this.lsb == reg) || (this.msb == reg), "spill1");
+                VmUtils._assert((this.lsb == reg) || (this.msb == reg), "spill1");
             } else {
-                Vm._assert((this.reg.getNr() == reg.getNr()), "spill1");
+                VmUtils._assert((this.reg.getNr() == reg.getNr()), "spill1");
             }
         }
         ec.getVStack().push(ec);
@@ -765,13 +781,13 @@ public abstract class DoubleWordItem extends Item implements
             loadTo64(ec, newReg);
             pool.transferOwnerTo(newReg, this);
         }
-        if (Vm.VerifyAssertions) {
+        if (VmUtils.verifyAssertions()) {
             verifyState(ec);
         }
     }
 
     /**
-     * @see org.jnode.vm.x86.compiler.l1a.Item#uses(org.jnode.assembler.x86.Register)
+     * @see org.jnode.vm.x86.compiler.l1a.Item#uses(org.jnode.assembler.x86.X86Register)
      */
     final boolean uses(X86Register reg) {
         return (isGPR() && ((this.msb == reg) || (this.lsb == reg) || (this.reg == reg)));
@@ -780,7 +796,7 @@ public abstract class DoubleWordItem extends Item implements
     /**
      * enquire whether the item uses a volatile register
      *
-     * @param reg
+     * @param pool
      * @return true, when this item uses a volatile register.
      */
     final boolean usesVolatileRegister(X86RegisterPool pool) {
@@ -810,18 +826,9 @@ public abstract class DoubleWordItem extends Item implements
                     if (msb == null) {
                         throw new IllegalStateException("msb cannot be null");
                     }
-                    if (!(lsb instanceof GPR32)) {
-                        throw new IllegalStateException("lsb must be GPR32");
-                    }
-                    if (!(msb instanceof GPR32)) {
-                        throw new IllegalStateException("msb must be GPR32");
-                    }
                 } else {
                     if (reg == null) {
                         throw new IllegalStateException("reg cannot be null");
-                    }
-                    if (!(reg instanceof GPR64)) {
-                        throw new IllegalStateException("reg must be GPR64");
                     }
                 }
                 break;

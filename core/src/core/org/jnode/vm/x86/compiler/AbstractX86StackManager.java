@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -42,8 +42,7 @@ public interface AbstractX86StackManager {
      * @param msbReg
      * @param jvmType the type of the registers contents as a {@link org.jnode.vm.JvmType}.
      */
-    public void writePUSH64(int jvmType, X86Register.GPR lsbReg,
-                            X86Register.GPR msbReg);
+    public void writePUSH64(int jvmType, X86Register.GPR lsbReg, X86Register.GPR msbReg);
 
     /**
      * Write code to push a 64-bit word on the stack

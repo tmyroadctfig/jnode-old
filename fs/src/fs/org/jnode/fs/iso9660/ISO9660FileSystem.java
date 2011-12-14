@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.iso9660;
 
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class ISO9660FileSystem extends AbstractFileSystem<ISO9660Entry> {
     }
 
     /**
-     * 
+     *
      */
     protected FSFile createFile(FSEntry entry) throws IOException {
         // TODO Auto-generated method stub
@@ -92,7 +92,7 @@ public class ISO9660FileSystem extends AbstractFileSystem<ISO9660Entry> {
     }
 
     /**
-     * 
+     *
      */
     protected FSDirectory createDirectory(FSEntry entry) throws IOException {
         // TODO Auto-generated method stub
@@ -100,7 +100,7 @@ public class ISO9660FileSystem extends AbstractFileSystem<ISO9660Entry> {
     }
 
     /**
-     * 
+     *
      */
     protected ISO9660Entry createRootEntry() throws IOException {
         // TODO Auto-generated method stub
@@ -108,17 +108,14 @@ public class ISO9660FileSystem extends AbstractFileSystem<ISO9660Entry> {
     }
 
     public long getFreeSpace() {
-        // TODO implement me
-        return -1;
+        return 0;
     }
 
     public long getTotalSpace() {
-        // TODO implement me
-        return -1;
+        return volume.getSize();
     }
 
     public long getUsableSpace() {
-        // TODO implement me
-        return -1;
+        return volume.getSize();
     }
 }

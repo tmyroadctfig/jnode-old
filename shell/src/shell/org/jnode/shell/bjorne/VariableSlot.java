@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,16 +17,18 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+ 
 package org.jnode.shell.bjorne;
 
 import org.jnode.shell.ShellFailureException;
 
 class VariableSlot {
-    public String value;
-    public final String name;
-    public boolean exported;
+    private String value;
+    private final String name;
+    private boolean exported;
+    private boolean readOnly;
 
-    public VariableSlot(String name, String value, boolean exported) {
+    VariableSlot(String name, String value, boolean exported) {
         if (name == null) {
             throw new ShellFailureException("null name");
         }
@@ -38,9 +40,38 @@ class VariableSlot {
         this.name = name;
     }
 
-    public VariableSlot(VariableSlot other) {
+    VariableSlot(VariableSlot other) {
         this.value = other.value;
         this.exported = other.exported;
         this.name = other.name;
     }
+    
+    String getValue() {
+        return value;
+    }
+
+    void setValue(String value) {
+        this.value = value;
+    }
+
+    boolean isExported() {
+        return exported;
+    }
+
+    void setExported(boolean exported) {
+        this.exported = exported;
+    }
+
+    boolean isReadOnly() {
+        return readOnly;
+    }
+
+    void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    String getName() {
+        return name;
+    }
+
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.fs.hfsplus;
 
 import java.text.SimpleDateFormat;
@@ -36,8 +36,8 @@ public class HfsUtils {
      * Convert time from/to java time to/from mac time.
      * 
      * @param time in seconds since reference date.
-     * @param encode if {code true}, convert from java to mac, otherwise
-     * convert from mac to java.
+     * @param encode if {code true}, convert from java to mac, otherwise convert
+     *            from mac to java.
      * 
      * @return the converted time
      */

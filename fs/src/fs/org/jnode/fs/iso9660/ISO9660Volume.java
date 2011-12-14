@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,15 +17,15 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.iso9660;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.driver.block.BlockDeviceAPI;
 import org.jnode.driver.block.FSBlockDeviceAPI;
-import org.jnode.system.BootLog;
 
 /**
  * @author vali
@@ -43,7 +43,7 @@ public class ISO9660Volume implements ISO9660Constants {
 
     /**
      * Initialize this instance.
-     * 
+     *
      * @param api
      * @throws IOException
      */
@@ -65,26 +65,26 @@ public class ISO9660Volume implements ISO9660Constants {
                     done = true;
                     break;
                 case VolumeDescriptorType.BOOTRECORD:
-                    BootLog.debug("Found boot record");
+                    BootLogInstance.get().debug("Found boot record");
                     break;
                 case VolumeDescriptorType.PRIMARY_DESCRIPTOR:
-                    BootLog.debug("Found primary descriptor");
+                    BootLogInstance.get().debug("Found primary descriptor");
                     pVD = new PrimaryVolumeDescriptor(this, buffer);
                     // pVD.dump(System.out);
                     break;
                 case VolumeDescriptorType.SUPPLEMENTARY_DESCRIPTOR:
-                    BootLog.debug("Found supplementatory descriptor");
+                    BootLogInstance.get().debug("Found supplementatory descriptor");
                     final SupplementaryVolumeDescriptor d =
-                            new SupplementaryVolumeDescriptor(this, buffer);
+                        new SupplementaryVolumeDescriptor(this, buffer);
                     if (d.isEncodingKnown()) {
                         sVD = d;
                     }
                     break;
                 case VolumeDescriptorType.PARTITION_DESCRIPTOR:
-                    BootLog.debug("Found partition descriptor");
+                    BootLogInstance.get().debug("Found partition descriptor");
                     break;
                 default:
-                    BootLog.debug("Found unknown descriptor with type " + type);
+                    BootLogInstance.get().debug("Found unknown descriptor with type " + type);
             }
         }
         if (pVD == null) {
@@ -96,7 +96,7 @@ public class ISO9660Volume implements ISO9660Constants {
 
     /**
      * Read a block of data from this volume.
-     * 
+     *
      * @param startLBN
      * @param offset
      * @param buffer
@@ -118,5 +118,17 @@ public class ISO9660Volume implements ISO9660Constants {
         } else {
             return primaryVolumeDescriptor.getRootDirectoryEntry();
         }
+    }
+
+    public PrimaryVolumeDescriptor getPrimaryVolumeDescriptor() {
+        return primaryVolumeDescriptor;
+    }
+
+    public SupplementaryVolumeDescriptor getSupplementaryVolumeDescriptor() {
+        return supplementaryVolumeDescriptor;
+    }
+
+    public long getSize() {
+        return primaryVolumeDescriptor.getSize();
     }
 }

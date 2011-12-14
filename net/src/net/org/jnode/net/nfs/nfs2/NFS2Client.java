@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -138,7 +138,7 @@ public class NFS2Client {
         try {
             port = portmap.getPort(NFS_PROGRAM, NFS_VERSION,
                             protocol == Protocol.UDP ? OncRpcProtocols.ONCRPC_UDP
-                                    : OncRpcProtocols.ONCRPC_UDP);
+                                    : OncRpcProtocols.ONCRPC_TCP);
         } finally {
             portmap.close();
         }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -32,10 +32,16 @@ import org.jnode.util.TimeoutException;
 public class IDEReadSectorsCommand extends IDERWSectorsCommand {
     private final ByteBuffer buf;
 
-    private int readSectors;
+    private int readSectors = 0;
 
-    public IDEReadSectorsCommand(boolean primary, boolean master, long lbaStart, int sectors, ByteBuffer dest) {
-        super(primary, master, lbaStart, sectors);
+    public IDEReadSectorsCommand(
+            boolean primary, 
+            boolean master,
+            boolean is48bit,
+            long lbaStart, 
+            int sectors, 
+            ByteBuffer dest) {
+        super(primary, master, is48bit, lbaStart, sectors);
         buf = dest;
     }
 
@@ -44,7 +50,7 @@ public class IDEReadSectorsCommand extends IDERWSectorsCommand {
      */
     protected void setup(IDEBus ide, IDEIO io) throws TimeoutException {
         super.setup(ide, io);
-        io.setCommandReg(CMD_READ);
+        io.setCommandReg(is48bit ? CMD_READ_EXT : CMD_READ);
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,7 @@
 package org.jnode.build.x86;
 
 import org.jnode.build.AbstractAsmConstBuilder;
-import org.jnode.vm.VmArchitecture;
+import org.jnode.vm.BaseVmArchitecture;
 import org.jnode.vm.x86.VmX86Architecture32;
 import org.jnode.vm.x86.VmX86Architecture64;
 
@@ -32,9 +32,9 @@ public class AsmConstBuilder extends AbstractAsmConstBuilder {
 
     private int bits = 32;
 
-    private VmArchitecture arch;
+    private BaseVmArchitecture arch;
 
-    protected VmArchitecture getArchitecture() {
+    protected BaseVmArchitecture getArchitecture() {
         if (arch == null) {
             switch (bits) {
                 case 32:

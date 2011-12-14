@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,21 +21,23 @@
 package org.jnode.driver.block.floppy;
 
 import java.security.PrivilegedExceptionAction;
+
 import javax.naming.NameNotFoundException;
+
 import org.apache.log4j.Logger;
 import org.jnode.driver.DriverException;
 import org.jnode.driver.system.cmos.CMOSConstants;
 import org.jnode.driver.system.cmos.CMOSService;
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.DMAException;
-import org.jnode.system.DMAManager;
-import org.jnode.system.DMAResource;
-import org.jnode.system.IOResource;
-import org.jnode.system.IRQResource;
-import org.jnode.system.MemoryResource;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
+import org.jnode.system.resource.DMAException;
+import org.jnode.system.resource.DMAManager;
+import org.jnode.system.resource.DMAResource;
+import org.jnode.system.resource.IOResource;
+import org.jnode.system.resource.IRQResource;
+import org.jnode.system.resource.MemoryResource;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
 import org.jnode.util.AccessControllerUtils;
 import org.jnode.util.NumberUtils;
 import org.jnode.util.TimeoutException;
@@ -491,7 +493,7 @@ public class DefaultFDC implements FDC {
 
     /**
      * @param irq
-     * @see org.jnode.system.IRQHandler#handleInterrupt(int)
+     * @see org.jnode.system.resource.IRQHandler#handleInterrupt(int)
      */
     public void handleInterrupt(int irq) {
         final FloppyCommand cmd = currentCommand;

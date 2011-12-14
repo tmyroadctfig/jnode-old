@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,12 +17,13 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm;
 
 import org.jnode.annotation.MagicPermission;
 import org.jnode.annotation.SharedStatics;
 import org.jnode.annotation.Uninterruptible;
+import org.jnode.vm.objects.VmSystemObject;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.scheduler.VmThread;
 import org.vmmagic.unboxed.Address;
@@ -246,7 +247,6 @@ public final class MemoryBlockManager extends VmSystemObject {
      */
     private static void initialize() {
         Unsafe.debug("Initialize MemoryBlockManager\n");
-
         startPtr = blockAlign(Unsafe.getMemoryStart().toWord(), true).toAddress();
         endPtr = blockAlign(Unsafe.getMemoryEnd().toWord(), false).toAddress();
 

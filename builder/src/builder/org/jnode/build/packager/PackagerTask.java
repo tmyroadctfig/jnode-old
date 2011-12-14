@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -58,6 +58,7 @@ public class PackagerTask extends Task {
     // properties names
     protected static final String USER_PLUGIN_IDS = "user.plugin.ids";
     protected static final String PLUGIN_LIST_NAME = "plugin.list.name";
+    protected static final String TARGET_PLUGIN_LIST = "target.plugin.list";
     protected static final String FORCE_OVERWRITE_SCRIPTS = "force.overwrite.scripts";
     
     /**

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -78,7 +78,7 @@ public class ForCommandNode extends CommandNode {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("LoopCommand{").append(super.toString());
         sb.append(",var=").append(var);
         if (words != null) {
@@ -92,13 +92,18 @@ public class ForCommandNode extends CommandNode {
 
     @Override
     public int execute(BjorneContext context) throws ShellException {
-        int rc = 0;
-        List<BjorneToken> expanded = context.expandAndSplit(words);
-        for (BjorneToken word : expanded) {
-            context.setVariable(var.getText(), word.getText());
-            rc = body.execute(context);
+        try {
+            int rc = 0;
+            context.evaluateRedirectionsAndPushHolders(getRedirects());
+            List<BjorneToken> expanded = context.expandAndSplit(words);
+            for (BjorneToken word : expanded) {
+                context.setVariable(var.getText(), word.getText());
+                rc = body.execute(context);
+            }
+            return rc;
+        } finally {
+            context.popHolders();
         }
-        return rc;
     }
     
     @Override

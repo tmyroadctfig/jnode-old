@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,12 +20,14 @@
  
 package org.jnode.shell.bjorne;
 
-import java.io.PrintStream;
-import java.util.Iterator;
+import java.io.PrintWriter;
 
-import org.jnode.shell.Command;
-import org.jnode.shell.CommandLine;
-import org.jnode.shell.ShellException;
+import org.jnode.shell.syntax.Argument;
+import org.jnode.shell.syntax.ArgumentSyntax;
+import org.jnode.shell.syntax.FlagArgument;
+import org.jnode.shell.syntax.OptionSyntax;
+import org.jnode.shell.syntax.RepeatSyntax;
+import org.jnode.shell.syntax.SyntaxBundle;
 
 /**
  * This class implements the 'unalias' built-in.
@@ -33,28 +35,48 @@ import org.jnode.shell.ShellException;
  * @author crawley@jnode.org
  */
 final class UnaliasBuiltin extends BjorneBuiltin {
-    @SuppressWarnings("deprecation")
-    public int invoke(CommandLine command, BjorneInterpreter interpreter,
-            BjorneContext context) throws ShellException {
-        Iterator<String> args = command.iterator();
-        context = context.getParent();
-        PrintStream err = context.resolvePrintStream(context.getIO(Command.STD_ERR));
+    private static final SyntaxBundle SYNTAX = new SyntaxBundle("unalias", 
+            new OptionSyntax("all", 'a'),
+            new RepeatSyntax(new ArgumentSyntax("alias"), 1, Integer.MAX_VALUE));
+    
+    static final Factory FACTORY = new Factory() {
+        public BjorneBuiltinCommandInfo buildCommandInfo(BjorneContext context) {
+            return new BjorneBuiltinCommandInfo("unalias", SYNTAX, new UnaliasBuiltin(context), context);
+        }
+    };
+    
+    private final FlagArgument flagAll = new FlagArgument(
+            "all", Argument.OPTIONAL, "if set, undefine all aliases");
+    
+    private final BjorneAliasNameArgument argAlias; 
+    
+    private UnaliasBuiltin(BjorneContext context) {
+        super("undefined Bjorne shell aliases");
+        argAlias = new BjorneAliasNameArgument(
+                "alias", context, Argument.OPTIONAL + Argument.MULTIPLE, "aliases to be undefined");
+        registerArguments(flagAll, argAlias);
+    }
+    
+    @Override
+    public void execute() throws Exception {
+        BjorneContext pc = getParentContext();
+        PrintWriter err = getError().getPrintWriter();
         int rc = 0;
-        while (args.hasNext()) {
-            String arg = args.next();
-            if (arg.equals("-a")) {
-                context.getAliases().clear();
-                break;
-            } else {
-                String alias = context.getAlias(arg);
+        if (flagAll.isSet()) {
+            pc.getAliases().clear();
+        } else {
+            for (String arg : argAlias.getValues()) {
+                String alias = pc.getAlias(arg);
                 if (alias == null) {
                     err.println("alias: " + arg + " not found");
                     rc = 1;
                 } else {
-                    context.undefineAlias(arg);
+                    pc.undefineAlias(arg);
                 }
             }
         }
-        return rc;
+        if (rc != 0) {
+            exit(rc);
+        }
     }
 }

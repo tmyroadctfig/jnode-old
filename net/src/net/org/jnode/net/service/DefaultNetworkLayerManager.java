@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -109,7 +109,7 @@ public class DefaultNetworkLayerManager implements NetworkLayerManager,
      * @throws NoSuchProtocolException
      */
     public NetworkLayer getNetworkLayer(int protocolID) throws NoSuchProtocolException {
-        final NetworkLayer pt = (NetworkLayer) layers.get(new Integer(protocolID));
+        final NetworkLayer pt = (NetworkLayer) layers.get(Integer.valueOf(protocolID));
         if (pt == null) {
             throw new NoSuchProtocolException("protocolID " + protocolID);
         }

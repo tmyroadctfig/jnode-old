@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,10 +20,10 @@
  
 package org.jnode.vm.memmgr.def;
 
-import org.jnode.vm.ObjectVisitor;
 import org.jnode.annotation.Inline;
 import org.jnode.annotation.MagicPermission;
 import org.jnode.vm.classmgr.ObjectLayout;
+import org.jnode.vm.facade.ObjectVisitor;
 import org.jnode.vm.memmgr.HeapHelper;
 import org.jnode.vm.scheduler.SpinLock;
 import org.vmmagic.pragma.Uninterruptible;
@@ -177,7 +177,7 @@ abstract class VmAbstractHeap extends SpinLock implements Uninterruptible {
     protected abstract void initialize(Address start, Address end, int slotSize);
 
     /**
-     * Let a selected set of objects in this heap make a visit to the given visitor.
+     * Let a selected set of objects in this heap accept the given <code>visitor</code>.
      * The selection is made based on the objectflags. The objectflags are masked
      * by flagsMask and the result is compared with flagsValue, if they are equal
      * the object is visited.

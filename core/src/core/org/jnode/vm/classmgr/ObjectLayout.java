@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -31,19 +31,21 @@ public class ObjectLayout {
 
     /**
      * The offset of the flags of an object from the start of the object. This
-     * value must be multipled by SLOT_SIZE to get the offset in bytes.
+     * value must be multiplied by {@link org.jnode.vm.BaseVmArchitecture#getReferenceSize() SLOT_SIZE}
+     * to get the offset in bytes.
      */
     public static final int FLAGS_SLOT = -2;
 
     /**
      * The offset of the TIB of an object from the start of the object. This
-     * value must be multipled by SLOT_SIZE to get the offset in bytes.
+     * value must be multiplied by {@link org.jnode.vm.BaseVmArchitecture#getReferenceSize() SLOT_SIZE}
+     * to get the offset in bytes.
      */
     public static final int TIB_SLOT = -1;
 
     /**
-     * The size of the header of an object. This value must be multipled by
-     * SLOT_SIZE to get the size in bytes.
+     * The size of the header of an object. This value must be multiplied by
+     * {@link org.jnode.vm.BaseVmArchitecture#getReferenceSize() SLOT_SIZE} to get the size in bytes.
      */
     public static final int HEADER_SLOTS = 2;
 

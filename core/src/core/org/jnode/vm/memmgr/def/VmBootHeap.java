@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,10 +20,10 @@
  
 package org.jnode.vm.memmgr.def;
 
-import org.jnode.vm.ObjectVisitor;
 import org.jnode.vm.VmMagic;
 import org.jnode.annotation.MagicPermission;
 import org.jnode.vm.classmgr.ObjectLayout;
+import org.jnode.vm.facade.ObjectVisitor;
 import org.jnode.vm.memmgr.HeapHelper;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Extent;

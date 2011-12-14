@@ -54,7 +54,23 @@ echo $?
 1
 </output>
     </testSpec>
-    <testSpec title="``" command="test" runMode="AS_SCRIPT" rc="0">
+    <testSpec title="quote handling" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+echo ${PS1}+
+PS1="] "
+echo ${PS1}+
+PS1='] '
+echo ${PS1}+
+PS1=]\ 
+echo ${PS1}+
+</script>
+        <output>$ +
+] +
+] +
+] +
+</output>
+    </testSpec>
+    <testSpec title="`...`" command="test" runMode="AS_SCRIPT" rc="0">
         <script>#!bjorne
 A=1
 echo $A
@@ -66,6 +82,34 @@ echo $C
         <output>1
 2
 1 1
+</output>
+    </testSpec>
+    <testSpec title="$(...)" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+A=1
+echo $A
+B="$(expr $A + 1)"
+echo $B
+C="$(echo $A $A)"
+echo $C
+</script>
+        <output>1
+2
+1 1
+</output>
+    </testSpec>
+    <testSpec title="$((...))" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+A=1
+echo $A
+B="$((A + 1))"
+echo $B
+C="$(($B + 1))"
+echo $C
+</script>
+        <output>1
+2
+3
 </output>
     </testSpec>
     <testSpec title="if ... then ... fi" command="test" runMode="AS_SCRIPT" rc="0">
@@ -735,6 +779,19 @@ Hi mum 4
 Hi mum 5
 </output>
     </testSpec>
+    <testSpec title="here 4" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+                for i in 1 2 3 4 5 ; do cat &lt;&lt; "EOF" ; done 
+Hi mum `echo $i`
+EOF
+        </script>
+        <output>Hi mum `echo $i`
+Hi mum `echo $i`
+Hi mum `echo $i`
+Hi mum `echo $i`
+Hi mum `echo $i`
+</output>
+    </testSpec>
     <testSpec title="pipeline" command="test" runMode="AS_SCRIPT" rc="0">
         <script>#!bjorne
                 echo &gt; @TEMP_DIR@/1 Hi mum
@@ -774,6 +831,11 @@ Hi mum again
         </script>
         <output>Hi
 </output>
+    </testSpec>
+    <testSpec title="weird pipeline" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+        echo Hi | aa=bb
+        </script>
     </testSpec>
     <testSpec title="subshell" command="test" runMode="AS_SCRIPT" rc="0">
         <script>#!bjorne
@@ -853,5 +915,81 @@ Hi mum again
                 true ||
                 false
         </script>
+    </testSpec>
+    <testSpec title="brace group" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+                { echo hi ; echo there ; }
+        </script>
+        <output>hi
+there
+</output>
+    </testSpec>
+    <testSpec title="brace group redir" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+                { echo hi ; echo there ; } &gt; @TEMP_DIR@/1 
+        </script>
+        <file name="1" input="false">hi
+there
+</file>
+    </testSpec>
+    <testSpec title="for redir" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+                for i in 1 2 3 ; do echo $i ; done &gt; @TEMP_DIR@/1 
+        </script>
+        <file name="1" input="false">1
+2
+3
+</file>
+    </testSpec>
+    <testSpec title="while redir" command="test" runMode="AS_SCRIPT" rc="1">
+        <script>#!bjorne
+                A=5
+                while expr $A != 0 ; do echo $A ; A=`expr $A - 1`; done &gt; @TEMP_DIR@/1 
+        </script>
+        <file name="1" input="false">1
+5
+1
+4
+1
+3
+1
+2
+1
+1
+0
+</file>
+    </testSpec>
+    <testSpec title="unknown command" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+                foo
+                echo hi 
+        </script>
+        <output >hi
+</output>
+        <error>Cannot find an alias or load a command class for 'foo'
+</error>
+    </testSpec>
+    <testSpec title="shell function" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+                foo() {
+                    echo hi
+                }
+                foo
+        </script>
+        <output>hi
+</output>
+    </testSpec>
+    <testSpec title="shell function 2" command="test" runMode="AS_SCRIPT" rc="0">
+        <script>#!bjorne
+                foo() {
+                    echo $1 $2
+                }
+                foo hi there
+                foo bye mum &gt;&amp;2
+        </script>
+        <output>hi there
+</output>
+        <error>bye mum
+</error>
     </testSpec>
 </testSet>

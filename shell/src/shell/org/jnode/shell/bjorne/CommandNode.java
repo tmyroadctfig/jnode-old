@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -114,7 +114,7 @@ public abstract class CommandNode {
         throws ShellException;
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("nodeType=").append(nodeType);
         if (flags != 0) {
             sb.append(",flags=0x").append(Integer.toHexString(flags));
@@ -132,7 +132,7 @@ public abstract class CommandNode {
      * @param sb the destination for rendering
      * @param array the object array to be rendered.
      */
-    protected static void appendArray(StringBuffer sb, Object[] array) {
+    protected static void appendArray(StringBuilder sb, Object[] array) {
         sb.append('[');
         for (int i = 0; i < array.length; i++) {
             if (i > 0) {

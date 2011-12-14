@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -41,10 +41,10 @@ public class PS2ByteChannel implements ByteChannel {
     }
 
     /**
-     * @see org.jnode.system.IRQHandler#handleInterrupt(int)
+     * @see org.jnode.system.resource.IRQHandler#handleInterrupt(int)
      */
     public void handleScancode(int b) {
-        queue.push((byte) b);
+        queue.enQueue((byte) b);
     }
 
     /**
@@ -58,7 +58,7 @@ public class PS2ByteChannel implements ByteChannel {
         // FIXME: proper exception handling (if end of queue -> IOException)
         int i;
         for (i = 0; i < dst.remaining(); i++) {
-            dst.put(queue.pop());
+            dst.put(queue.deQueue());
         }
         return i;
     }
@@ -71,7 +71,7 @@ public class PS2ByteChannel implements ByteChannel {
         if (!isOpen()) {
             throw new ClosedChannelException();
         }
-        return queue.pop(timeout) & 0xFF;
+        return queue.deQueue(timeout) & 0xFF;
     }
 
     /**
@@ -116,11 +116,7 @@ public class PS2ByteChannel implements ByteChannel {
      * Remove all data from this channel
      */
     public void clear() {
-        // FIXME ... there is synchronization issues here. The 'isEmpty' method
-        // is not synchronized, so we may not see the real state of the queue. 
-        while (!queue.isEmpty()) {
-            queue.pop();
-        }
+        queue.clear();
     }
 
 }

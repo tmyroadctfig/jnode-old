@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -87,6 +87,8 @@ public class DefaultCommandInvoker implements SimpleCommandInvoker {
         if (cmdName == null) {
             return 0;
         }
+        // FIXME ... the exception handling and error diagnosis could do with
+        // some reworking.
         try {
             final CommandIO[] ios = cmdLine.getStreams();
             if (ios[0] != CommandLine.DEFAULT_STDIN ||
@@ -127,6 +129,8 @@ public class DefaultCommandInvoker implements SimpleCommandInvoker {
                         throw ex2;
                     }
                 }
+            } catch (ShellControlException ex) {
+                throw ex;
             } catch (CommandSyntaxException ex) {
                 HelpFactory.getHelpFactory().getHelp(cmdName, cmdInfo).usage(err);
                 err.println(ex.getMessage());
@@ -139,6 +143,8 @@ public class DefaultCommandInvoker implements SimpleCommandInvoker {
                 err.println("Fatal error in command");
                 stackTrace(ex);
             }
+        } catch (ShellControlException ex) {
+            throw ex;
         } catch (NoSuchMethodException ex) {
             err.println("Alias class has no main method " + cmdName);
         } catch (ClassCastException ex) {

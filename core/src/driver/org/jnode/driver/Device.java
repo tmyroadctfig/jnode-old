@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,14 +17,15 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.driver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
-import org.jnode.system.BootLog;
-import org.jnode.system.ResourceOwner;
+
+import org.jnode.bootlog.BootLogInstance;
+import org.jnode.system.resource.ResourceOwner;
 import org.jnode.util.StopWatch;
 
 /**
@@ -329,7 +330,8 @@ public class Device implements ResourceOwner {
             sw.start();
             l.deviceStarted(this);
             if (sw.isElapsedLongerThen(100)) {
-                BootLog.error("DeviceListener took " + sw + " in deviceStarted: " + l.getClass().getName());
+                BootLogInstance.get()
+                    .error("DeviceListener took " + sw + " in deviceStarted: " + l.getClass().getName());
             }
         }
         manager.fireStartedEvent(this);
@@ -345,14 +347,14 @@ public class Device implements ResourceOwner {
             sw.start();
             l.deviceStop(this);
             if (sw.isElapsedLongerThen(100)) {
-                BootLog.error("DeviceListener took " + sw + " in deviceStop: " + l.getClass().getName());
+                BootLogInstance.get().error("DeviceListener took " + sw + " in deviceStop: " + l.getClass().getName());
             }
         }
     }
 
     /**
      * @return The short description
-     * @see org.jnode.system.ResourceOwner#getShortDescription()
+     * @see org.jnode.system.resource.ResourceOwner#getShortDescription()
      */
     public String getShortDescription() {
         return getId();

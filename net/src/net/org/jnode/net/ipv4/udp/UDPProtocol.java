@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -42,7 +42,7 @@ import org.jnode.net.ipv4.IPv4Header;
 import org.jnode.net.ipv4.IPv4Protocol;
 import org.jnode.net.ipv4.IPv4Service;
 import org.jnode.net.ipv4.icmp.ICMPUtils;
-import org.jnode.util.Statistics;
+import org.jnode.vm.objects.Statistics;
 
 /**
  * @author epr
@@ -84,7 +84,7 @@ public class UDPProtocol implements IPv4Protocol, IPv4Constants {
     /**
      * for random listener ports
      */
-    private final Integer zero = new Integer(0);
+    private final Integer zero = Integer.valueOf(0);
     private final Random random = new Random();
 
     private final int startRandom = 1024;
@@ -199,7 +199,7 @@ public class UDPProtocol implements IPv4Protocol, IPv4Constants {
      * @param skbuf
      */
     private synchronized void deliver(UDPHeader hdr, SocketBuffer skbuf) throws SocketException {
-        final Integer lport = new Integer(hdr.getDstPort());
+        final Integer lport = Integer.valueOf(hdr.getDstPort());
         final IPv4Header ipHdr = (IPv4Header) skbuf.getNetworkLayerHeader();
         final UDPDatagramSocketImpl socket = (UDPDatagramSocketImpl) sockets.get(lport);
         if (socket != null) {
@@ -232,10 +232,10 @@ public class UDPProtocol implements IPv4Protocol, IPv4Constants {
             Integer ran;
 
             while (lport.compareTo(zero) == 0) {
-                ran = new Integer(random.nextInt(stopRandom) + startRandom);
+                ran = Integer.valueOf(random.nextInt(stopRandom) + startRandom);
 
                 if (!sockets.containsKey(ran)) {
-                    // hmmm..... should we have one stop condition more??
+                    // Should we have one stop condition more??
                     lport = ran;
                     socket.setLocalPort(lport.intValue());
                 }
@@ -251,7 +251,7 @@ public class UDPProtocol implements IPv4Protocol, IPv4Constants {
      * @param socket
      */
     protected synchronized void unbind(UDPDatagramSocketImpl socket) {
-        final Integer lport = new Integer(socket.getLocalPort());
+        final Integer lport = Integer.valueOf(socket.getLocalPort());
         if (sockets.get(lport) == socket) {
             sockets.remove(lport);
         }

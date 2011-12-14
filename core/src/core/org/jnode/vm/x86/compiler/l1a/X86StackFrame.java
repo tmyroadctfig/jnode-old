@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.Label;
@@ -27,7 +27,6 @@ import org.jnode.assembler.x86.X86BinaryAssembler;
 import org.jnode.assembler.x86.X86Constants;
 import org.jnode.assembler.x86.X86Register;
 import org.jnode.assembler.x86.X86Register.GPR;
-import org.jnode.vm.classmgr.TypeSizeInfo;
 import org.jnode.vm.classmgr.VmByteCode;
 import org.jnode.vm.classmgr.VmInterpretedExceptionHandler;
 import org.jnode.vm.classmgr.VmMethod;
@@ -35,16 +34,18 @@ import org.jnode.vm.classmgr.VmMethodCode;
 import org.jnode.vm.compiler.CompiledExceptionHandler;
 import org.jnode.vm.compiler.CompiledMethod;
 import org.jnode.vm.compiler.EntryPoints;
-import org.jnode.vm.x86.compiler.X86CompilerConstants;
+import org.jnode.vm.facade.TypeSizeInfo;
 import org.jnode.vm.x86.compiler.X86CompilerHelper;
 import org.jnode.vm.x86.compiler.X86JumpTable;
+
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.PROCESSOR64;
 
 /**
  * Utility class for generating the X86 method stack frame
  *
  * @author epr
  */
-final class X86StackFrame implements X86CompilerConstants {
+final class X86StackFrame {
 
     private final VmMethod method;
 
@@ -95,6 +96,7 @@ final class X86StackFrame implements X86CompilerConstants {
      * Create a new instance
      *
      * @param os
+     * @param helper
      * @param method
      * @param context
      * @param cm
@@ -143,6 +145,8 @@ final class X86StackFrame implements X86CompilerConstants {
 
     /**
      * Write code to test the alignment of the stack pointer.
+     *
+     * @param curInstrLabel
      */
     public void writeStackAlignmentTest(Label curInstrLabel) {
         if (false && os.isCode64()) {
@@ -160,6 +164,9 @@ final class X86StackFrame implements X86CompilerConstants {
 
     /**
      * Emit code to end the stack frame
+     *
+     * @param typeSizeInfo
+     * @param maxLocals
      */
     public void emitTrailer(TypeSizeInfo typeSizeInfo, int maxLocals) {
         final int argSlotCount = method.getArgSlotCount();
@@ -308,6 +315,7 @@ final class X86StackFrame implements X86CompilerConstants {
      * Gets the offset to EBP (current stack frame) for the local with the given
      * index.
      *
+     * @param typeSizeInfo
      * @param index
      * @return int
      */
@@ -317,15 +325,14 @@ final class X86StackFrame implements X86CompilerConstants {
 //        final int stackSlot = Signature.getStackSlotForJavaArgNumber(typeSizeInfo, method, index);
         if (stackSlot < noArgs) {
             // Index refers to a method argument
-            return toShort(((noArgs - stackSlot + 1) * slotSize) + EbpFrameRefOffset
-                + SAVED_REGISTERSPACE);
+            return toShort(((noArgs - stackSlot + 1) * slotSize) + EbpFrameRefOffset + SAVED_REGISTERSPACE);
         } else {
             // Index refers to a local variable
             return toShort((stackSlot - noArgs + 1) * -slotSize);
         }
     }
 
-    private final short toShort(int v) {
+    private short toShort(int v) {
         if ((v >= Short.MIN_VALUE) && (v <= Short.MAX_VALUE)) {
             return (short) v;
         } else {
@@ -337,6 +344,7 @@ final class X86StackFrame implements X86CompilerConstants {
      * Gets the offset to EBP (current stack frame) for the wide local with the
      * given index.
      *
+     * @param typeSizeInfo
      * @param index
      * @return int
      */
@@ -376,7 +384,7 @@ final class X86StackFrame implements X86CompilerConstants {
      * @see #SAVED_REGISTERSPACE
      * @see org.jnode.vm.x86.VmX86StackReader
      */
-    private final void saveRegisters() {
+    private void saveRegisters() {
         //os.writePUSH(Register.EBX);
         //os.writePUSH(Register.EDI);
         //os.writePUSH(Register.ESI);
@@ -388,7 +396,7 @@ final class X86StackFrame implements X86CompilerConstants {
      * @see #SAVED_REGISTERSPACE
      * @see org.jnode.vm.x86.VmX86StackReader
      */
-    private final void restoreRegisters() {
+    private void restoreRegisters() {
         //os.writePOP(Register.ESI);
         //os.writePOP(Register.EDI);
         //os.writePOP(Register.EBX);

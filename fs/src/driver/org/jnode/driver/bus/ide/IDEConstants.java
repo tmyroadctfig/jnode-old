@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -190,6 +190,32 @@ public interface IDEConstants {
     public static final int IDE_TIMEOUT = 1000; /* ms */
     // Timeout used in data transfer commands
     public static final long IDE_DATA_XFER_TIMEOUT = 10000; /* ms */
+
+    // --------------------------------
+    // IDE sector maximum addresses
+
+    /**
+     * Maximum sector for 28 bit addresses
+     */
+    public static final int MAX_SECTOR_COUNT_28 = 256;
+
+    /**
+     * Maximum sector for 48 bit addresses
+     */
+    public static final int MAX_SECTOR_COUNT_48 = 65536;
+
+    // --------------------------------
+    // IDE sector maximum addresses
+
+    /**
+     * Maximum sector for 28 bit addresses
+     */
+    public static final long MAX_SECTOR_28 = 0xfffffffL;
+
+    /**
+     * Maximum sector for 48 bit addresses
+     */
+    public static final long MAX_SECTOR_48 = 0xfffffffffffffL;
 
     // --------------------------------
     // ATA/ATAPI Commands pre T13 Spec

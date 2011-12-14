@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,9 +17,10 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.build.x86;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,11 +44,10 @@ import org.jnode.linker.Elf;
 import org.jnode.linker.ElfLinker;
 import org.jnode.plugin.PluginRegistry;
 import org.jnode.util.NumberUtils;
+import org.jnode.vm.BaseVmArchitecture;
 import org.jnode.vm.SoftByteCodes;
-import org.jnode.vm.Vm;
-import org.jnode.vm.VmArchitecture;
+import org.jnode.vm.VmImpl;
 import org.jnode.vm.VmSystem;
-import org.jnode.vm.VmSystemObject;
 import org.jnode.vm.classmgr.ObjectLayout;
 import org.jnode.vm.classmgr.VmArray;
 import org.jnode.vm.classmgr.VmClassType;
@@ -58,6 +58,9 @@ import org.jnode.vm.classmgr.VmMethodCode;
 import org.jnode.vm.classmgr.VmSharedStatics;
 import org.jnode.vm.classmgr.VmStaticField;
 import org.jnode.vm.classmgr.VmType;
+import org.jnode.vm.facade.Vm;
+import org.jnode.vm.facade.VmUtils;
+import org.jnode.vm.objects.VmSystemObject;
 import org.jnode.vm.scheduler.MonitorManager;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.scheduler.VmScheduler;
@@ -69,20 +72,20 @@ import org.jnode.vm.x86.VmX86Processor;
 import org.jnode.vm.x86.VmX86Processor32;
 import org.jnode.vm.x86.VmX86Processor64;
 import org.jnode.vm.x86.X86CpuID;
-import org.jnode.vm.x86.compiler.X86CompilerConstants;
 import org.jnode.vm.x86.compiler.X86JumpTable;
 
 /**
  * @author epr
  */
-public class BootImageBuilder extends AbstractBootImageBuilder implements
-    X86CompilerConstants {
+public class BootImageBuilder extends AbstractBootImageBuilder {
 
     public static final int LOAD_ADDR = 1024 * 1024;
 
     public static final int INITIAL_OBJREFS_CAPACITY = 750000;
 
     public static final int INITIAL_SIZE = 64 * 1024 * 1024;
+
+    private File archClassListFile;
 
     private VmX86Processor processor;
 
@@ -157,7 +160,7 @@ public class BootImageBuilder extends AbstractBootImageBuilder implements
      * @return The processor
      * @throws BuildException
      */
-    protected VmProcessor createProcessor(Vm vm, VmSharedStatics statics, VmIsolatedStatics isolatedStatics)
+    protected VmProcessor createProcessor(VmImpl vm, VmSharedStatics statics, VmIsolatedStatics isolatedStatics)
         throws BuildException {
         this.sharedStatics = statics;
         VmScheduler scheduler = new VmScheduler(getArchitecture());
@@ -187,7 +190,7 @@ public class BootImageBuilder extends AbstractBootImageBuilder implements
      * @return The target architecture
      * @throws BuildException
      */
-    protected final VmArchitecture getArchitecture() throws BuildException {
+    protected final BaseVmArchitecture getArchitecture() throws BuildException {
         if (arch == null) {
             switch (bits) {
                 case 32:
@@ -348,9 +351,9 @@ public class BootImageBuilder extends AbstractBootImageBuilder implements
         refJava = os
             .getObjectRef(vmSystemClass
                 .getMethod(
-                "findThrowableHandler",
-                "(Ljava/lang/Throwable;Lorg/vmmagic/unboxed/Address;Lorg/vmmagic/unboxed/Address;)" +
-                    "Lorg/vmmagic/unboxed/Address;"));
+                    "findThrowableHandler",
+                    "(Ljava/lang/Throwable;Lorg/vmmagic/unboxed/Address;Lorg/vmmagic/unboxed/Address;)" +
+                        "Lorg/vmmagic/unboxed/Address;"));
         os.getObjectRef(vmFindThrowableHandler).link(refJava);
 
         // Link Luser_esp
@@ -485,8 +488,8 @@ public class BootImageBuilder extends AbstractBootImageBuilder implements
     protected void initVm(X86BinaryAssembler os, Vm vm) throws BuildException,
         ClassNotFoundException {
         os.setObjectRef(new Label("$$Initialize Vm"));
-        VmType<?> vmClass = loadClass(Vm.class);
-        VmStaticField vmField = (VmStaticField) vmClass.getField("instance");
+        VmType<?> vmClass = loadClass(VmUtils.class);
+        VmStaticField vmField = (VmStaticField) vmClass.getField("VM_INSTANCE");
 
         final GPR abx = os.isCode32() ? (GPR) X86Register.EBX : X86Register.RBX;
         final GPR adi = os.isCode32() ? (GPR) X86Register.EDI : X86Register.RDI;
@@ -690,13 +693,13 @@ public class BootImageBuilder extends AbstractBootImageBuilder implements
     }
 
     /**
+     * Include x86 class files.
+     *
      * @see org.jnode.build.AbstractBootImageBuilder#setupCompileHighOptLevelPackages()
      */
     protected void setupCompileHighOptLevelPackages() {
         super.setupCompileHighOptLevelPackages();
-        addCompileHighOptLevel("org.jnode.assembler.x86");
-        addCompileHighOptLevel("org.jnode.system.x86");
-        addCompileHighOptLevel("org.jnode.vm.x86");
+        addCompileHighOptLevel(loadClassList(archClassListFile));
     }
 
     /**
@@ -763,5 +766,23 @@ public class BootImageBuilder extends AbstractBootImageBuilder implements
         } catch (Exception e) {
             throw new BuildException(e);
         }
+    }
+
+    /**
+     * Gets the architecture specific class list file.
+     *
+     * @return The archClassListFile to set
+     */
+    public File getArchClassListFile() {
+        return archClassListFile;
+    }
+
+    /**
+     * Sets the architecture specific class list file.
+     *
+     * @param archClassListFile The archClassListFile to set
+     */
+    public void setArchClassListFile(File archClassListFile) {
+        this.archClassListFile = archClassListFile;
     }
 }

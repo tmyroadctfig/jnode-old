@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -55,8 +55,8 @@ public class VerifyingCompilerBytecodeVisitor<T extends CompilerBytecodeVisitor>
     }
 
     /**
-     * @see org.jnode.vm.compiler.DelegatingCompilerBytecodeVisitor
-     * #visit_invokeinterface(org.jnode.vm.classmgr.VmConstIMethodRef, int)
+     * @see org.jnode.vm.compiler.DelegatingCompilerBytecodeVisitor#visit_invokeinterface(
+     * org.jnode.vm.classmgr.VmConstIMethodRef, int)
      */
     @Override
     public void visit_invokeinterface(VmConstIMethodRef methodRef, int count) {
@@ -65,8 +65,8 @@ public class VerifyingCompilerBytecodeVisitor<T extends CompilerBytecodeVisitor>
     }
 
     /**
-     * @see org.jnode.vm.compiler.DelegatingCompilerBytecodeVisitor
-     * #visit_invokespecial(org.jnode.vm.classmgr.VmConstMethodRef)
+     * @see org.jnode.vm.compiler.DelegatingCompilerBytecodeVisitor#visit_invokespecial(
+     * org.jnode.vm.classmgr.VmConstMethodRef)
      */
     @Override
     public void visit_invokespecial(VmConstMethodRef methodRef) {
@@ -75,8 +75,8 @@ public class VerifyingCompilerBytecodeVisitor<T extends CompilerBytecodeVisitor>
     }
 
     /**
-     * @see org.jnode.vm.compiler.DelegatingCompilerBytecodeVisitor
-     * #visit_invokestatic(org.jnode.vm.classmgr.VmConstMethodRef)
+     * @see org.jnode.vm.compiler.DelegatingCompilerBytecodeVisitor#visit_invokestatic(
+     * org.jnode.vm.classmgr.VmConstMethodRef)
      */
     @Override
     public void visit_invokestatic(VmConstMethodRef methodRef) {
@@ -85,8 +85,8 @@ public class VerifyingCompilerBytecodeVisitor<T extends CompilerBytecodeVisitor>
     }
 
     /**
-     * @see org.jnode.vm.compiler.DelegatingCompilerBytecodeVisitor
-     * #visit_invokevirtual(org.jnode.vm.classmgr.VmConstMethodRef)
+     * @see org.jnode.vm.compiler.DelegatingCompilerBytecodeVisitor#visit_invokevirtual(
+     * org.jnode.vm.classmgr.VmConstMethodRef)
      */
     @Override
     public void visit_invokevirtual(VmConstMethodRef methodRef) {

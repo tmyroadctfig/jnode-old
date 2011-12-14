@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.shell.bjorne;
 
 import org.jnode.shell.CommandRunnable;
@@ -47,7 +47,7 @@ public class CaseCommandNode extends CommandNode {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("CaseCommand{").append(super.toString());
         sb.append(",word=").append(word);
         if (caseItems != null) {
@@ -60,24 +60,28 @@ public class CaseCommandNode extends CommandNode {
 
     @Override
     public int execute(BjorneContext context) throws ShellException {
-        int rc = 0;
-
-        CharSequence expandedWord = context.dollarBacktickExpand(word.text);
-    LOOP:
-        for (CaseItemNode caseItem : caseItems) {
-            for (BjorneToken pattern : caseItem.getPattern()) {
-                CharSequence pat = context.dollarBacktickExpand(pattern.text);
-                if (context.patternMatch(expandedWord, pat)) {
-                    rc = caseItem.getBody().execute(context);
-                    break LOOP;
+        try {
+            int rc = 0;
+            context.evaluateRedirectionsAndPushHolders(getRedirects());
+            CharSequence expandedWord = context.dollarBacktickExpand(word.text);
+        LOOP:
+            for (CaseItemNode caseItem : caseItems) {
+                for (BjorneToken pattern : caseItem.getPattern()) {
+                    CharSequence pat = context.dollarBacktickExpand(pattern.text);
+                    if (context.patternMatch(expandedWord, pat)) {
+                        rc = caseItem.getBody().execute(context);
+                        break LOOP;
+                    }
                 }
             }
-        }
 
-        if ((getFlags() & BjorneInterpreter.FLAG_BANG) != 0) {
-            rc = (rc == 0) ? -1 : 0;
+            if ((getFlags() & BjorneInterpreter.FLAG_BANG) != 0) {
+                rc = (rc == 0) ? -1 : 0;
+            }
+            return rc;
+        } finally {
+            context.popHolders();
         }
-        return rc;
     }
     
     @Override

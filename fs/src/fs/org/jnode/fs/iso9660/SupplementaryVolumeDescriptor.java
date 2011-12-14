@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,13 +17,13 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.iso9660;
 
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
-import org.jnode.system.BootLog;
+import org.jnode.bootlog.BootLogInstance;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
@@ -58,7 +58,7 @@ public class SupplementaryVolumeDescriptor extends VolumeDescriptor {
         } catch (UnsupportedEncodingException ex) {
             encoding = DEFAULT_ENCODING;
             encodingKnown = false;
-            BootLog.warn("Unsupported encoding, escapeSequences: '" + escapeSequences + "'");
+            BootLogInstance.get().warn("Unsupported encoding, escapeSequences: '" + escapeSequences + "'");
         }
         this.encoding = encoding;
         this.encodingKnown = encodingKnown;
@@ -71,8 +71,8 @@ public class SupplementaryVolumeDescriptor extends VolumeDescriptor {
     public void dump(PrintStream out) {
         out.println("Supplementary Volume Descriptor");
         out.println("\tFlags             " + flags);
-        //out.println("\tEscape sequences  " + escapeSequences);
-        //out.println("\tEncoding          " + encoding);
+        // out.println("\tEscape sequences  " + escapeSequences);
+        // out.println("\tEncoding          " + encoding);
         out.println("\tSystemIdentifier  " + systemIdentifier);
         out.println("\tVolumeIdentifier  " + volumeIdentifier);
         out.println("\tVolume Space Size " + spaceSize);
@@ -115,6 +115,7 @@ public class SupplementaryVolumeDescriptor extends VolumeDescriptor {
 
     /**
      * Gets a derived encoding name from the given escape sequences.
+     *
      * @param escapeSequences
      * @return the encoding name
      */
@@ -136,6 +137,7 @@ public class SupplementaryVolumeDescriptor extends VolumeDescriptor {
 
     /**
      * Is the used encoding known to this system.
+     *
      * @return {@code true} if the encoding known, otherwise {@code false}.
      */
     public final boolean isEncodingKnown() {
@@ -155,4 +157,5 @@ public class SupplementaryVolumeDescriptor extends VolumeDescriptor {
     public final EntryRecord getRootDirectoryEntry() {
         return this.rootDirectoryEntry;
     }
+
 }

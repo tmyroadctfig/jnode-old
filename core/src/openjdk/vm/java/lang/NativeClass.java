@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,6 +35,7 @@ import org.jnode.vm.classmgr.VmType;
 import org.jnode.vm.classmgr.VmClassLoader;
 import org.jnode.vm.classmgr.VmArrayClass;
 import org.jnode.vm.classmgr.VmMethod;
+import org.jnode.vm.classmgr.VmConstantPool;
 
 /**
  * @see java.lang.Class
@@ -254,16 +255,14 @@ class NativeClass {
      * @see java.lang.Class#getRawAnnotations()
      */
     private static byte[] getRawAnnotations(Class<?> instance) {
-        //todo implement it
-        return null;
+        return VmType.fromClass(instance).getRawAnnotations();
     }
     
     /**
      * @see java.lang.Class#getConstantPool()
      */
     private static ConstantPool getConstantPool(Class<?> instance) {
-        //todo implement it
-        return null;
+        return new VmConstantPool(VmType.fromClass(instance));
     }
     
     /**

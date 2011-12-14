@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,7 +27,7 @@ import org.jnode.driver.net.ethernet.spi.Flags;
 import org.jnode.driver.net.wireless.spi.WirelessDeviceCore;
 import org.jnode.driver.net.wireless.spi.WirelessEthernetDriver;
 import org.jnode.plugin.ConfigurationElement;
-import org.jnode.system.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceNotFreeException;
 
 public class Prism2Driver extends WirelessEthernetDriver {
 

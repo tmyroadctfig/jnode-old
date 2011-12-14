@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -29,17 +29,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
-
 import org.jnode.nanoxml.XMLElement;
 import org.jnode.plugin.PluginDescriptor;
 import org.jnode.plugin.PluginException;
-import org.jnode.util.BootableHashMap;
 import org.jnode.util.ByteBufferInputStream;
 import org.jnode.util.FileUtils;
 import org.jnode.util.JarBuffer;
-import org.jnode.vm.BootableObject;
 import org.jnode.vm.ResourceLoader;
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.VmUtils;
+import org.jnode.vm.objects.BootableHashMap;
+import org.jnode.vm.objects.BootableObject;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
@@ -84,7 +83,7 @@ public class PluginJar implements BootableObject, ResourceLoader {
                      URL pluginUrl) throws PluginException {
         try {
             //get a reference to the plugin jar data
-            if (Vm.isWritingImage()) {
+            if (VmUtils.isWritingImage()) {
                 //buildtime
                 initBuffer = pluginIs.array();
             } else {

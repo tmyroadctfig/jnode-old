@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,7 +30,6 @@ import org.jnode.shell.CommandLine;
 import org.jnode.shell.CommandRunner;
 import org.jnode.shell.CommandShell;
 import org.jnode.shell.CommandThread;
-import org.jnode.shell.CommandThreadImpl;
 import org.jnode.shell.ShellException;
 import org.jnode.shell.ShellInvocationException;
 import org.jnode.shell.SimpleCommandInvoker;
@@ -73,16 +72,11 @@ public class IsolateCommandInvoker extends AsyncCommandInvoker implements Comman
     }
 
     @Override
-    protected CommandThread createThread(CommandRunner cr) 
-        throws ShellInvocationException {
-        if (cr.isInternal()) {
-            return new CommandThreadImpl(cr, cr.getCommandName());
-        } else {
-            try {
-                return new IsolateCommandThreadImpl(cr);
-            } catch (IOException ex) {
-                throw new ShellInvocationException(ex);
-            }
+    protected CommandThread createThread(CommandRunner cr) throws ShellInvocationException {
+        try {
+            return new IsolateCommandThreadImpl(cr);
+        } catch (IOException ex) {
+            throw new ShellInvocationException(ex);
         }
     }
 }

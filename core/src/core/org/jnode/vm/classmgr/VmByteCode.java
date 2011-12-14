@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author epr
@@ -91,7 +91,7 @@ public final class VmByteCode extends AbstractCode {
                       VmLocalVariableTable lvTable) {
         this.method = method;
         this.cp = method.getDeclaringClass().getCP();
-        if (Vm.isWritingImage()) {
+        if (VmUtils.isWritingImage()) {
             final byte[] buildBytecode = new byte[bytecode.limit()];
             bytecode.get(buildBytecode);
             bytecode.rewind();
@@ -119,7 +119,7 @@ public final class VmByteCode extends AbstractCode {
             return ((ByteBuffer) bytecode).duplicate();
         } else {
             final ByteBuffer buf = ByteBuffer.wrap((byte[]) bytecode);
-            if (Vm.isRunningVm()) {
+            if (VmUtils.isRunningVm()) {
                 this.bytecode = buf;
             }
             return buf.duplicate();

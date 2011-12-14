@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,14 +20,14 @@
  
 package org.jnode.vm.x86;
 
-import org.jnode.system.BootLog;
-import org.jnode.system.MemoryResource;
-import org.jnode.system.MemoryScanner;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
+import org.jnode.system.resource.MemoryResource;
+import org.jnode.system.resource.MemoryScanner;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
 import org.jnode.util.NumberUtils;
 import org.jnode.annotation.MagicPermission;
+import org.jnode.bootlog.BootLogInstance;
 import org.vmmagic.unboxed.Address;
 
 /**
@@ -171,7 +171,7 @@ final class MPFloatingPointerStructure {
             int baseTableLen = mem.getChar(4);
             mem.release();
             // Claim the full table.
-            // BootLog.info("baseTableLength " + baseTableLen);
+            // BootLogInstance.get().info("baseTableLength " + baseTableLen);
             size = baseTableLen;
             mem = rm.claimMemoryResource(owner, tablePtr, size,
                 ResourceManager.MEMMODE_NORMAL);
@@ -184,7 +184,7 @@ final class MPFloatingPointerStructure {
                 return false;
             }
         } catch (ResourceNotFreeException ex) {
-            BootLog.warn("Cannot claim MP config table region");
+            BootLogInstance.get().warn("Cannot claim MP config table region");
             ex.printStackTrace();
             return false;
         }
@@ -221,7 +221,7 @@ final class MPFloatingPointerStructure {
                     }
                     mp.release();
                 } catch (ResourceNotFreeException ex) {
-                    BootLog.warn("Cannot claim MP region");
+                    BootLogInstance.get().warn("Cannot claim MP region");
                 }
             }
             ptr = ptr.add(stepSize);

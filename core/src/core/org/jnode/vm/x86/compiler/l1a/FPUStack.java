@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.x86.X86Register;
@@ -58,6 +58,9 @@ final class FPUStack extends ItemStack {
 
     /**
      * Gets the item that is contained in the given register.
+     *
+     * @param fpuReg
+     * @return
      */
     final Item getItem(FPU fpuReg) {
         final int idx = tos - (fpuReg.getNr() + 1);

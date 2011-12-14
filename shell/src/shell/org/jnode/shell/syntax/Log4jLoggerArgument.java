@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -56,12 +56,12 @@ public class Log4jLoggerArgument extends Argument<Logger> {
      * Complete against existing logger names.
      */
     @Override
-    public void doComplete(CompletionInfo completion, String partial, int flags) {
+    public void doComplete(CompletionInfo completions, String partial, int flags) {
         Enumeration<?> en = LogManager.getCurrentLoggers();
         while (en.hasMoreElements()) {
             String loggerName = ((Logger) en.nextElement()).getName();
             if (loggerName.startsWith(partial)) {
-                completion.addCompletion(loggerName);
+                completions.addCompletion(loggerName);
             }
         }
     }

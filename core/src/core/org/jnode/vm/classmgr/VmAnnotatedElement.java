@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +23,7 @@ package org.jnode.vm.classmgr;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
-import org.jnode.vm.VmSystemObject;
+import org.jnode.vm.objects.VmSystemObject;
 import org.jnode.annotation.PrivilegedActionPragma;
 
 /**
@@ -155,4 +155,25 @@ abstract class VmAnnotatedElement extends VmSystemObject implements
      * @return the parent element
      */
     protected abstract VmAnnotatedElement getSuperElement();
+
+    /**
+     * Raw runtime annotations to be parsed by java.lang.Class of OpenJDK.
+     */
+    private byte[] rawAnnotations;
+
+    /**
+     * Returns the raw runtime annotations.
+     * @return the raw annotation data as a byte[]
+     */
+    public byte[] getRawAnnotations() {
+        return rawAnnotations;
+    }
+
+    /**
+     * Sets the raw runtime annotations.
+     * @param rawAnnotations the raw annotation data as a byte[]
+     */
+    public void setRawAnnotations(byte[] rawAnnotations) {
+        this.rawAnnotations = rawAnnotations;
+    }
 }

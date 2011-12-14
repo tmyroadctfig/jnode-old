@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,6 +30,7 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.driver.console.ActiveTextConsole;
 import org.jnode.driver.console.ConsoleManager;
 import org.jnode.driver.console.TextConsole;
@@ -37,7 +38,6 @@ import org.jnode.naming.InitialNaming;
 import org.jnode.plugin.Plugin;
 import org.jnode.plugin.PluginDescriptor;
 import org.jnode.plugin.PluginException;
-import org.jnode.system.BootLog;
 import org.jnode.util.WriterOutputStream;
 
 /**
@@ -79,7 +79,7 @@ public class Log4jConfigurePlugin extends Plugin {
             final VirtualConsoleAppender debugApp =
                 new VirtualConsoleAppender(new PatternLayout(LAYOUT), console, false);
             debugApp.setThreshold(Level.DEBUG);
-            BootLog.setDebugOut(new PrintStream(new WriterOutputStream(console.getOut(), false), true));
+            BootLogInstance.get().setDebugOut(new PrintStream(new WriterOutputStream(console.getOut(), false), true));
 
             TextConsole atc = new ActiveTextConsole(conMgr);
             final VirtualConsoleAppender infoApp = new VirtualConsoleAppender(

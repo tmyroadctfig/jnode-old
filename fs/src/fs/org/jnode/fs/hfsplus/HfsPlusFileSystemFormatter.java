@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -29,9 +29,9 @@ import org.jnode.fs.service.FileSystemService;
 import org.jnode.naming.InitialNaming;
 
 public class HfsPlusFileSystemFormatter extends Formatter<HfsPlusFileSystem> {
-    
+
     private HFSPlusParams params;
-    
+
     public HfsPlusFileSystemFormatter(HFSPlusParams params) {
         super(new HfsPlusFileSystemType());
         this.params = params;

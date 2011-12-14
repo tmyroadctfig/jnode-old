@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,24 +17,25 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.fs.hfsplus;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.jnode.fs.FSFile;
+import org.jnode.fs.FileSystem;
 import org.jnode.fs.hfsplus.catalog.CatalogFile;
 import org.jnode.fs.hfsplus.extent.ExtentDescriptor;
-import org.jnode.fs.hfsplus.tree.LeafRecord;
 
-public class HfsPlusFile extends HfsPlusEntry implements FSFile {
+public class HfsPlusFile implements FSFile {
+
+    private HfsPlusEntry entry;
 
     private CatalogFile file;
 
-    public HfsPlusFile(HfsPlusFileSystem fs, HfsPlusDirectory parent, String name, LeafRecord record) {
-        super(fs, parent, name, record);
-        this.file = new CatalogFile(record.getData());
+    public HfsPlusFile(HfsPlusEntry entry) {
+        this.file = new CatalogFile(entry.getData());
     }
 
     @Override
@@ -48,11 +49,16 @@ public class HfsPlusFile extends HfsPlusEntry implements FSFile {
     }
 
     @Override
+    public void setLength(final long length) throws IOException {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
     public final void read(final long fileOffset, final ByteBuffer dest) throws IOException {
         HfsPlusFileSystem fs = (HfsPlusFileSystem) getFileSystem();
         for (ExtentDescriptor d : file.getDatas().getExtents()) {
             if (!d.isEmpty()) {
-                long firstOffset = d.getStartOffset(fs.getVolumeHeader().getBlockSize());
+                long firstOffset = (long) d.getStartOffset(fs.getVolumeHeader().getBlockSize());
                 fs.getApi().read(firstOffset, dest);
             }
         }
@@ -64,9 +70,14 @@ public class HfsPlusFile extends HfsPlusEntry implements FSFile {
 
     }
 
-    public void setLength(final long length) throws IOException {
-        // TODO Auto-generated method stub
 
+    @Override
+    public boolean isValid() {
+        return entry.isValid();
     }
 
+    @Override
+    public FileSystem<?> getFileSystem() {
+        return entry.getFileSystem();
+    }
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,6 +24,11 @@ import java.util.Iterator;
 
 import org.jnode.shell.CommandLine;
 import org.jnode.shell.ShellException;
+import org.jnode.shell.syntax.Argument;
+import org.jnode.shell.syntax.ArgumentSyntax;
+import org.jnode.shell.syntax.IntegerArgument;
+import org.jnode.shell.syntax.OptionalSyntax;
+import org.jnode.shell.syntax.SyntaxBundle;
 
 /**
  * This class implements the 'exit' built-in.  This is done by throwing a 
@@ -32,6 +37,33 @@ import org.jnode.shell.ShellException;
  * @author crawley@jnode.org
  */
 final class ExitBuiltin extends BjorneBuiltin {
+    private static final SyntaxBundle SYNTAX = 
+        new SyntaxBundle("exit", new OptionalSyntax(new ArgumentSyntax("status")));
+    
+    static final Factory FACTORY = new Factory() {
+        public BjorneBuiltinCommandInfo buildCommandInfo(BjorneContext context) {
+            return new BjorneBuiltinCommandInfo("exit", SYNTAX, new ExitBuiltin(), context);
+        }
+    };
+    
+    private final IntegerArgument argStatus = new IntegerArgument("status", Argument.OPTIONAL, 
+            "The exit status");
+    
+    private ExitBuiltin() {
+        super("Exit the current context (shell, shell function or script)");
+        registerArguments(argStatus);
+    }
+    
+    @Override
+    public void execute() throws Exception {
+        if (argStatus.isSet()) {
+            throw new BjorneControlException(BjorneInterpreter.BRANCH_EXIT, argStatus.getValue());
+        } else {
+            throw new BjorneControlException(BjorneInterpreter.BRANCH_EXIT,
+                    getParentContext().getLastReturnCode());
+        }
+    }
+
     @SuppressWarnings("deprecation")
     public int invoke(CommandLine command, BjorneInterpreter interpreter,
             BjorneContext context) throws ShellException {

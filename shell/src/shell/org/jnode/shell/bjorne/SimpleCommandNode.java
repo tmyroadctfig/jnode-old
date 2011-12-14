@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -26,9 +26,11 @@ import org.jnode.shell.CommandShell;
 import org.jnode.shell.CommandThread;
 import org.jnode.shell.ShellException;
 import org.jnode.shell.ShellFailureException;
+import org.jnode.shell.ShellInvocationException;
 import org.jnode.shell.help.CompletionException;
 import org.jnode.shell.io.CommandIO;
 import org.jnode.shell.io.CommandIOHolder;
+import org.jnode.vm.VmExit;
 
 public class SimpleCommandNode extends CommandNode implements BjorneCompletable {
 
@@ -36,12 +38,10 @@ public class SimpleCommandNode extends CommandNode implements BjorneCompletable 
 
     private final BjorneToken[] words;
     
-    private final boolean builtin;
 
-    public SimpleCommandNode(int nodeType, BjorneToken[] words, boolean builtin) {
+    public SimpleCommandNode(int nodeType, BjorneToken[] words) {
         super(nodeType);
         this.words = words;
-        this.builtin = builtin;
     }
 
     public void setAssignments(BjorneToken[] assignments) {
@@ -56,19 +56,12 @@ public class SimpleCommandNode extends CommandNode implements BjorneCompletable 
         return assignments;
     }
 
-    public boolean isBuiltin() {
-        return builtin;
-    }
-
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("SimpleCommand{").append(super.toString());
         if (assignments != null) {
             sb.append(",assignments=");
             appendArray(sb, assignments);
-        }
-        if (builtin) {
-            sb.append(",builtin=true");
         }
         if (words != null) {
             sb.append(",words=");
@@ -108,9 +101,18 @@ public class SimpleCommandNode extends CommandNode implements BjorneCompletable 
                     throw new ShellFailureException(
                             "asynchronous execution (&) not implemented yet");
                 } else {
-                    rc = childContext.execute(command, ios, builtin);
+                    rc = childContext.execute(command, ios);
                 }
             }
+        } catch (BjorneControlException ex) {
+            if (ex.getControl() == BjorneInterpreter.BRANCH_EXIT) {
+                throw new VmExit(ex.getCount());
+            } else {
+                throw ex;
+            }
+        } catch (ShellInvocationException ex) {
+            context.getShell().resolvePrintStream(context.getIO(2)).println(ex.getMessage());
+            rc = 1;
         } finally {
             if (holders != null) {
                 for (CommandIOHolder holder : holders) {
@@ -127,19 +129,29 @@ public class SimpleCommandNode extends CommandNode implements BjorneCompletable 
     
     public CommandThread fork(CommandShell shell, BjorneContext context) 
         throws ShellException {
-        CommandLine command = context.buildCommandLine(getWords());
-        command.setStreams(context.getIOs());
-        return shell.invokeAsynchronous(command);
+        if (words.length > 0) {
+            CommandLine command = context.buildCommandLine(words);
+            command.setStreams(context.getIOs());
+            return shell.invokeAsynchronous(command);
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public void complete(CompletionInfo completion, BjorneContext context, CommandShell shell,
+    public void complete(CompletionInfo completions, BjorneContext context, CommandShell shell,
             boolean argumentAnticipated)
         throws CompletionException {
         try {
             CommandLine command = context.buildCommandLine(words);
+            String commandName = command.getCommandName();
+            if (commandName != null && BjorneInterpreter.isBuiltin(commandName)) {
+                BjorneBuiltinCommandInfo commandInfo = 
+                    BjorneInterpreter.BUILTINS.get(commandName).buildCommandInfo(context);
+                command.setCommandInfo(commandInfo);
+            } 
             command.setArgumentAnticipated(argumentAnticipated);
-            command.complete(completion, shell);
+            command.complete(completions, shell);
         } catch (ShellException ex) {
             throw new CompletionException("Shell exception", ex);
         }

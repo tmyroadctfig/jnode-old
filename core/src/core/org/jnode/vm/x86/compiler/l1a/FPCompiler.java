@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.Label;
@@ -32,7 +32,7 @@ import org.jnode.vm.JvmType;
 abstract class FPCompiler {
 
     protected final X86BytecodeVisitor bcv;
-    protected final X86Assembler os;
+    protected X86Assembler os;
     protected final EmitterContext ec;
     protected final VirtualStack vstack;
     protected final int arrayDataOffset;
@@ -85,11 +85,14 @@ abstract class FPCompiler {
         this.arrayDataOffset = arrayDataOffset;
     }
 
+    void reset(X86Assembler os) {
+        this.os = os;
+        vstack.reset(ec);
+    }
+
     /**
      * fadd / dadd
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     abstract void add(int type);
@@ -97,9 +100,6 @@ abstract class FPCompiler {
     /**
      * fcmpg, fcmpl, dcmpg, dcmpl
      *
-     * @param os
-     * @param ec
-     * @param vstack
      * @param gt
      * @param type
      * @param curInstrLabel
@@ -109,16 +109,14 @@ abstract class FPCompiler {
     /**
      * f2x / d2x
      *
-     * @param ec
-     * @param vstack
+     * @param fromType
+     * @param toType
      */
     abstract void convert(int fromType, int toType);
 
     /**
      * fdiv / ddiv
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     abstract void div(int type);
@@ -126,8 +124,6 @@ abstract class FPCompiler {
     /**
      * fmul / dmul
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     abstract void mul(int type);
@@ -135,8 +131,6 @@ abstract class FPCompiler {
     /**
      * fneg / dneg
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     abstract void neg(int type);
@@ -144,8 +138,6 @@ abstract class FPCompiler {
     /**
      * frem / drem
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     abstract void rem(int type);
@@ -153,8 +145,6 @@ abstract class FPCompiler {
     /**
      * fsub / dsub
      *
-     * @param ec
-     * @param vstack
      * @param type
      */
     abstract void sub(int type);

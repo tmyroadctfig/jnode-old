@@ -1,6 +1,7 @@
 /*
- * JNode.org
- * Copyright (C) 2003-2009 JNode.org
+ * $Id$
+ *
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -16,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.driver.video.cirrus;
 
 import org.jnode.driver.Device;
@@ -32,7 +33,7 @@ import org.jnode.driver.video.Surface;
 import org.jnode.driver.video.UnknownConfigurationException;
 import org.jnode.driver.video.ddc.DisplayDataChannelAPI;
 import org.jnode.plugin.ConfigurationElement;
-import org.jnode.system.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceNotFreeException;
 
 /**
  * @author peda

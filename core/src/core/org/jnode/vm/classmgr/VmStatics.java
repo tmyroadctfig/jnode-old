@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,13 +23,13 @@ package org.jnode.vm.classmgr;
 import java.io.PrintWriter;
 import java.nio.ByteOrder;
 
+import org.jnode.annotation.MagicPermission;
 import org.jnode.assembler.Label;
 import org.jnode.assembler.ObjectResolver;
-import org.jnode.vm.ObjectVisitor;
-import org.jnode.vm.Vm;
 import org.jnode.vm.VmAddress;
-import org.jnode.vm.VmArchitecture;
-import org.jnode.annotation.MagicPermission;
+import org.jnode.vm.facade.ObjectVisitor;
+import org.jnode.vm.facade.VmArchitecture;
+import org.jnode.vm.facade.VmUtils;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.ObjectReference;
 import org.vmmagic.unboxed.UnboxedObject;
@@ -193,7 +193,7 @@ public abstract class VmStatics extends VmStaticsBase {
     }
 
     public final void setAddress(int idx, Label value) {
-        if (!Vm.isWritingImage()) {
+        if (!VmUtils.isWritingImage()) {
             throw new IllegalStateException("Only allowed during bootimage creation.");
         }
         allocator.testType(idx, TYPE_ADDRESS);
@@ -205,7 +205,7 @@ public abstract class VmStatics extends VmStaticsBase {
     }
 
     public final void setAddress(int idx, UnboxedObject value) {
-        if (!Vm.isWritingImage()) {
+        if (!VmUtils.isWritingImage()) {
             throw new IllegalStateException("Only allowed during bootimage creation.");
         }
         allocator.testType(idx, TYPE_ADDRESS);
@@ -369,7 +369,7 @@ public abstract class VmStatics extends VmStaticsBase {
     }
 
     /**
-     * @see org.jnode.vm.VmSystemObject#verifyBeforeEmit()
+     * @see org.jnode.vm.objects.VmSystemObject#verifyBeforeEmit()
      */
     public void verifyBeforeEmit() {
         //System.out.println("VmStatics#verifyBeforeEmit " + slotLength + ", " + resolver);

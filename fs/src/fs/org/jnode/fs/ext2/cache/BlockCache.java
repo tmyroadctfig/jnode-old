@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.ext2.cache;
 
 import java.io.IOException;
@@ -49,20 +49,13 @@ public final class BlockCache extends LinkedHashMap<Object, Block> {
         cacheListeners.add(listener);
     }
 
-    /*
-     * private boolean containsKey(Integer key) { boolean result =
-     * super.containsKey(key); if(result) log.debug("CACHE HIT, size:"+size());
-     * else log.debug("CACHE MISS"); return result; }
-     */
-
     protected synchronized boolean removeEldestEntry(Map.Entry<Object, Block> eldest) {
         log.debug("BlockCache size: " + size());
         if (size() > MAX_SIZE) {
             try {
                 eldest.getValue().flush();
                 // notify the listeners
-                final CacheEvent event = new CacheEvent(eldest.getValue(),
-                        CacheEvent.REMOVED);
+                final CacheEvent event = new CacheEvent(eldest.getValue(), CacheEvent.REMOVED);
                 for (CacheListener l : cacheListeners) {
                     l.elementRemoved(event);
                 }

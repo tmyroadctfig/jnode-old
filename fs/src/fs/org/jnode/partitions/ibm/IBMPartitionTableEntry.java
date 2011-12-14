@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,6 +34,7 @@ public class IBMPartitionTableEntry implements PartitionTableEntry {
 
     private final byte[] bs;
     private final int ofs;
+    private long odd;
     @SuppressWarnings("unused")
     private final IBMPartitionTable parent;
 
@@ -70,8 +71,7 @@ public class IBMPartitionTableEntry implements PartitionTableEntry {
         // pgwiasda
         // there are more than one type of extended Partitions
         return (id == IBMPartitionTypes.PARTTYPE_WIN95_FAT32_EXTENDED ||
-                id == IBMPartitionTypes.PARTTYPE_LINUX_EXTENDED || 
-                id == IBMPartitionTypes.PARTTYPE_DOS_EXTENDED);
+                id == IBMPartitionTypes.PARTTYPE_LINUX_EXTENDED || id == IBMPartitionTypes.PARTTYPE_DOS_EXTENDED);
     }
 
     public boolean getBootIndicator() {
@@ -144,6 +144,22 @@ public class IBMPartitionTableEntry implements PartitionTableEntry {
 
     public void setNrSectors(long v) {
         LittleEndian.setInt32(bs, ofs + 12, (int) v);
+    }
+
+    public long getNbrBlocks(int sectorSize) {
+        long sectors = getNrSectors();
+        long blocks = sectors;
+        if (sectorSize < 1024) {
+            blocks /= (1024 / sectorSize);
+            odd = getNrSectors() % (1024 / sectorSize);
+        } else {
+            blocks *= (sectorSize / 1024);
+        }
+        return blocks;
+    }
+
+    public boolean isOdd() {
+        return odd != 0;
     }
 
     public void clear() {

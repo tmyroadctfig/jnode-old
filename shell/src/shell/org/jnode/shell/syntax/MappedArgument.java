@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -62,13 +62,13 @@ public abstract class MappedArgument<V> extends Argument<V> {
      * Complete partial against the domain of the valueMap.
      */
     @Override
-    public void doComplete(CompletionInfo completion, String partial, int flags) {
+    public void doComplete(CompletionInfo completions, String partial, int flags) {
         if (caseInsensitive) {
             partial = partial.toLowerCase();
         }
         for (String str : valueMap.keySet()) {
             if (str.startsWith(partial)) {
-                completion.addCompletion(str);
+                completions.addCompletion(str);
             }
         }
     }

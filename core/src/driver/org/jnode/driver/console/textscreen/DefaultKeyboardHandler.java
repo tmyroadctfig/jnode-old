@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import javax.naming.NameNotFoundException;
 
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.driver.ApiNotFoundException;
 import org.jnode.driver.Device;
 import org.jnode.driver.DeviceListener;
@@ -32,7 +33,6 @@ import org.jnode.driver.input.KeyboardAPI;
 import org.jnode.driver.input.KeyboardEvent;
 import org.jnode.driver.input.KeyboardListener;
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.BootLog;
 import org.jnode.system.event.FocusEvent;
 import org.jnode.system.event.FocusListener;
 
@@ -60,7 +60,7 @@ public class DefaultKeyboardHandler extends KeyboardHandler implements KeyboardL
                 dm = InitialNaming.lookup(DeviceManager.NAME);
                 dm.addListener(this);
             } catch (NameNotFoundException ex) {
-                BootLog.error("DeviceManager not found", ex);
+                BootLogInstance.get().error("DeviceManager not found", ex);
             }
             this.devMan = dm;
         }
@@ -72,7 +72,7 @@ public class DefaultKeyboardHandler extends KeyboardHandler implements KeyboardL
                 this.api = device.getAPI(KeyboardAPI.class);
                 this.api.addKeyboardListener(this);
             } catch (ApiNotFoundException ex) {
-                BootLog.error("KeyboardAPI not found", ex);
+                BootLogInstance.get().error("KeyboardAPI not found", ex);
             }
             this.devMan.removeListener(this);
         }

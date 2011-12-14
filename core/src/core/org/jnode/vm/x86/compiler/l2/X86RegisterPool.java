@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,9 +21,9 @@
 package org.jnode.vm.x86.compiler.l2;
 
 import org.jnode.assembler.x86.X86Register;
-import org.jnode.util.BootableArrayList;
 import org.jnode.vm.compiler.ir.Operand;
 import org.jnode.vm.compiler.ir.RegisterPool;
+import org.jnode.vm.objects.BootableArrayList;
 
 /**
  * @author Madhu Siddalingaiah

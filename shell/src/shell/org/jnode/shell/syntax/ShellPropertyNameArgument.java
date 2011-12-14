@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -53,12 +53,12 @@ public class ShellPropertyNameArgument extends Argument<String> {
     }
     
     @Override
-    public void doComplete(CompletionInfo completion, String partial, int flags) {
+    public void doComplete(CompletionInfo completions, String partial, int flags) {
         try {
             for (Object key : ShellUtils.getCurrentShell().getProperties().keySet()) {
                 String name = (String) key;
                 if (name.startsWith(partial)) {
-                    completion.addCompletion(name);
+                    completions.addCompletion(name);
                 }
             }
         } catch (NameNotFoundException ex) {

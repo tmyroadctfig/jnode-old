@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -33,29 +35,30 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import javax.isolate.Isolate;
 import javax.isolate.IsolateStartupException;
 import javax.isolate.IsolateStatus;
 import javax.isolate.Link;
 import javax.naming.NameNotFoundException;
-import org.jnode.naming.InitialNaming;
-import org.jnode.plugin.PluginManager;
-import org.jnode.util.BootableHashMap;
-import org.jnode.vm.IOContext;
-import org.jnode.vm.ObjectVisitor;
-import org.jnode.vm.Unsafe;
-import org.jnode.vm.Vm;
-import org.jnode.vm.VmArchitecture;
-import org.jnode.vm.VmIOContext;
-import org.jnode.vm.VmMagic;
-import org.jnode.vm.VmSystem;
+
 import org.jnode.annotation.MagicPermission;
 import org.jnode.annotation.PrivilegedActionPragma;
 import org.jnode.annotation.SharedStatics;
+import org.jnode.naming.InitialNaming;
+import org.jnode.plugin.PluginManager;
+import org.jnode.vm.IOContext;
+import org.jnode.vm.Unsafe;
+import org.jnode.vm.VmIOContext;
+import org.jnode.vm.VmMagic;
+import org.jnode.vm.VmSystem;
 import org.jnode.vm.classmgr.VmIsolatedStatics;
 import org.jnode.vm.classmgr.VmType;
+import org.jnode.vm.facade.ObjectVisitor;
+import org.jnode.vm.facade.VmArchitecture;
+import org.jnode.vm.facade.VmUtils;
+import org.jnode.vm.objects.BootableHashMap;
 import org.jnode.vm.scheduler.VmThread;
-import gnu.classpath.SystemProperties;
 
 /**
  * VM specific implementation of the Isolate class.
@@ -156,7 +159,15 @@ public final class VmIsolate {
      */
     private BootableHashMap<VmIsolateLocal<?>, ?> isolateLocalMap = new BootableHashMap<VmIsolateLocal<?>, Object>();
 
+    /**
+     * List of isolates started by this isolate.
+     */
     private final List<VmIsolate> children = new LinkedList<VmIsolate>();
+
+    /**
+     * Additional classpath for this isolate.
+     */
+    private URL[] classpath;
 
     /**
      * Isolate states.
@@ -302,7 +313,7 @@ public final class VmIsolate {
         this.mainClass = mainClass;
         this.args = args;
         this.bindings = bindings;
-        final VmArchitecture arch = Vm.getArch();
+        final VmArchitecture arch = VmUtils.getVm().getArch();
         this.isolatedStaticsTable = new VmIsolatedStatics(VmMagic.currentProcessor().getIsolatedStatics(),
             arch, new Unsafe.UnsafeObjectResolver());
         this.creator = currentIsolate();
@@ -956,11 +967,10 @@ public final class VmIsolate {
                 myProps.setProperty(
                         (String) key, (String) initProperties.getProperty((String) key));
             }
-            VmSystem.getIOContext().setProperties(myProps);
+            System.setProperties(myProps);
 
             // Set context classloader
-            final ClassLoader loader = thread.getPluginManager().getRegistry()
-                .getPluginsClassLoader();
+            final ClassLoader loader = getClassLoader(thread);
             Thread.currentThread().setContextClassLoader(loader);
 
             // Fire started events.
@@ -1018,6 +1028,15 @@ public final class VmIsolate {
             } finally {
                 systemHalt(isolate, -1);
             }
+        }
+    }
+
+    private ClassLoader getClassLoader(IsolateThread thread) {
+        ClassLoader pluginsClassLoader = thread.getPluginManager().getRegistry().getPluginsClassLoader();
+        if (classpath == null) {
+            return pluginsClassLoader;
+        } else {
+            return new URLClassLoader(classpath, pluginsClassLoader);
         }
     }
 
@@ -1120,8 +1139,21 @@ public final class VmIsolate {
         return isolateLocalMap;
     }
 
+    /**
+     * Returns the current state of this isolate.
+     * @return the state
+     */
     public IsolateStatus.State getIsolateState() {
         return isolateState;
+    }
+
+    /**
+     * Set the classpath for this isolate to complement the default classpath.
+     *
+     * @param classpath an array of URLs holding the classpath entries as URLs
+     */
+    public void setClasspath(URL[] classpath) {
+        this.classpath = classpath;
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,8 +22,8 @@ package org.jnode.work;
 
 import javax.naming.NameNotFoundException;
 
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.BootLog;
 
 
 /**
@@ -45,7 +45,7 @@ public class WorkUtils {
             wm.add(work);
             return true;
         } catch (NameNotFoundException ex) {
-            BootLog.error("Cannot find workmanager", ex);
+            BootLogInstance.get().error("Cannot find workmanager", ex);
             return false;
         }
     }

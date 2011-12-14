@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -43,7 +43,7 @@ import org.jnode.shell.syntax.FlagArgument;
  * @author Martin Husted Hartvig (hagar at jnode.org)
  * @author crawley@jnode.org
  * @author chris boertien
- * @see {@link http://www.opengroup.org/onlinepubs/009695399/utilities/rm.html}
+ * @see <a href="http://www.opengroup.org/onlinepubs/009695399/utilities/rm.html">POSIX "rm" command</a>
  */
 public class DeleteCommand extends AbstractCommand {
     

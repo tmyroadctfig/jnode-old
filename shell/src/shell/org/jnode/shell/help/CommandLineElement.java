@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -46,7 +46,7 @@ abstract class CommandLineElement {
 
     public abstract String format();
     public abstract void describe(HelpFactory help, PrintWriter out);
-    public abstract void complete(CompletionInfo completion, String partial);
+    public abstract void complete(CompletionInfo completions, String partial);
 
     /** 
      * Indicates if the element is satisfied.

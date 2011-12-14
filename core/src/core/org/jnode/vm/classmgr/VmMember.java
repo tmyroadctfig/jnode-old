@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -217,14 +217,14 @@ abstract class VmMember extends VmAnnotatedElement implements Uninterruptible {
 
     /**
      * @return String
-     * @see org.jnode.vm.VmSystemObject#getExtraInfo()
+     * @see org.jnode.vm.objects.VmSystemObject#getExtraInfo()
      */
     public final String getExtraInfo() {
         return "Modifiers: " + Modifier.toString(modifiers);
     }
 
     /**
-     * @see org.jnode.vm.VmSystemObject#verifyBeforeEmit()
+     * @see org.jnode.vm.objects.VmSystemObject#verifyBeforeEmit()
      */
     public void verifyBeforeEmit() {
         super.verifyBeforeEmit();

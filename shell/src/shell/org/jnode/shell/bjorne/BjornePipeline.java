@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.shell.bjorne;
 
 import java.io.IOException;
@@ -161,7 +161,11 @@ class BjornePipeline {
         synchronized (this) {
             for (PipelineStage stage : stages) {
                 ThreadCallback callback = new ThreadCallback(stage.context);
-                stage.thread.start(callback);
+                if (stage.thread != null) {
+                    stage.thread.start(callback);
+                } else {
+                    callback.notifyThreadExited(null);
+                }
             }
             while (activeStageCount > 0) {
                 try {
@@ -171,7 +175,8 @@ class BjornePipeline {
                     break;
                 }
             }
-            return stages[stages.length - 1].thread.getReturnCode();
+            CommandThread lastThread = stages[stages.length - 1].thread;
+            return (lastThread == null) ? 0 : lastThread.getReturnCode();
         }
     }
 

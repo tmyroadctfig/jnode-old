@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,22 +27,22 @@ public class NodeDescriptor {
     public static final int BT_INDEX_NODE = 0;
     public static final int BT_HEADER_NODE = 1;
     public static final int BT_MAP_NODE = 2;
-    
+
     /** The size of the node descriptor. */
     public static final int BT_NODE_DESCRIPTOR_LENGTH = 14;
-    
+
     /** The number of the next node. */
     private int fLink;
-    
+
     /** The number of the previous node. */
     private int bLink;
-    
+
     /** The type of the node. */
     private int kind;
-    
+
     /** The depth of this node in the B-Tree. */
     private int height;
-    
+
     /** The number of records in this node. */
     private int numRecords;
 
@@ -116,6 +116,18 @@ public class NodeDescriptor {
 
     public int getNumRecords() {
         return numRecords;
+    }
+
+    public boolean isIndexNode() {
+        return kind == NodeDescriptor.BT_INDEX_NODE;
+    }
+
+    public boolean isLeafNode() {
+        return kind == NodeDescriptor.BT_LEAF_NODE;
+    }
+
+    public boolean isMapNode() {
+        return kind == NodeDescriptor.BT_MAP_NODE;
     }
 
 }

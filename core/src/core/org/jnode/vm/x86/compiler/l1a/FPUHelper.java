@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,19 +17,18 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.x86.X86Assembler;
 import org.jnode.assembler.x86.X86Register;
 import org.jnode.assembler.x86.X86Register.FPU;
 import org.jnode.vm.bytecode.StackException;
-import org.jnode.vm.x86.compiler.X86CompilerConstants;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class FPUHelper implements X86CompilerConstants {
+final class FPUHelper {
 
     /**
      * Swap ST0 and the given item. Action is emitted to code & performed on
@@ -39,7 +38,7 @@ final class FPUHelper implements X86CompilerConstants {
      * @param fpuStack
      * @param item
      */
-    static final void fxch(X86Assembler os, FPUStack fpuStack, Item item) {
+    static void fxch(X86Assembler os, FPUStack fpuStack, Item item) {
         if (!fpuStack.isTos(item)) {
             final FPU fpuReg = fpuStack.getRegister(item);
             fxch(os, fpuStack, fpuReg);
@@ -53,8 +52,8 @@ final class FPUHelper implements X86CompilerConstants {
      * @param fpuStack
      * @param fpuReg
      */
-    static final void fxch(X86Assembler os, FPUStack fpuStack,
-                           FPU fpuReg) {
+    static void fxch(X86Assembler os, FPUStack fpuStack,
+                     FPU fpuReg) {
         if (fpuReg == X86Register.ST0) {
             throw new StackException("Cannot fxch ST0");
         }

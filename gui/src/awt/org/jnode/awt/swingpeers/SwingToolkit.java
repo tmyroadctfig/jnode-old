@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -478,7 +478,8 @@ public final class SwingToolkit extends JNodeToolkit {
             }
         } else {
             comp = super.getTopComponentAt(x, y);
-            SwingBaseWindow<?, ?> window = (SwingBaseWindow<?, ?>) SwingUtilities.getAncestorOfClass(SwingBaseWindow.class, comp);
+            SwingBaseWindow<?, ?> window = (SwingBaseWindow<?, ?>) SwingUtilities.
+                getAncestorOfClass(SwingBaseWindow.class, comp);
             if (window != null) {
                 Rectangle r = window.getBounds();
                 Insets ins = window.getSwingPeer().getInsets();

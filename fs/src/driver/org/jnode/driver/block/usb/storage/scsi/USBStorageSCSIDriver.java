@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -216,5 +216,10 @@ public class USBStorageSCSIDriver extends Driver
     public void eject() throws IOException {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void load() throws IOException {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -32,7 +32,6 @@ import org.jnode.assembler.x86.X86BinaryAssembler;
 import org.jnode.assembler.x86.X86Constants;
 import org.jnode.assembler.x86.X86Register;
 import org.jnode.assembler.x86.X86TextAssembler;
-import org.jnode.util.BootableHashMap;
 import org.jnode.vm.VmSystemClassLoader;
 import org.jnode.vm.bytecode.BytecodeParser;
 import org.jnode.vm.classmgr.VmByteCode;
@@ -46,6 +45,7 @@ import org.jnode.vm.compiler.ir.LinearScanAllocator;
 import org.jnode.vm.compiler.ir.LiveRange;
 import org.jnode.vm.compiler.ir.Variable;
 import org.jnode.vm.compiler.ir.quad.Quad;
+import org.jnode.vm.objects.BootableHashMap;
 import org.jnode.vm.x86.VmX86Architecture32;
 import org.jnode.vm.x86.X86CpuID;
 import org.jnode.vm.x86.compiler.l2.GenericX86CodeGenerator;

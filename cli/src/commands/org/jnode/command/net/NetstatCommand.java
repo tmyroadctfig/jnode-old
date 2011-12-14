@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -28,8 +28,8 @@ import org.jnode.net.NetworkLayerManager;
 import org.jnode.net.TransportLayer;
 import org.jnode.net.util.NetUtils;
 import org.jnode.shell.AbstractCommand;
-import org.jnode.util.Statistic;
-import org.jnode.util.Statistics;
+import org.jnode.vm.objects.Statistic;
+import org.jnode.vm.objects.Statistics;
 
 /**
  * @author epr

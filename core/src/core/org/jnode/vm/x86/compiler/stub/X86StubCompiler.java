@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,6 +35,8 @@ import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.x86.X86CpuID;
 import org.jnode.vm.x86.compiler.AbstractX86Compiler;
 import org.jnode.vm.x86.compiler.X86CompilerHelper;
+
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.STUB_COMPILER_MAGIC;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)

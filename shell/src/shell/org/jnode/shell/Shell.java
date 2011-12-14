@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -71,7 +71,10 @@ public interface Shell extends InputCompleter {
      * Run a command file in the shell.  If the first line of the file is of the form
      * "#!&lt;interpreter&gt;", where "&lt;interpreter&gt;" has been registered with
      * the ShellManager, the file will be run using the nominated interpreter.  Otherwise,
-     * the shell gets to decide which interpreter to use.
+     * the shell decides which interpreter to use.
+     * <p>
+     * A command alias and arguments are passed to the interpreter, but it is up to the
+     * interpreter to decide what if anything to do with them.  Some interpreters ignore them.
      * 
      * @param file the command file
      * @param alias the command alias used to launch the script.  If this parameter is

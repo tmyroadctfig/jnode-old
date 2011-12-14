@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,7 +35,8 @@ import org.jnode.util.BigEndian;
 public class HfsPlusFileSystemType implements BlockDeviceFileSystemType<HfsPlusFileSystem> {
     public static final Class<HfsPlusFileSystemType> ID = HfsPlusFileSystemType.class;
 
-    public final HfsPlusFileSystem create(final Device device, final boolean readOnly) throws FileSystemException {
+    public final HfsPlusFileSystem create(final Device device, final boolean readOnly)
+        throws FileSystemException {
         HfsPlusFileSystem fs = new HfsPlusFileSystem(device, readOnly, this);
         fs.read();
         return fs;
@@ -45,7 +46,7 @@ public class HfsPlusFileSystemType implements BlockDeviceFileSystemType<HfsPlusF
         return "HFS+";
     }
 
-    public final boolean supports(final PartitionTableEntry pte, final byte[] firstSector, 
+    public final boolean supports(final PartitionTableEntry pte, final byte[] firstSector,
             final FSBlockDeviceAPI devApi) {
         if (pte != null) {
             if (pte instanceof IBMPartitionTableEntry) {
@@ -62,7 +63,7 @@ public class HfsPlusFileSystemType implements BlockDeviceFileSystemType<HfsPlusF
             return false;
         }
         int magicNumber = BigEndian.getInt16(magic.array(), 0);
-        return (magicNumber == Superblock.HFSPLUS_SUPER_MAGIC);
+        return (magicNumber == SuperBlock.HFSPLUS_SUPER_MAGIC);
     }
 
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -79,7 +79,8 @@ public class JPartitionCommand extends AbstractCommand {
     /**
      * {@inheritDoc}
      */
-    public void doExecute(boolean install, InputStream in, PrintStream out, PrintStream err, boolean consoleView, boolean swingView) throws Exception { 
+    public void doExecute(boolean install, InputStream in, PrintStream out, PrintStream err, boolean consoleView,
+                          boolean swingView) throws Exception { 
         ViewFactory viewFactory =
                 consoleView ? new ConsoleViewFactory()
                         : swingView ? new SwingViewFactory() : null;

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -468,6 +468,7 @@ public class ParseNode {
                     }
                 } else if (unprefixed) {
                     // search scopes for unprefixed name
+                    //FIXME searchedNode is null in this case !
                     while (searchedNode != null && searchedNode.parent != null) {
                         originNode = originNode.parent;
                         searchedNode = originNode.findName(name, opcode);

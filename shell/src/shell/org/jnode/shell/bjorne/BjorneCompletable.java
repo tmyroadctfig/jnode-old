@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -26,7 +26,7 @@ import org.jnode.shell.help.CompletionException;
 
 public interface BjorneCompletable {
 
-    void complete(CompletionInfo completion, BjorneContext context,
+    void complete(CompletionInfo completions, BjorneContext context,
             CommandShell shell, boolean argumentAnticipated) 
         throws CompletionException;
 

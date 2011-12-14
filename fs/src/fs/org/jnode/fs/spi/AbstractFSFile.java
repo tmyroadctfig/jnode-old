@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -46,6 +46,8 @@ public abstract class AbstractFSFile extends AbstractFSObject implements FSFile 
      * @return the length of the file
      */
     public abstract long getLength();
+
+    public abstract void setLength(long length) throws IOException;
 
     /**
      * Read some data from the file

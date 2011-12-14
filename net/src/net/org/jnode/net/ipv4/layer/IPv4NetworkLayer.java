@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -55,7 +55,7 @@ import org.jnode.net.ipv4.udp.UDPProtocol;
 import org.jnode.net.ipv4.util.ResolverImpl;
 import org.jnode.net.util.NetUtils;
 import org.jnode.util.NumberUtils;
-import org.jnode.util.Statistics;
+import org.jnode.vm.objects.Statistics;
 
 /**
  * @author epr

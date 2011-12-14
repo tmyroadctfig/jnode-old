@@ -10,12 +10,18 @@
 # if you have custom initjars to build.
 # custom.plugin-list.dir = ${root.dir}/local/plugin-lists/
 
+# Custom GRUB menu for JNode CD image
+#grub.menu.cdrom=${root.dir}/local/menu-cdrom.lst
+
 # Uncomment this property if you do not want the default initjars to be build.
 # no.default.initjars = 1
 
 # Set this property to the directory containing user applications for the 
 # jar packager (tool to easily create a jnode plugin from a regular jar file)
 # user.applications.dir = ${root.dir}/local/applications/
+
+# The jar packager adds the user plugins to the plugin list specified here.
+# target.plugin.list=default
 
 # -----------------------------------------------
 # Settings for the bootdisk image

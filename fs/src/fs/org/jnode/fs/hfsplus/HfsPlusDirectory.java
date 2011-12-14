@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.jnode.fs.FSDirectory;
 import org.jnode.fs.FSEntry;
+import org.jnode.fs.FileSystem;
 import org.jnode.fs.ReadOnlyFileSystemException;
 import org.jnode.fs.hfsplus.catalog.Catalog;
 import org.jnode.fs.hfsplus.catalog.CatalogFile;
@@ -38,26 +39,29 @@ import org.jnode.fs.hfsplus.catalog.CatalogNodeId;
 import org.jnode.fs.hfsplus.tree.LeafRecord;
 import org.jnode.fs.spi.FSEntryTable;
 
-public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
+public class HfsPlusDirectory implements FSDirectory {
 
     private static final Logger log = Logger.getLogger(HfsPlusDirectory.class);
+
+    /** The directory entry */
+    private HfsPlusEntry entry;
 
     /** Table of entries of our parent */
     private FSEntryTable entries;
 
+    /** The catalog directory record */
     private CatalogFolder folder;
 
-    public HfsPlusDirectory(HfsPlusFileSystem fs, HfsPlusDirectory parent, String name,
-            LeafRecord record) {
-        super(fs, parent, name, record);
-        this.folder = new CatalogFolder(record.getData());
+    public HfsPlusDirectory(HfsPlusEntry entry) {
+        this.entry = entry;
+        this.folder = new CatalogFolder(entry.getData());
         this.entries = FSEntryTable.EMPTY_TABLE;
     }
 
     @Override
     public FSEntry addDirectory(String name) throws IOException {
         log.debug("<<< BEGIN addDirectory " + name + " >>>");
-        if (fs.isReadOnly()) {
+        if (getFileSystem().isReadOnly()) {
             throw new ReadOnlyFileSystemException();
         }
 
@@ -73,7 +77,7 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
     @Override
     public FSEntry addFile(String name) throws IOException {
         log.debug("<<< BEGIN addFile " + name + " >>>");
-        if (fs.isReadOnly()) {
+        if (getFileSystem().isReadOnly()) {
             throw new ReadOnlyFileSystemException();
         }
         if (getEntry(name) != null) {
@@ -86,19 +90,21 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
         return newEntry;
     }
 
-    private final FSEntry createFileEntry(final String name) throws IOException {
-        /*if (fs.isReadOnly()) {
-            throw new ReadOnlyFileSystemException();
-        }
-        Catalog catalog = fs.getCatalog();
-        Superblock volumeHeader = ((HfsPlusFileSystem) getFileSystem()).getVolumeHeader();
-        LeafRecord fileRecord = catalog.createNode(name, this.folder
-                        .getFolderId(), new CatalogNodeId(volumeHeader.getNextCatalogId()), CatalogFile.RECORD_TYPE_FILE);
-        
-        HFSPlusEntry newEntry = new HFSPlusFile(fs, this, name, folderRecord);
-        newEntry.setDirty();
-        volumeHeader.setFileCount(volumeHeader.getFileCount() + 1);
-        log.debug("New volume header :\n" + volumeHeader.toString());*/
+    private FSEntry createFileEntry(final String name) throws IOException {
+        //TODO implements this method.
+        /*
+         * if (fs.isReadOnly()) { throw new ReadOnlyFileSystemException(); }
+         * Catalog catalog = fs.getCatalog(); SuperBlock volumeHeader =
+         * ((HfsPlusFileSystem) getFileSystem()).getVolumeHeader(); LeafRecord
+         * fileRecord = catalog.createNode(name, this.folder .getFolderId(), new
+         * CatalogNodeId(volumeHeader.getNextCatalogId()),
+         * CatalogFile.RECORD_TYPE_FILE);
+         * 
+         * HFSPlusEntry newEntry = new HFSPlusFile(fs, this, name,
+         * folderRecord); newEntry.setDirty();
+         * volumeHeader.setFileCount(volumeHeader.getFileCount() + 1);
+         * log.debug("New volume header :\n" + volumeHeader.toString());
+         */
 
         return null;
     }
@@ -106,14 +112,14 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
     @Override
     public void flush() throws IOException {
         log.debug("<<< BEGIN flush >>>");
-        if (fs.isReadOnly()) {
+        if (getFileSystem().isReadOnly()) {
             throw new ReadOnlyFileSystemException();
         }
         boolean flushEntries = isEntriesLoaded() && entries.isDirty();
-        if (isDirty() || flushEntries) {
+        if (entry.isDirty() || flushEntries) {
             writeEntries(entries);
             // entries.resetDirty();
-            resetDirty();
+            entry.resetDirty();
         }
         log.debug("<<< END flush >>>");
     }
@@ -126,6 +132,7 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
 
     @Override
     public Iterator<? extends FSEntry> iterator() throws IOException {
+        checkEntriesLoaded();
         return entries.iterator();
     }
 
@@ -135,13 +142,12 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
 
     @Override
     public void remove(String name) throws IOException {
-        if (fs.isReadOnly()) {
+        if (getFileSystem().isReadOnly()) {
             throw new ReadOnlyFileSystemException();
         }
         if (entries.remove(name) >= 0) {
-            setDirty();
+            entry.setDirty();
             flush();
-            return;
         } else {
             throw new FileNotFoundException(name);
         }
@@ -158,15 +164,16 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
         if (!isEntriesLoaded()) {
             log.debug("checkEntriesLoaded : loading");
             try {
-                if (rights.canRead()) {
+                if (entry.getAccessRights().canRead()) {
                     entries = readEntries();
+                    log.debug("Load " + entries.size() + " entrie(s).");
                 } else {
                     // the next time, we will call checkEntriesLoaded()
                     // we will retry to load entries
                     entries = FSEntryTable.EMPTY_TABLE;
                     log.debug("checkEntriesLoaded : can't read, using EMPTY_TABLE");
                 }
-                resetDirty();
+                entry.resetDirty();
             } catch (IOException e) {
                 log.fatal("unable to read directory entries", e);
                 // the next time, we will call checkEntriesLoaded()
@@ -182,16 +189,16 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
      * 
      * @return if the entries are already loaded from the device
      */
-    private final boolean isEntriesLoaded() {
+    private boolean isEntriesLoaded() {
         return (entries != FSEntryTable.EMPTY_TABLE);
     }
 
     /**
      * 
-     * @return
+     * @return read all entries link to the current directory in the file system.
      * @throws IOException
      */
-    private final FSEntryTable readEntries() throws IOException {
+    private FSEntryTable readEntries() throws IOException {
         List<FSEntry> pathList = new LinkedList<FSEntry>();
         HfsPlusFileSystem fs = (HfsPlusFileSystem) getFileSystem();
         if (fs.getVolumeHeader().getFolderCount() > 0) {
@@ -200,7 +207,7 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
                 if (rec.getType() == CatalogFolder.RECORD_TYPE_FOLDER ||
                         rec.getType() == CatalogFile.RECORD_TYPE_FILE) {
                     String name = ((CatalogKey) rec.getKey()).getNodeName().getUnicodeString();
-                    HfsPlusEntry e = new HfsPlusDirectory(fs, this, name, rec);
+                    HfsPlusEntry e = new HfsPlusEntry(fs, this, name, rec);
                     pathList.add(e);
                 }
             }
@@ -214,21 +221,23 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
 
     /**
      * 
-     * @param name
-     * @return
-     * @throws IOException
+     * @param name The name of the entry.
+     * @return  Return the newly created entry.
+     * @throws IOException if problem occurs during catalog node creation or if system is read-only.
      */
-    private final FSEntry createDirectoryEntry(final String name) throws IOException {
-        if (fs.isReadOnly()) {
+    private FSEntry createDirectoryEntry(final String name) throws IOException {
+        if (getFileSystem().isReadOnly()) {
             throw new ReadOnlyFileSystemException();
         }
-        Catalog catalog = fs.getCatalog();
-        Superblock volumeHeader = ((HfsPlusFileSystem) getFileSystem()).getVolumeHeader();
-        LeafRecord folderRecord = catalog.createNode(name, this.folder.getFolderId(), 
-            new CatalogNodeId(volumeHeader.getNextCatalogId()), CatalogFolder.RECORD_TYPE_FOLDER_THREAD);
+        Catalog catalog = ((HfsPlusFileSystem) getFileSystem()).getCatalog();
+        SuperBlock volumeHeader = ((HfsPlusFileSystem) getFileSystem()).getVolumeHeader();
+        LeafRecord folderRecord =
+                catalog.createNode(name, this.folder.getFolderId(),
+                        new CatalogNodeId(volumeHeader.getNextCatalogId()),
+                        CatalogFolder.RECORD_TYPE_FOLDER_THREAD);
         folder.setValence(folder.getValence() + 1);
-        
-        HfsPlusEntry newEntry = new HfsPlusDirectory(fs, this, name, folderRecord);
+
+        HfsPlusEntry newEntry = new HfsPlusEntry((HfsPlusFileSystem) getFileSystem(), this, name, folderRecord);
         newEntry.setDirty();
         volumeHeader.setFolderCount(volumeHeader.getFolderCount() + 1);
         log.debug("New volume header :\n" + volumeHeader.toString());
@@ -242,14 +251,22 @@ public class HfsPlusDirectory extends HfsPlusEntry implements FSDirectory {
      * @param newEntry
      * @throws IOException
      */
-    private final void setFreeEntry(FSEntry newEntry) throws IOException {
+    private void setFreeEntry(FSEntry newEntry) throws IOException {
         checkEntriesLoaded();
         if (entries.setFreeEntry(newEntry) >= 0) {
             log.debug("setFreeEntry: free entry found !");
-            setDirty();
+            entry.setDirty();
             flush();
-            return;
         }
     }
 
+    @Override
+    public boolean isValid() {
+        return entry.isValid();
+    }
+
+    @Override
+    public FileSystem<?> getFileSystem() {
+        return entry.getFileSystem();
+    }
 }

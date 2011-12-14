@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.Label;
@@ -45,7 +45,10 @@ final class InlinedMethodInfo {
     /**
      * Initialize this instance.
      *
+     * @param previous
      * @param inlinedMethod
+     * @param endOfInlineLabel
+     * @param previousLabelPrefix
      */
     public InlinedMethodInfo(InlinedMethodInfo previous, VmMethod inlinedMethod, Label endOfInlineLabel,
                              String previousLabelPrefix) {
@@ -69,6 +72,7 @@ final class InlinedMethodInfo {
     /**
      * Push the stack elements of the outer method stack.
      *
+     * @param ifac
      * @param vstack
      */
     final void pushOuterMethodStack(ItemFactory ifac, VirtualStack vstack) {
@@ -78,10 +82,12 @@ final class InlinedMethodInfo {
     /**
      * Push the stack elements of the outer method stack and the exit stack.
      *
+     * @param ifac
      * @param vstack
+     * @param eContext
      */
-    final void pushExitStack(ItemFactory ifac, VirtualStack vstack) {
-        vstack.reset();
+    final void pushExitStack(ItemFactory ifac, VirtualStack vstack, EmitterContext eContext) {
+        vstack.reset(eContext);
         //vstack.pushAll(outerMethodStack);
         vstack.pushAll(ifac, exitStack);
     }

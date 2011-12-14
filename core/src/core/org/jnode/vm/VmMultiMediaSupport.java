@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,7 +24,7 @@ import org.vmmagic.unboxed.Address;
 
 /**
  * Class used to implement multi media support for
- * {@link org.jnode.system.MultiMediaMemoryResource}.
+ * {@link org.jnode.system.resource.MultiMediaMemoryResource}.
  *
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */

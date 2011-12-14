@@ -10,6 +10,8 @@
         
   <requires>
     <import plugin="nanoxml"/>
+    <import plugin="org.jnode.plugin"/>
+    <import plugin="org.jnode.plugin.impl"/>
     <import plugin="org.jnode.util"/>
     <import plugin="org.jnode.security"/>
     <import plugin="org.jnode.vm"/>
@@ -19,12 +21,8 @@
     <library name="jnode-core.jar">
       <export name="org.jnode.boot.*"/>
       <export name="org.jnode.naming.*"/>
-      <export name="org.jnode.plugin.*"/>
-      <export name="org.jnode.plugin.manager.*"/>
-      <export name="org.jnode.plugin.model.*"/>
       <export name="org.jnode.protocol.plugin.*"/>
       <export name="org.jnode.protocol.system.*"/>
-      <export name="org.jnode.system.*"/>
       <export name="org.jnode.system.event.*"/>
     </library>
   </runtime>

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,22 +22,22 @@ package org.jnode.vm.x86;
 
 import java.io.PrintWriter;
 
-import org.jnode.system.BootLog;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.util.NumberUtils;
-import org.jnode.util.TimeUtils;
-import org.jnode.vm.CpuID;
-import org.jnode.vm.Unsafe;
-import org.jnode.vm.Vm;
 import org.jnode.annotation.KernelSpace;
 import org.jnode.annotation.LoadStatics;
 import org.jnode.annotation.MagicPermission;
 import org.jnode.annotation.NoFieldAlignments;
 import org.jnode.annotation.PrivilegedActionPragma;
 import org.jnode.annotation.Uninterruptible;
+import org.jnode.bootlog.BootLogInstance;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.util.NumberUtils;
+import org.jnode.vm.CpuID;
+import org.jnode.vm.Unsafe;
+import org.jnode.vm.VmSystem;
 import org.jnode.vm.classmgr.VmIsolatedStatics;
 import org.jnode.vm.classmgr.VmSharedStatics;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.performance.PerformanceCounters;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.scheduler.VmScheduler;
@@ -233,13 +233,13 @@ public abstract class VmX86Processor extends VmProcessor {
         Unsafe.debug("Sending INIT IPI to " + getIdString() + "\n");
         localAPIC.sendInitIPI(getId(), true);
         localAPIC.loopUntilNotBusy();
-        TimeUtils.loop(10);
+        VmSystem.loop(10);
 
         // Send INIT-DeAssert IPI
         Unsafe.debug("Sending INIT-DeAssert IPI to " + getIdString() + "\n");
         localAPIC.sendInitIPI(getId(), false);
         localAPIC.loopUntilNotBusy();
-        TimeUtils.loop(10);
+        VmSystem.loop(10);
 
         final int numStarts = 2;
         for (int i = 0; i < numStarts; i++) {
@@ -249,7 +249,7 @@ public abstract class VmX86Processor extends VmProcessor {
             localAPIC.sendStartupIPI(getId(), bootCode);
             localAPIC.loopUntilNotBusy();
             // Unsafe.debug("Not busy");
-            TimeUtils.loop(100);
+            VmSystem.loop(100);
             localAPIC.clearErrors();
         }
 
@@ -279,7 +279,7 @@ public abstract class VmX86Processor extends VmProcessor {
             * getArchitecture().getReferenceSize()];
         setupUserStack(userStack);
         this.currentThread = createThread(getIsolatedStatics(), userStack);
-        this.stackEnd = ((VmX86Thread) currentThread).getStackEnd().toAddress();
+        this.stackEnd = ((VmX86Thread) currentThread).getStackEnd();
 
         // gdt.dump(System.out);
     }
@@ -325,7 +325,7 @@ public abstract class VmX86Processor extends VmProcessor {
         try {
             detectAndstartLogicalProcessors(cpu.rm);
         } catch (ResourceNotFreeException ex) {
-            BootLog.error("Cannot detect logical processors", ex);
+            BootLogInstance.get().error("Cannot detect logical processors", ex);
         }
 
         // Run idle thread.
@@ -361,7 +361,7 @@ public abstract class VmX86Processor extends VmProcessor {
             final int logId = cpu.getId() | i;
             Unsafe.debug("Adding logical CPU 0x" + NumberUtils.hex(logId, 2));
             final VmX86Processor logCpu = (VmX86Processor) arch
-                .createProcessor(logId, Vm.getVm().getSharedStatics(), cpu
+                .createProcessor(logId, VmUtils.getVm().getSharedStatics(), cpu
                     .getIsolatedStatics(), cpu.getScheduler());
             logCpu.logical = true;
             arch.initX86Processor(logCpu);

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,16 +17,25 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.hfsplus.tree;
 
+public interface Node<T extends NodeRecord> {
 
+    public static final int OFFSET_SIZE = 2;
 
-public interface Node {
     public NodeDescriptor getNodeDescriptor();
-    public boolean isIndexNode();
-    public boolean isLeafNode();
+
     public int getRecordOffset(int index);
-    public NodeRecord getNodeRecord(int index);
-    public void addNodeRecord(NodeRecord record);
+
+    public T getNodeRecord(int index);
+
+    /**
+     * Insert a record in the node.
+     * 
+     * @param record The record to insert.
+     * @return True if record is correctly inserted, false if there is not
+     *         enough place to insert the record.
+     */
+    public boolean addNodeRecord(T record);
 }

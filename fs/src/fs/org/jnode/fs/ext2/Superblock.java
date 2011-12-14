@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -157,7 +157,7 @@ public class Superblock {
         setPreallocBlocks(8);
         setPreallocDirBlocks(0);
 
-        log.debug("Superblock.create(): getBlockSize(): " + getBlockSize());
+        log.debug("SuperBlock.create(): getBlockSize(): " + getBlockSize());
     }
 
     /**
@@ -693,7 +693,7 @@ public class Superblock {
     }
 
     /**
-     * @return the Superblock's dirty flag
+     * @return the SuperBlock's dirty flag
      */
     public boolean isDirty() {
         return dirty;

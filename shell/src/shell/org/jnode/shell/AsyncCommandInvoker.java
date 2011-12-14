@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -98,7 +98,9 @@ public abstract class AsyncCommandInvoker implements SimpleCommandInvoker,
         return new CommandRunner(this, cmdLine, ios, sysProps, env, redirected);
     }
 
-    protected int runIt(CommandLine cmdLine, CommandRunner cr) throws ShellInvocationException {
+    protected int runIt(CommandLine cmdLine, CommandRunner cr) throws ShellException {
+        Throwable terminatingException = null;
+        int rc = -1;
         try {
             if (cr.isInternal()) {
                 cr.run();
@@ -116,19 +118,27 @@ public abstract class AsyncCommandInvoker implements SimpleCommandInvoker,
                 threadProcess.start(null);
                 threadProcess.waitFor();
             }
-            return cr.getRC();
-        } catch (Exception ex) {
-            throw new ShellInvocationException("Uncaught Exception in command", ex);
-        } catch (Error ex) {
-            throw new ShellInvocationException("Fatal Error in command", ex);
+            terminatingException = cr.getTerminatingException();
+            rc = cr.getRC();
+        } catch (ShellInvocationException ex) {
+            throw ex;
+        } catch (Throwable ex) {
+            terminatingException = ex;
         } finally {
             this.blockingThread = null;
             this.blocking = false;
         }
+        if (terminatingException != null) {
+            if (terminatingException instanceof ShellControlException) {
+                throw (ShellControlException) terminatingException;
+            }
+            shell.diagnose(terminatingException, cmdLine);
+        }
+        return rc;
     }
 
     protected CommandThread forkIt(CommandLine cmdLine, CommandRunner cr) throws ShellInvocationException {
-        if (cr.getCommandLine().isInternal()) {
+        if (cr.isInternal()) {
             throw new ShellFailureException("unexpected internal command");
         }
         try {

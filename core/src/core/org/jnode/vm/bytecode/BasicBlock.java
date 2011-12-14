@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,8 +20,9 @@
  
 package org.jnode.vm.bytecode;
 
-import org.jnode.util.BootableArrayList;
-import org.jnode.vm.VmSystemObject;
+import org.jnode.vm.objects.BootableArrayList;
+import org.jnode.vm.objects.VmSystemObject;
+
 import java.util.Set;
 import java.util.HashSet;
 
@@ -33,12 +34,14 @@ import java.util.HashSet;
  *
  * @author epr
  * @author Madhu Siddalingaiah
+ * @author Levente S\u00e1ntha
  */
 public class BasicBlock extends VmSystemObject {
 
     private final int startPC;
     private int endPC;
     private boolean startOfExceptionHandler;
+    private boolean retTarget;
     private TypeStack startStack;
     private BootableArrayList<BasicBlock> entryBlocks = new BootableArrayList<BasicBlock>();
 
@@ -85,6 +88,10 @@ public class BasicBlock extends VmSystemObject {
      */
     public final void setStartOfExceptionHandler(boolean startOfExceptionHandler) {
         this.startOfExceptionHandler = startOfExceptionHandler;
+    }
+
+    public void setRetTarget(boolean retTarget) {
+        this.retTarget = retTarget;
     }
 
     /**
@@ -188,6 +195,12 @@ public class BasicBlock extends VmSystemObject {
 
     private boolean isLive(Set<BasicBlock> checked) {
         if (startPC == 0)
+            return true;
+
+        if (startOfExceptionHandler)
+            return true;
+
+        if (retTarget)
             return true;
 
         if (entryBlocks != null) {

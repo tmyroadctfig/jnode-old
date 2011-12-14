@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.ext2;
 
 import java.io.IOException;
@@ -31,11 +31,12 @@ import org.jnode.fs.spi.AbstractFSEntry;
 /**
  * @author Andras Nagy
  * 
- * In case of a directory, the data will be parsed to get the file-list by
- * Ext2Directory. In case of a regular file, no more processing is needed.
+ *         In case of a directory, the data will be parsed to get the file-list
+ *         by Ext2Directory. In case of a regular file, no more processing is
+ *         needed.
  * 
- * TODO: besides getFile() and getDirectory(), we will need getBlockDevice()
- * getCharacterDevice(), etc.
+ *         TODO: besides getFile() and getDirectory(), we will need
+ *         getBlockDevice() getCharacterDevice(), etc.
  */
 public class Ext2Entry extends AbstractFSEntry implements FSEntryLastChanged, FSEntryLastAccessed {
 
@@ -49,32 +50,32 @@ public class Ext2Entry extends AbstractFSEntry implements FSEntryLastChanged, FS
         this.type = type;
 
         log.setLevel(Level.INFO);
-        log.debug("Ext2Entry(iNode, name): name=" + name + (isDirectory() ? " is a directory " : "") +
-                (isFile() ? " is a file " : ""));
+        log.debug("Ext2Entry(iNode, name): name=" + name +
+                (isDirectory() ? " is a directory " : "") + (isFile() ? " is a file " : ""));
     }
 
     public long getLastChanged() throws IOException {
-        return iNode.getCtime();
+        return iNode.getCtime() * 1000;
     }
 
     public long getLastModified() throws IOException {
-        return iNode.getMtime();
+        return iNode.getMtime() * 1000;
     }
 
     public long getLastAccessed() throws IOException {
-        return iNode.getAtime();
+        return iNode.getAtime() * 1000;
     }
 
     public void setLastChanged(long lastChanged) throws IOException {
-        iNode.setCtime(lastChanged);
+        iNode.setCtime(lastChanged / 1000);
     }
 
     public void setLastModified(long lastModified) throws IOException {
-        iNode.setMtime(lastModified);
+        iNode.setMtime(lastModified / 1000);
     }
 
     public void setLastAccessed(long lastAccessed) throws IOException {
-        iNode.setAtime(lastAccessed);
+        iNode.setAtime(lastAccessed / 1000);
     }
 
     /**

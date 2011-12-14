@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,12 +30,12 @@ import java.util.TreeMap;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.plugin.PluginDescriptor;
 import org.jnode.plugin.PluginException;
 import org.jnode.plugin.PluginLoader;
-import org.jnode.plugin.model.PluginRegistryModel;
-import org.jnode.system.BootLog;
-import org.jnode.system.MemoryResource;
+import org.jnode.plugin.PluginRegistry;
+import org.jnode.system.resource.MemoryResource;
 import org.jnode.util.JarBuffer;
 
 /**
@@ -60,7 +60,7 @@ public class InitJarProcessor {
                 jbuf = new JarBuffer(initJarRes.asByteBuffer());
                 mf = jbuf.getManifest();
             } catch (IOException ex) {
-                BootLog.error("Cannot instantiate initjar", ex);
+                BootLogInstance.get().error("Cannot instantiate initjar", ex);
             }
         }
         this.jbuf = jbuf;
@@ -72,7 +72,7 @@ public class InitJarProcessor {
      *
      * @param piRegistry
      */
-    public List<PluginDescriptor> loadPlugins(PluginRegistryModel piRegistry) {
+    public List<PluginDescriptor> loadPlugins(PluginRegistry piRegistry) {
         if (jbuf == null) {
             return null;
         }
@@ -86,10 +86,10 @@ public class InitJarProcessor {
                     // Load it
                     loader.setBuffer(entry.getValue());
                     final PluginDescriptor descr = piRegistry.loadPlugin(
-                        loader, "", "", false);
+                        loader, "", "", false); //resolve=false
                     descriptors.add(descr);
                 } catch (PluginException ex) {
-                    BootLog.error("Cannot load " + name, ex);
+                    BootLogInstance.get().error("Cannot load " + name, ex);
                 }
             }
         }

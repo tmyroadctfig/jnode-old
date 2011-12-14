@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,9 +27,9 @@ import org.jnode.naming.InitialNaming;
 import org.jnode.plugin.Plugin;
 import org.jnode.plugin.PluginDescriptor;
 import org.jnode.plugin.PluginException;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
-import org.jnode.system.SimpleResourceOwner;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
+import org.jnode.system.resource.SimpleResourceOwner;
 import org.jnode.util.AccessControllerUtils;
 import org.jnode.vm.VmSystem;
 
@@ -71,8 +71,8 @@ public class CMOSPlugin extends Plugin implements CMOSService {
     protected void startPlugin() throws PluginException {
         try {
             final ResourceOwner owner = new SimpleResourceOwner("CMOS");
-            cmos = (CMOS) AccessControllerUtils.doPrivileged(new PrivilegedExceptionAction() {
-                public Object run() throws ResourceNotFreeException {
+            cmos = AccessControllerUtils.doPrivileged(new PrivilegedExceptionAction<CMOS>() {
+                public CMOS run() throws ResourceNotFreeException {
                     return new CMOS(owner);
                 }
             });

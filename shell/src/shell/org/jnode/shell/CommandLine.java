@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -574,8 +574,8 @@ public class CommandLine implements Completable, Iterable<String> {
      *
      * @param shell the context for resolving command aliases and locating syntaxes
      * @return a CompandInfo which includes the command instance to which the arguments have been bound
-     * @throws CommandSyntaxException if the chosen syntax doesn't match the command
-     *                                line arguments.
+     * @throws ShellException if the chosen syntax doesn't match the command line arguments or there
+     * was a problem instantiating the command
      */
     public CommandInfo parseCommandLine(Shell shell) throws ShellException {
         String cmd = (commandToken == null) ? "" : commandToken.text.trim();
@@ -587,7 +587,7 @@ public class CommandLine implements Completable, Iterable<String> {
         return cmdInfo;
     }
 
-    public void complete(CompletionInfo completion, CommandShell shell) throws CompletionException {
+    public void complete(CompletionInfo completions, CommandShell shell) throws CompletionException {
         String cmd = (commandToken == null) ? "" : commandToken.text.trim();
         if (!cmd.equals("") && (argumentTokens.length > 0 || argumentAnticipated)) {
             CommandInfo ci;
@@ -608,7 +608,10 @@ public class CommandLine implements Completable, Iterable<String> {
             ArgumentBundle bundle = (command == null)
                 ? ci.getArgumentBundle()
                 : command.getArgumentBundle();
-            SyntaxBundle syntaxes = shell.getSyntaxManager().getSyntaxBundle(cmd);
+            SyntaxBundle syntaxes = ci.getSyntaxBundle();
+            if (syntaxes == null) {
+                syntaxes = shell.getSyntaxManager().getSyntaxBundle(cmd);
+            }
 
             if (bundle == null) {
                 // We're missing the argument bundle.  We assume this is a 'classic' Java application 
@@ -622,9 +625,9 @@ public class CommandLine implements Completable, Iterable<String> {
                 // We're missing the syntax, but we do have an argument bundle.  Generate
                 // a default syntax from the bundle.
                 syntaxes = new SyntaxBundle(cmd, bundle.createDefaultSyntax());
-            }
+            }   
             try {
-                bundle.complete(this, syntaxes, completion);
+                bundle.complete(this, syntaxes, completions);
             } catch (CommandSyntaxException ex) {
                 throw new CompletionException("Command syntax problem", ex);
             }
@@ -633,7 +636,7 @@ public class CommandLine implements Completable, Iterable<String> {
             // as an AliasArgument.
             ArgumentCompleter ac = new ArgumentCompleter(
                     new AliasArgument("cmdName", Argument.SINGLE), commandToken);
-            ac.complete(completion, shell);
+            ac.complete(completions, shell);
         }
     }
 

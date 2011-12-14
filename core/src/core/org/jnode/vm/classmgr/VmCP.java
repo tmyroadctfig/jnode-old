@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,8 +20,8 @@
  
 package org.jnode.vm.classmgr;
 
-import org.jnode.vm.VmSystemObject;
 import org.jnode.vm.InternString;
+import org.jnode.vm.objects.VmSystemObject;
 
 /**
  * A VmCP is the runtime representation of a constant pool

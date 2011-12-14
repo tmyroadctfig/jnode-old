@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -211,7 +211,7 @@ public abstract class NativeStream {
     /**
      * A wrapper for constructing objects in the native stream.
      */
-    public abstract class ObjectInfo {
+    public abstract static class ObjectInfo {
 
         /**
          * Mark the current location as the end of this object end fixup the objectheader.
@@ -219,7 +219,7 @@ public abstract class NativeStream {
         public abstract void markEnd();
     }
 
-    public abstract class ObjectRef {
+    public abstract static class ObjectRef {
         private Object object;
 
         /**
@@ -232,7 +232,7 @@ public abstract class NativeStream {
         }
 
         /**
-         * Gets the object i'm refering to.
+         * Gets the object i'm referring to.
          *
          * @return Object
          */

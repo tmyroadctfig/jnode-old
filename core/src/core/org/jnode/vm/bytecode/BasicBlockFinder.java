@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +23,7 @@ package org.jnode.vm.bytecode;
 import java.util.Comparator;
 import java.util.TreeMap;
 
-import org.jnode.system.BootLog;
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.vm.JvmType;
 import org.jnode.vm.classmgr.VmByteCode;
 import org.jnode.vm.classmgr.VmConstClass;
@@ -380,7 +380,7 @@ public class BasicBlockFinder extends BytecodeVisitorSupport implements Bytecode
      */
     public void visit_ireturn() {
         if (debug) {
-            BootLog.debug("ireturn at " + curAddress + "; " + tstack);
+            BootLogInstance.get().debug("ireturn at " + curAddress + "; " + tstack);
         }
         tstack.pop(JvmType.INT);
         endBB(false);
@@ -435,34 +435,34 @@ public class BasicBlockFinder extends BytecodeVisitorSupport implements Bytecode
      */
     public void startInstruction(int address) {
         if (debug) {
-            BootLog.debug("#" + address + "\t" + tstack);
+            BootLogInstance.get().debug("#" + address + "\t" + tstack);
         }
         curAddress = address;
         super.startInstruction(address);
         opcodeFlags[address] |= F_START_OF_INSTRUCTION;
         if (nextIsStartOfBB) {
-            if (debug) BootLog.debug("\tnextIsStartOfBB\t" + nextFollowsTypeStack);
+            if (debug) BootLogInstance.get().debug("\tnextIsStartOfBB\t" + nextFollowsTypeStack);
             startBB(address, nextFollowsTypeStack, this.tstack);
             nextIsStartOfBB = false;
             nextFollowsTypeStack = true;
         }
         if (isStartOfBB(address)) {
             this.current = blocks.get(address);
-            if (debug) BootLog.debug("\tcurrent\t" + current);
+            if (debug) BootLogInstance.get().debug("\tcurrent\t" + current);
             final TypeStack bbTStack = current.getStartStack();
             if (bbTStack != null) {
-                if (debug) BootLog.debug("\tcopyFrom\t" + bbTStack);
+                if (debug) BootLogInstance.get().debug("\tcopyFrom\t" + bbTStack);
                 this.tstack.copyFrom(bbTStack);
             } else if (!nextFollowsTypeStack) {
-                if (debug) BootLog.debug("\tclear");
+                if (debug) BootLogInstance.get().debug("\tclear");
                 this.tstack.clear();
             } else {
-                if (debug) BootLog.debug("\tsetStartStack");
+                if (debug) BootLogInstance.get().debug("\tsetStartStack");
                 current.setStartStack(tstack);
             }
         }
         if (debug) {
-            BootLog.debug("#" + address + "\t" + tstack);
+            BootLogInstance.get().debug("#" + address + "\t" + tstack);
         }
     }
 
@@ -488,8 +488,8 @@ public class BasicBlockFinder extends BytecodeVisitorSupport implements Bytecode
                 bb.setStartStack(tstack);
             } else if (!tstack.equals(bbTStack)) {
                 if (debug) {
-                    BootLog.warn("TypeStack is different in " + method + ";" + tstack + " vs. " + bbTStack + " in " +
-                        bb + " at address " + this.curAddress);
+                    BootLogInstance.get().warn("TypeStack is different in " + method + ";" + tstack + " vs. " +
+                        bbTStack + " in " + bb + " at address " + this.curAddress);
                 }
                 //throw new VerifyError("TypeStack is different; " + tstack + " vs. " + bbTStack + " in " + bb);
             }

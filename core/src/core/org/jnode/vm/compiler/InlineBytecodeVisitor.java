@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -52,6 +52,7 @@ public abstract class InlineBytecodeVisitor extends CompilerBytecodeVisitor {
 
     /**
      * Leave the values on the stack and jump to the end of the inlined method.
+     * @param jvmType
      */
     public abstract void visit_inlinedReturn(int jvmType);
 }

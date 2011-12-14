@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,8 +35,6 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +56,9 @@ import org.jnode.driver.console.textscreen.KeyboardReader;
 import org.jnode.naming.InitialNaming;
 import org.jnode.shell.alias.AliasManager;
 import org.jnode.shell.alias.NoSuchAliasException;
+import org.jnode.shell.help.Help;
+import org.jnode.shell.help.HelpException;
+import org.jnode.shell.help.HelpFactory;
 import org.jnode.shell.io.CommandIO;
 import org.jnode.shell.io.CommandInput;
 import org.jnode.shell.io.CommandInputOutput;
@@ -76,6 +77,7 @@ import org.jnode.shell.syntax.SyntaxManager;
 import org.jnode.shell.syntax.CommandSyntaxException.Context;
 import org.jnode.util.ReaderInputStream;
 import org.jnode.util.SystemInputStream;
+import org.jnode.vm.VmExit;
 import org.jnode.vm.VmSystem;
 
 /**
@@ -138,12 +140,12 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
     private SyntaxManager syntaxMgr;
 
     /**
-     * Keeps a reference to the console this CommandShell is using *
+     * Keeps a reference to the console this CommandShell is using.
      */
     private TextConsole console;
 
     /**
-     * Contains the archive of commands. *
+     * Contains the archive of commands.
      */
     private InputHistory commandHistory = new InputHistory();
 
@@ -154,7 +156,9 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
         new InheritableThreadLocal<InputHistory>();
 
     /**
-     * When true, {@link complete(String)} performs command completion.
+     * When {@code true}, command input characters are being requested / read 
+     * from the console.  This controls whether command or application history
+     * is used, and whether command completion may be active.
      */
     private boolean readingCommand;
 
@@ -270,7 +274,6 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
                 new InputStreamReader(System.in), 
                 new OutputStreamWriter(System.out), 
                 new OutputStreamWriter(System.err));
-        this.readingCommand = true;
     }
 
     
@@ -317,8 +320,7 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
             try {
                 if (e.startsWith(COMMAND_KEY)) {
                     final String cmd = e.substring(COMMAND_KEY.length());
-                    outPW.println(prompt() + cmd);
-                    runCommand(cmd, false, this.interpreter);
+                    runCommand(cmd);
                 }
             } catch (Throwable ex) {
                 errPW.println("Error while processing bootarg commands: "
@@ -367,110 +369,43 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
             }
         });
 
-        while (!isExited()) {
-            String input = null;
+        while (!isExited() && !VmSystem.isShuttingDown()) {
+            CommandShellReader reader = null;
             try {
                 clearEof();
-                outPW.print(prompt());
-                readingCommand = true;
-                input = readInputLine();
-                if (input.length() > 0) {
-                    // This hairy bit of code deals with shell commands that span multiple
-                    // input lines.  If an interpreter encounters the end of the line that
-                    // we have given it and it requires more input to get a complete command,
-                    // it may throw IncompleteCommandException.  The shell responds by 
-                    // outputting a different prompt (supplied in the exception), and then
-                    // attempting to get the next line.  If that succeeds, the line is 
-                    // appended to the input we gave the interpreter last time, and the
-                    // interpreter is called again.  This continues until either the
-                    // interpreter manages to run the command, or we get some other
-                    // shell syntax exception.
-                    boolean done = false;
-                    do {
-                        try {
-                            runCommand(input, true, this.interpreter);
-                            done = true;
-                        } catch (IncompleteCommandException ex) {
-                            String continuation = null;
-                            // (Tell completer to use command history not app. history)
-                            readingCommand = true;
-                            if (this.interpreter.supportsMultilineCommands()) {
-                                String prompt = ex.getPrompt();
-                                if (prompt != null) {
-                                    outPW.print(prompt);
-                                }
-                                continuation = readInputLine();
-                            }
-                            if (continuation == null) {
-                                diagnose(ex);
-                                break;
-                            } else {
-                                input = input + "\n" + continuation;
-                            }
-                        } catch (ShellException ex) {
-                            diagnose(ex);
-                            done = true;
-                        }
-                    } while (!done);
+                try {
+                    // Each interactive command is launched with a fresh history
+                    // for input completion
+                    applicationHistory.set(new InputHistory());
+                    reader = new CommandShellReader(this, interpreter, outPW, in);
+                    interpreter.interpret(this, reader, false, null, null);
+                } finally {
+                    applicationHistory.set(null);
                 }
-
-                if (VmSystem.isShuttingDown()) {
-                    exited = true;
-                }
+            } catch (ShellException ex) {
+                diagnose(ex, null);
+            } catch (VmExit ex) {
+                // This should only happen if the interpreter wants the shell to
+                // exit.  The interpreter will typically intercept any VmExits 
+                // resulting from commands calling AbstractCommand.exit(int).
+                exit();
             } catch (Throwable ex) {
                 errPW.println("Uncaught exception while processing command(s): "
                         + ex.getMessage());
                 stackTrace(ex);
+                try {
+                    Thread.sleep(100000);
+                } catch (InterruptedException ex2) {
+                    //ignore
+                }
             } finally {
-                if (input != null && input.trim().length() > 0) {
-                    String lines[] = input.split("\\n");
-                    for (String line : lines) {
+                if (reader != null) {
+                    for (String line : reader.getLines()) {
                         addToCommandHistory(line);
                     }
                 }
             }
         }
-    }
-
-    private void diagnose(ShellException ex) {
-        Throwable cause = ex.getCause();
-        // Try to turn this into something that is moderately intelligible
-        // for the common cases ...
-        if (cause != null) {
-            errPW.println(ex.getMessage());
-            if (cause instanceof CommandSyntaxException) {
-                List<Context> argErrors = ((CommandSyntaxException) cause).getArgErrors();
-                if (argErrors != null) {
-                    // The parser can produce many errors as each of the alternatives
-                    // in the tree are explored.  The following assumes that errors
-                    // produced when we get farthest along in the token stream are most
-                    // likely to be the "real" errors.
-                    int rightmostPos = 0;
-                    for (Context context : argErrors) {
-                        if (context.sourcePos > rightmostPos) {
-                            rightmostPos = context.sourcePos;
-                        }
-                    }
-                    for (Context context : argErrors) {
-                        if (context.sourcePos < rightmostPos) {
-                            continue;
-                        }
-                        if (context.token != null) {
-                            errPW.println("   " + context.exception.getMessage() + ": " +
-                                    context.token.text);
-                        } else {
-                            errPW.println("   " + context.exception.getMessage() + ": " +
-                                    context.syntax.format());
-                        }
-                    }
-                }
-            } else {
-                errPW.println(cause.getMessage());
-            }
-        } else {
-            errPW.println("Shell exception: " + ex.getMessage());
-        }
-        stackTrace(ex);
     }
 
     public void configureShell() throws ShellException {
@@ -507,6 +442,10 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
 
         // Now become interactive
         ownThread = Thread.currentThread();
+    }
+    
+    protected void setReadingCommand(boolean readingCommand) {
+        this.readingCommand = readingCommand;
     }
     
     @Override
@@ -582,39 +521,10 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
             ex.printStackTrace(errPW);
         }
     }
-
-    private String readInputLine() throws IOException {
-        StringBuffer sb = new StringBuffer(40);
-        while (true) {
-            int ch = in.read();
-            if (ch == -1 || ch == '\n') {
-                return sb.toString();
-            }
-            sb.append((char) ch);
-        }
-    }
-
+    
     private void clearEof() {
         if (in instanceof KeyboardReader) {
             ((KeyboardReader) in).clearSoftEOF();
-        }
-    }
-        
-    private int runCommand(String cmdLineStr, boolean interactive,
-            CommandInterpreter interpreter) throws ShellException {
-        try {
-            if (interactive) {
-                clearEof();
-                readingCommand = false;
-                // Each interactive command is launched with a fresh history
-                // for input completion
-                applicationHistory.set(new InputHistory());
-            }
-            return interpreter.interpret(this, cmdLineStr);
-        } finally {
-            if (interactive) {
-                applicationHistory.set(null);
-            }
         }
     }
 
@@ -626,7 +536,7 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
      * @throws ShellException
      */
     public int runCommand(String command) throws ShellException {
-        return runCommand(command, false, this.interpreter);
+        return interpreter.interpret(this, new StringReader(command), true, null, null);
     }
 
     /**
@@ -693,14 +603,14 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
                 return new CommandInfo(cls, cmd, syntaxBundle, argBundle);
             }
         } catch (ClassNotFoundException ex) {
-            throw new ShellException("Cannot load the command class for alias '" + cmd + "'", ex);
+            throw new ShellInvocationException("Cannot load the command class for alias '" + cmd + "'", ex);
         } catch (NoSuchAliasException ex) {
             try {
                 final ClassLoader cl = 
                     Thread.currentThread().getContextClassLoader();
                 return new CommandInfo(cl.loadClass(cmd), cmd, syntaxBundle, false);
             } catch (ClassNotFoundException ex2) {
-                throw new ShellException(
+                throw new ShellInvocationException(
                         "Cannot find an alias or load a command class for '" + cmd + "'", ex);
             }
         }
@@ -737,51 +647,6 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
         } else {
             return CommandShell.applicationHistory.get();
         }
-    }
-
-    /**
-     * Gets the expanded prompt
-     */
-    protected String prompt() {
-        String prompt = getProperty(PROMPT_PROPERTY_NAME);
-        final StringBuffer result = new StringBuffer();
-        boolean commandMode = false;
-        try {
-            StringReader reader = new StringReader(prompt);
-            int i;
-            while ((i = reader.read()) != -1) {
-                char c = (char) i;
-                if (commandMode) {
-                    switch (c) {
-                        case 'P':
-                            result.append(new File(System.getProperty(DIRECTORY_PROPERTY_NAME, "")));
-                            break;
-                        case 'G':
-                            result.append("> ");
-                            break;
-                        case 'D':
-                            final Date now = new Date();
-                            DateFormat.getDateTimeInstance().format(now, result, null);
-                            break;
-                        default:
-                            result.append(c);
-                    }
-                    commandMode = false;
-                } else {
-                    switch (c) {
-                        case '$':
-                            commandMode = true;
-                            break;
-                        default:
-                            result.append(c);
-                    }
-                }
-            }
-        } catch (Exception ioex) {
-            // This should never occur
-            log.error("Error in prompt()", ioex);
-        }
-        return result.toString();
     }
     
     /**
@@ -873,12 +738,10 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
     private CommandInput getInputStream() {
         if (isHistoryEnabled()) {
             // Insert a filter on the input stream that adds completed input
-            // lines
-            // to the application input history. (Since the filter is stateless,
+            // lines to the application input history. (Since the filter is stateless,
             // it doesn't really matter if we do this multiple times.)
             // FIXME if we partition the app history by application, we will
-            // need
-            // to bind the history object in the history input stream
+            // need to bind the history object in the history input stream
             // constructor.
             return new CommandInput(new HistoryInputStream(cin.getInputStream()));
         } else {
@@ -932,41 +795,43 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
     }
 
     public int runCommandFile(File file, String alias, String[] args) throws ShellException {
-        // FIXME extend to allow arguments to be passed to the script.
         boolean enabled = setHistoryEnabled(false);
         try {
             CommandInterpreter interpreter = createInterpreter(new FileReader(file));
             if (alias == null) {
                 alias = file.getAbsolutePath();
             }
-            return interpreter.interpret(this, file, alias, args);
+            return interpreter.interpret(this, new FileReader(file), true, alias, args);
         } catch (IOException ex) {
-            throw new ShellException("Cannot open command file: " + ex.getMessage(), ex);
+            throw new ShellInvocationException("Cannot open command file: " + ex.getMessage(), ex);
         } finally {
             setHistoryEnabled(enabled);
         }
     }
 
-    public int runCommandResource(String resource, String[] args) throws ShellException {
+    /**
+     * Run a command script located using the shell's classloader.  The behavior is analogous
+     * to {@link #runCommandFile(File, String, String[])}, with the resourceName used as the
+     * alias. 
+     * 
+     * @param resourceName the script resource name.
+     */
+    public int runCommandResource(String resourceName, String[] args) throws ShellException {
         boolean enabled = setHistoryEnabled(false);
         try {
-            int result;
-            // FIXME throw ShellException if resource or interpreter not found
-            InputStream input = getClass().getResourceAsStream(resource);
+            InputStream input = getClass().getResourceAsStream(resourceName);
             if (input == null) {
-                throw new ShellException("Cannot find resource '" + resource + "'");
-            } else {
-                CommandInterpreter interpreter = createInterpreter(new InputStreamReader(input));
-                Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource));
-                result = interpreter.interpret(this, reader, resource, args);
+                throw new ShellInvocationException("Cannot find resource '" + resourceName + "'");
             }
-            return result;
+            CommandInterpreter interpreter = createInterpreter(new InputStreamReader(input));
+            Reader reader = new InputStreamReader(getClass().getResourceAsStream(resourceName));
+            return interpreter.interpret(this, reader, true, resourceName, args);
         } finally {
             setHistoryEnabled(enabled);
         }
     }
     
-    public CommandInterpreter createInterpreter(Reader reader) throws ShellException {
+    private CommandInterpreter createInterpreter(Reader reader) throws ShellException {
         try {
             final BufferedReader br = new BufferedReader(reader);
             CommandInterpreter interpreter;
@@ -1073,14 +938,6 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
         return syntaxMgr;
     }
 
-    public PrintWriter getOut() {
-        return outPW;
-    }
-
-    public PrintWriter getErr() {
-        return errPW;
-    }
-
     @Override
     public void addConsoleOuputRecorder(Writer writer) {
         // FIXME do security check
@@ -1101,5 +958,60 @@ public class CommandShell implements Runnable, Shell, ConsoleListener {
     @Override
     public String escapeWord(String word) {
         return interpreter.escapeWord(word);
+    }
+
+    /**
+     * Diagnose an exception thrown during the invocation or completion of a command.
+     * 
+     * @param ex the exception to be diagnosed
+     * @param cmdLine the command line in which it occurred, or {@code null}
+     */
+    public void diagnose(Throwable ex, CommandLine cmdLine) {
+        if (ex instanceof CommandSyntaxException) {
+            try {
+                List<Context> argErrors = ((CommandSyntaxException) ex).getArgErrors();
+                if (argErrors != null) {
+                    // The parser can produce many errors as each of the alternatives
+                    // in the tree are explored.  The following assumes that errors
+                    // produced when we get farthest along in the token stream are most
+                    // likely to be the "real" errors.
+                    errPW.println("Command syntax error(s): ");
+                    int rightmostPos = 0;
+                    for (Context context : argErrors) {
+                        if (context.sourcePos > rightmostPos) {
+                            rightmostPos = context.sourcePos;
+                        }
+                    }
+                    for (Context context : argErrors) {
+                        if (context.sourcePos < rightmostPos) {
+                            continue;
+                        }
+                        if (context.token != null) {
+                            errPW.println("   " + context.exception.getMessage() + ": " +
+                                    context.token.text);
+                        } else {
+                            errPW.println("   " + context.exception.getMessage() + ": " +
+                                    context.syntax.format());
+                        }
+                    }
+                } else {
+                    errPW.println("Command syntax error: " + ex.getMessage());
+                }
+                if (cmdLine != null) {
+                    Help help = HelpFactory.getHelpFactory().getHelp(
+                            cmdLine.getCommandName(), cmdLine.getCommandInfo());
+                    help.usage(errPW);
+                }
+            } catch (HelpException e) {
+                errPW.println("Exception while trying to get the command usage");
+                stackTrace(ex);
+            }
+        } else if (ex instanceof Exception) {
+            errPW.println("Exception in command: " + ex.getMessage());
+            stackTrace(ex);
+        } else {
+            errPW.println("Fatal error in command: " + ex.getMessage());
+            stackTrace(ex);
+        }
     }
 }

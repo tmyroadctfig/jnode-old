@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.command.archive;
 
 import java.io.Closeable;
@@ -125,11 +125,10 @@ public class ArchiveCommand extends AbstractCommand {
      * This is most usefull for applying a stream filter that reads data from a source
      * and pipes the contents to an output stream.
      *
-     * @param InputStream stream to read from
-     * @param OutputStream stream to write to
-     * @param int size of buffer to use.
+     * @param in stream to read from
+     * @param out stream to write to
      */
-    protected void processStream(InputStream in , OutputStream out) throws IOException {
+    protected void processStream(InputStream in, OutputStream out) throws IOException {
         int len;
         if (buffer == null) buffer = new byte[4096];
         while ((len = in.read(buffer)) > 0) {
@@ -143,13 +142,13 @@ public class ArchiveCommand extends AbstractCommand {
      * If there is a problem opening the stream, the exception is caught and an error message
      * is displayed.
      *
-     * @param File the file to open the stream on
-     * @param boolean if the file exists, delete it first
-     * @param boolean if delete is true, this forces the deletion without prompting the user
+     * @param file the file to open the stream on
+     * @param delete if the file exists, delete it first
+     * @param forced if true, this forces the deletion without prompting the user
      * @return an OutputStream on the file, or null if there was a problem. null could also be
      *         returned if the delete option was chosen and the user said no to overwriting.
      */
-    protected OutputStream openFileWrite(File file , boolean delete , boolean forced) {
+    protected OutputStream openFileWrite(File file, boolean delete, boolean forced) {
         try {
             boolean createNew = true;
             if (file == null) {
@@ -162,7 +161,7 @@ public class ArchiveCommand extends AbstractCommand {
                     if (forced) {
                         file.delete();
                     } else {
-                        if (prompt_yn(file + prompt_overwrite, true)) {
+                        if (askUser(file + prompt_overwrite, true)) {
                             file.delete();
                         } else {
                             notice("Skipping " + file);
@@ -190,7 +189,7 @@ public class ArchiveCommand extends AbstractCommand {
      * If there is a problem opening the stream, the IOException is caught, and an
      * error message displayed to the console.
      *
-     * @param the file to open the stream on
+     * @param file the file to open the stream on
      * @return the InputStream or null if there was a problem.
      */
     protected InputStream openFileRead(File file) {
@@ -213,7 +212,7 @@ public class ArchiveCommand extends AbstractCommand {
         if (obj != null) {
             try {
                 obj.close();
-            } catch (IOException _) {
+            } catch (IOException ex) {
                 //ignore
             }
         }
@@ -226,7 +225,7 @@ public class ArchiveCommand extends AbstractCommand {
         if (zfile != null) {
             try {
                 zfile.close();
-            } catch (IOException _) {
+            } catch (IOException ex) {
                 // ignore
             }
         }
@@ -238,18 +237,19 @@ public class ArchiveCommand extends AbstractCommand {
      * FIXME This is unsafe as it will trigger an endless loop if stdin
      *       is not the terminal.
      *
-     * @param String the question to ask the user
+     * @param s the question to ask the user
+     * @param defaultY if {#code true}, the default answer is yes, otherwise no.
      * @return true if the user said yes, false if the user said no
      */
-    protected boolean prompt_yn(String s, boolean defaultY) {
+    protected boolean askUser(String s, boolean defaultY) {
         int choice;
         // put a cap on the looping to prevent non-terminal stdin 
-        // from an infinte loop
+        // from an infinite loop
         for (int i = 0; i < 10; i++) {
             stdoutWriter.print(s);
             try {
                 choice = stdinReader.read();
-            } catch (IOException _) {
+            } catch (IOException ex) {
                 throw new RuntimeException("Problem with stdin");
             }
             stdoutWriter.println();
@@ -288,8 +288,8 @@ public class ArchiveCommand extends AbstractCommand {
         if ((outMode & OUT_ERROR) == OUT_ERROR) stderrWriter.println(s);
     }
     
-    protected void fatal(String s, int exit_code) {
+    protected void fatal(String s, int exitCode) {
         stderrWriter.println("Fatal error: " + s);
-        exit(exit_code);
+        exit(exitCode);
     }
 }

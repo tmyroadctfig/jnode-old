@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.Label;
@@ -91,7 +91,7 @@ final class FPCompilerSSE extends FPCompiler {
      * @param operation
      * @param commutative
      */
-    private final void arithOperation(int type, int operation, boolean commutative) {
+    private void arithOperation(int type, int operation, boolean commutative) {
         final ItemFactory ifac = ec.getItemFactory();
         Item v2 = vstack.pop(type);
         Item v1 = vstack.pop(type);
@@ -138,8 +138,8 @@ final class FPCompilerSSE extends FPCompiler {
      * @return True if the operand must be swapped. when not commutative, false
      *         is always returned.
      */
-    private final boolean prepareForOperation(Item destAndSource, Item source,
-                                              boolean commutative) {
+    private boolean prepareForOperation(Item destAndSource, Item source,
+                                        boolean commutative) {
         // WARNING: source was on top of the virtual stack (thus higher than
         // destAndSource)
         // x86 can only deal with one complex argument

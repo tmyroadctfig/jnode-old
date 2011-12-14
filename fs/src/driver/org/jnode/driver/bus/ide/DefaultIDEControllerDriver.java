@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,7 +30,7 @@ import org.jnode.driver.DeviceManager;
 import org.jnode.driver.Driver;
 import org.jnode.driver.DriverException;
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceNotFreeException;
 import org.jnode.util.TimeoutException;
 import org.jnode.work.Work;
 import org.jnode.work.WorkUtils;

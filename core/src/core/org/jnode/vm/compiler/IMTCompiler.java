@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,8 +21,8 @@
 package org.jnode.vm.compiler;
 
 import org.jnode.assembler.ObjectResolver;
-import org.jnode.vm.VmSystemObject;
 import org.jnode.vm.classmgr.VmClassLoader;
+import org.jnode.vm.objects.VmSystemObject;
 
 /**
  * Class used to compile an IMT into a jump table suitable for a specific
@@ -42,8 +42,10 @@ public abstract class IMTCompiler extends VmSystemObject {
     /**
      * Compile the given IMT.
      *
+     * @param resolver
      * @param imt
      * @param imtCollisions
+     * @return the CompiledIMT instance
      */
     public abstract CompiledIMT compile(ObjectResolver resolver, Object[] imt, boolean[] imtCollisions);
 }

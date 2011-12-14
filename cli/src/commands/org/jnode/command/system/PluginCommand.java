@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -46,7 +46,7 @@ import org.jnode.shell.syntax.PluginArgument;
 import org.jnode.shell.syntax.StringArgument;
 import org.jnode.shell.syntax.SyntaxMultiplicityException;
 import org.jnode.shell.syntax.URLArgument;
-import org.jnode.vm.Vm;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author epr
@@ -120,7 +120,7 @@ public class PluginCommand extends AbstractCommand {
     private void doRun() 
         throws NameNotFoundException, SyntaxMultiplicityException, PluginException, MalformedURLException {
         mgr = InitialNaming.lookup(PluginManager.NAME);
-        final String version = argVersion.isSet() ? argVersion.getValue() : Vm.getVm().getVersion();
+        final String version = argVersion.isSet() ? argVersion.getValue() : VmUtils.getVm().getVersion();
         final String pluginId = argPluginID.getValue();
         if (argLoaderUrl.isSet()) {
             addPluginLoader(argLoaderUrl.getValue());
@@ -147,7 +147,7 @@ public class PluginCommand extends AbstractCommand {
     }
 
     private void loadPlugin(String id, String version) throws PluginException {
-        mgr.getRegistry().loadPlugin(mgr.getLoaderManager(), id, version);
+        mgr.getRegistry().loadPlugin(mgr.getLoaderManager(), id, version, true); //resolve=true
         out.format(fmt_load, id, version);
     }
     
@@ -156,11 +156,11 @@ public class PluginCommand extends AbstractCommand {
         final List<PluginReference> refs = reg.unloadPlugin(id);
         for (PluginReference ref : refs) {
             if (reg.getPluginDescriptor(ref.getId()) == null) {
-                reg.loadPlugin(mgr.getLoaderManager(), ref.getId(), ref.getVersion());
+                reg.loadPlugin(mgr.getLoaderManager(), ref.getId(), ref.getVersion(), true); //resolve=true
             }
         }
         if (reg.getPluginDescriptor(id) == null) {
-            reg.loadPlugin(mgr.getLoaderManager(), id, version);
+            reg.loadPlugin(mgr.getLoaderManager(), id, version, true); //resolve=true
         }
         out.format(fmt_reload, id, version);
     }

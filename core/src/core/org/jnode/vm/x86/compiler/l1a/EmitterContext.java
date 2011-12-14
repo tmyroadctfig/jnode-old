@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.x86.X86Assembler;
@@ -34,7 +34,7 @@ final class EmitterContext {
     /**
      * The output stream
      */
-    private final X86Assembler os;
+    private X86Assembler os;
 
     /**
      * Helper class
@@ -64,10 +64,18 @@ final class EmitterContext {
     /**
      * The compiler context
      */
-    private final EntryPoints context;
+    private EntryPoints context;
 
     /**
      * Create a new context
+     *
+     * @param os
+     * @param helper
+     * @param vstack
+     * @param gprPool
+     * @param xmmPool
+     * @param ifac
+     * @param context
      */
     EmitterContext(X86Assembler os, X86CompilerHelper helper,
                    VirtualStack vstack, X86RegisterPool gprPool,
@@ -80,6 +88,13 @@ final class EmitterContext {
         this.xmmPool = xmmPool;
         this.itemfac = ifac;
         this.context = context;
+    }
+
+    public void reset(X86Assembler os, EntryPoints entryPoints) {
+        this.os = os;
+        this.context = entryPoints;
+        gprPool.reset(os);
+        xmmPool.reset(os);
     }
 
     /**

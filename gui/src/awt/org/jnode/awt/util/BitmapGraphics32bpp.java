@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,7 +24,7 @@ import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.image.Raster;
 import org.jnode.driver.video.Surface;
-import org.jnode.system.MemoryResource;
+import org.jnode.system.resource.MemoryResource;
 
 final class BitmapGraphics32bpp extends AbstractBitmapGraphics {
 

@@ -27,7 +27,10 @@
 
   <extension point="org.jnode.shell.syntaxes">
     <syntax alias="eject">
-      <argument argLabel="device" description="eject a device with a removable medium"/>
+      <sequence>
+        <optional><option argLabel="t" shortName="t" description="load a device with a removable medium"/></optional>
+        <optional><argument argLabel="device" description="eject a device with a removable medium"/></optional>
+      </sequence>
     </syntax>
     <syntax alias="mount">
       <empty description="list all mounted filesystems"/>
@@ -47,7 +50,7 @@
     <permission class="java.net.NetPermission" name="specifyStreamHandler"/>
     <permission class="java.lang.RuntimePermission" name="modifyThreadGroup"/>
     <permission class="java.lang.RuntimePermission" name="exitVM"/>
-    <permission class="org.jnode.security.JNodePermission" name="getVmClass"/>
+    <permission class="org.jnode.permission.JNodePermission" name="getVmClass"/>
   </extension>
 
 </plugin>

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,14 +20,14 @@
  
 package org.jnode.shell.bjorne;
 
-import java.io.PrintStream;
-import java.util.Iterator;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jnode.shell.Command;
-import org.jnode.shell.CommandLine;
-import org.jnode.shell.ShellException;
+import org.jnode.shell.syntax.Argument;
+import org.jnode.shell.syntax.ArgumentSyntax;
+import org.jnode.shell.syntax.RepeatSyntax;
+import org.jnode.shell.syntax.SyntaxBundle;
 
 /**
  * This class implements the 'alias' built-in.
@@ -35,19 +35,34 @@ import org.jnode.shell.ShellException;
  * @author crawley@jnode.org
  */
 final class AliasBuiltin extends BjorneBuiltin {
-    @SuppressWarnings("deprecation")
-    public int invoke(CommandLine command, BjorneInterpreter interpreter,
-            BjorneContext context) throws ShellException {
-        Iterator<String> args = command.iterator();
-        context = context.getParent();
-        PrintStream out = context.resolvePrintStream(context.getIO(Command.STD_OUT));
-        PrintStream err = context.resolvePrintStream(context.getIO(Command.STD_ERR));
+    private static final SyntaxBundle SYNTAX = 
+        new SyntaxBundle("alias", new RepeatSyntax(new ArgumentSyntax("alias")));
+    
+    static final Factory FACTORY = new Factory() {
+        public BjorneBuiltinCommandInfo buildCommandInfo(BjorneContext context) {
+            return new BjorneBuiltinCommandInfo("alias", SYNTAX, new AliasBuiltin(context), context);
+        }
+    };
+    
+    private final BjorneAliasDefinitionArgument argAlias; 
+    
+    private AliasBuiltin(BjorneContext context) {
+        super("define or list aliases");
+        argAlias = new BjorneAliasDefinitionArgument(
+                "alias", context, Argument.OPTIONAL + Argument.MULTIPLE, "an alias to be defined or printed");
+        registerArguments(argAlias);
+    }
+
+    @Override
+    public void execute() throws Exception {
+        BjorneContext pc = getParentContext();
+        PrintWriter out = getOutput().getPrintWriter();
+        PrintWriter err = getError().getPrintWriter();
         int rc = 0;
-        if (!args.hasNext()) {
-            printAliases(out, context.getAliases());
+        if (!argAlias.isSet()) {
+            printAliases(out, pc.getAliases());
         } else {
-            while (args.hasNext()) {
-                String arg = args.next();
+            for (String arg : argAlias.getValues()) {
                 int pos = arg.indexOf('=');
                 String aliasName;
                 String alias;
@@ -59,7 +74,7 @@ final class AliasBuiltin extends BjorneBuiltin {
                     alias = arg.substring(pos + 1);
                 }
                 if (alias == null) {
-                    alias = context.getAlias(aliasName);
+                    alias = pc.getAlias(aliasName);
                     if (alias == null) {
                         err.println("alias: " + aliasName + " not found");
                         rc = 1;
@@ -70,21 +85,23 @@ final class AliasBuiltin extends BjorneBuiltin {
                     if (!BjorneToken.isName(aliasName)) {
                         err.println("alias: " + aliasName + ": not a valid alias name");
                     }
-                    context.defineAlias(aliasName, alias);
+                    pc.defineAlias(aliasName, alias);
                 }
             }
         }
-        return rc;
-    }
-
-    private void printAliases(PrintStream ps, TreeMap<String, String> aliases) {
-        for (Map.Entry<String, String> entry : aliases.entrySet()) {
-            printAlias(ps, entry.getKey(), entry.getValue());
+        if (rc != 0) {
+            exit(rc);
         }
     }
 
-    private void printAlias(PrintStream ps, String aliasName, String alias) {
-        ps.println(aliasName + "='" + alias + "'");
+    private void printAliases(PrintWriter pw, TreeMap<String, String> aliases) {
+        for (Map.Entry<String, String> entry : aliases.entrySet()) {
+            printAlias(pw, entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void printAlias(PrintWriter pw, String aliasName, String alias) {
+        pw.println(aliasName + "='" + alias + "'");
     }
    
     

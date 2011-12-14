@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,6 +23,7 @@ package org.jnode.vm;
 import org.jnode.vm.classmgr.VmByteCode;
 import org.jnode.vm.classmgr.VmMethod;
 import org.jnode.vm.classmgr.VmType;
+import org.jnode.vm.objects.VmSystemObject;
 
 /**
  * A VmFrame is the execution frame (locals & stack) for a method during

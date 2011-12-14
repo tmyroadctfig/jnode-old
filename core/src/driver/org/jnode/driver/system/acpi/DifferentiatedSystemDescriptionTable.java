@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,9 +23,9 @@ package org.jnode.driver.system.acpi;
 import java.nio.ByteBuffer;
 import org.jnode.driver.system.acpi.aml.ParseNode;
 import org.jnode.driver.system.acpi.aml.Parser;
-import org.jnode.system.MemoryResource;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
+import org.jnode.system.resource.MemoryResource;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
 
 /**
  * DifferentiatedSystemDescriptionTable.

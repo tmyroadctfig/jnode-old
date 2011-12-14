@@ -1,3 +1,23 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) 2003-2010 JNode.org
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public 
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; If not, write to the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
 package org.jnode.shell.bjorne;
 
 import static org.jnode.shell.bjorne.BjorneToken.TOK_ASSIGNMENT;
@@ -18,7 +38,6 @@ import static org.jnode.shell.bjorne.BjorneToken.TOK_WORD;
 
 import org.jnode.driver.console.CompletionInfo;
 import org.jnode.shell.ArgumentCompleter;
-import org.jnode.shell.CommandLine;
 import org.jnode.shell.CommandShell;
 import org.jnode.shell.Completable;
 import org.jnode.shell.help.CompletionException;
@@ -50,10 +69,10 @@ public class BjorneCompleter implements Completable {
     }
 
     @Override
-    public void complete(CompletionInfo completion, CommandShell shell) throws CompletionException {
+    public void complete(CompletionInfo completions, CommandShell shell) throws CompletionException {
         if (endToken == null) {
             if (penultimateToken == null) {
-                new CommandLine(null, null).complete(completion, shell);
+                completeCommandWord(completions, shell, new BjorneToken(""));
                 return;
             }
             endToken = penultimateToken;
@@ -63,7 +82,9 @@ public class BjorneCompleter implements Completable {
             BjorneToken[] words = command.getWords();
             if (words.length > 1 && words[words.length - 1] == penultimateToken) {
                 boolean argumentAnticipated = penultimateToken.end < endToken.end;
-                command.complete(completion, context, shell, argumentAnticipated);
+                command.complete(completions, context, shell, argumentAnticipated);
+            } else if (words.length == 1 && words[0] == penultimateToken && penultimateToken.end < endToken.end) {
+                command.complete(completions, context, shell, true);
             }
         }
         String partial;
@@ -72,12 +93,12 @@ public class BjorneCompleter implements Completable {
         if (penultimateToken == null || penultimateToken.end < endToken.end) {
             partial = "";
             expectedSet = endExpectedSet;
-            completion.setCompletionStart(endToken.start);
+            completions.setCompletionStart(endToken.start);
             token = endToken;
         } else {
             partial = penultimateToken.unparse();
             expectedSet = penultimateExpectedSet | endExpectedSet;
-            completion.setCompletionStart(penultimateToken.start);
+            completions.setCompletionStart(penultimateToken.start);
             token = penultimateToken;
         }
         if (!partial.equals(token.getText())) {
@@ -106,29 +127,43 @@ public class BjorneCompleter implements Completable {
                     // Ignore for purposes of completion
                     break;
                 case TOK_ASSIGNMENT:
-                    // FIXME ...complete 1st part against shell variable namespace and 2nd part against
-                    // file system namespace
+                    ArgumentCompleter ac = new ArgumentCompleter(
+                            new AssignmentArgument("?", context, Argument.MANDATORY, null), token);
+                    ac.complete(completions, shell);
                     break;
                 case TOK_FOR_WORD:
                 case TOK_FILE_NAME:
                     // Complete against the file system namespace
-                    ArgumentCompleter ac = new ArgumentCompleter(
+                    ac = new ArgumentCompleter(
                             new FileArgument("?", Argument.MANDATORY, null), token);
-                    ac.complete(completion, shell);
+                    ac.complete(completions, shell);
                     break;
                 case TOK_COMMAND_NAME:
                     // Complete against the command/alias/function namespaces
-                    ac = new ArgumentCompleter(
-                            new AliasArgument("?", Argument.MANDATORY, null), token);
-                    ac.complete(completion, shell);
+                    completeCommandWord(completions, shell, token);
                     break;
                 default:
                     String candidate = BjorneToken.toString(i);
                     if (candidate.startsWith(partial)) {
-                        completion.addCompletion(candidate);
+                        completions.addCompletion(candidate);
                     }
             }
         }
+    }
+    
+    private void completeCommandWord(CompletionInfo completions, CommandShell shell, BjorneToken token) {
+        // FIXME ... do functions ...
+        for (String builtinName : BjorneInterpreter.BUILTINS.keySet()) {
+            if (builtinName.startsWith(token.text)) {
+                completions.addCompletion(builtinName);
+            }
+        }
+        ArgumentCompleter ac = new ArgumentCompleter(
+                new AliasArgument("?", Argument.MANDATORY, null), token);
+        ac.complete(completions, shell);
+        ac = new ArgumentCompleter(
+                new BjorneAliasNameArgument("?", context, Argument.MANDATORY, null), token);
+        ac.complete(completions, shell);
     }
 
     public void setEndToken(BjorneToken endToken) {

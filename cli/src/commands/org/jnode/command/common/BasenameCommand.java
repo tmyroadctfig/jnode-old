@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -25,9 +25,9 @@ import org.jnode.shell.syntax.Argument;
 import org.jnode.shell.syntax.StringArgument;
 
 /**
- * Unix `basename` command.
+ * Command to get the filename part of a pathname.
  * 
- * @see {@link http://www.opengroup.org/onlinepubs/000095399/utilities/basename.html}
+ * @see <a href="http://www.opengroup.org/onlinepubs/000095399/utilities/basename.html">POSIX "basename" command</a>
  * @author chris boertien
  */
 public class BasenameCommand extends AbstractCommand {

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,7 +34,7 @@ import javax.management.MBeanServerFactory;
 public class JMXTest {
 
     public static void main(String[] args) throws Exception {
-        AccessController.doPrivileged(new PrivilegedExceptionAction() {
+        AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
             public Object run() throws Exception {
                 MBeanServerFactory.createMBeanServer();
                 printMBeanServers();

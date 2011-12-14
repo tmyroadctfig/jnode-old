@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -31,8 +31,7 @@ public class RedirectionNode {
     
     private boolean expandable = true;
 
-    public RedirectionNode(final int redirectionType, BjorneToken io,
-            BjorneToken arg) {
+    public RedirectionNode(final int redirectionType, BjorneToken io, BjorneToken arg) {
         super();
         this.redirectionType = redirectionType;
         this.io = io;
@@ -62,7 +61,7 @@ public class RedirectionNode {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("Redirect{");
         sb.append("redirectionType=").append(redirectionType);
         if (io != null) {
@@ -78,4 +77,9 @@ public class RedirectionNode {
     public boolean isHereDocumentExpandable() {
         return expandable;
     }
+
+    public void setHereDocumentExpandable(boolean expandable) {
+        this.expandable = expandable;
+    }
+
 }

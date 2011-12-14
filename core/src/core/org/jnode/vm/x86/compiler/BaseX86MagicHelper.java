@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,6 +34,7 @@ public class BaseX86MagicHelper extends BaseMagicHelper implements X86Constants 
      * Convert a method code into an X86 condition code.
      *
      * @param mcode
+     * @return the x86 condition code
      */
     protected final int methodToCC(MagicMethod mcode) {
         switch (mcode) {
@@ -64,9 +65,10 @@ public class BaseX86MagicHelper extends BaseMagicHelper implements X86Constants 
     }
 
     /**
-     * Convert a method code into an X86 condition code.
+     * Convert a method code into an x86 shift code.
      *
      * @param mcode
+     * @return the x86 shift code
      */
     protected final int methodToShift(MagicMethod mcode) {
         switch (mcode) {
@@ -142,7 +144,7 @@ public class BaseX86MagicHelper extends BaseMagicHelper implements X86Constants 
         }
     }
 
-    protected static final int methodCodeToOperation(MagicMethod mcode) {
+    protected static int methodCodeToOperation(MagicMethod mcode) {
         switch (mcode) {
             case ATOMICADD:
                 return X86Operation.ADD;

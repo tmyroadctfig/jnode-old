@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -32,7 +32,7 @@ import org.jnode.shell.syntax.FileArgument;
 public class EditCommand extends AbstractCommand {
     private final FileArgument ARG_EDIT = new FileArgument("file", Argument.OPTIONAL, "the file to edit");
 
-    EditCommand() {
+    public EditCommand() {
         super("edit a file");
         registerArguments(ARG_EDIT);
     }

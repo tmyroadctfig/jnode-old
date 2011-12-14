@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,10 +24,10 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jnode.system.BootLog;
-import org.jnode.system.MemoryResource;
-import org.jnode.system.ResourceNotFreeException;
+import org.jnode.system.resource.MemoryResource;
+import org.jnode.system.resource.ResourceNotFreeException;
 import org.jnode.annotation.MagicPermission;
+import org.jnode.bootlog.BootLogInstance;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.MagicUtils;
 
@@ -195,9 +195,9 @@ final class MPConfigTable {
                 offset += len;
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
-            BootLog.error("Error parsing the MP config table", ex);
+            BootLogInstance.get().error("Error parsing the MP config table", ex);
         } catch (ResourceNotFreeException ex) {
-            BootLog.error("Cannot claim MP entry region");
+            BootLogInstance.get().error("Cannot claim MP entry region");
         }
         return list;
     }

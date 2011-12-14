@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -38,8 +38,8 @@ import org.jnode.net.ProtocolAddressInfo;
 import org.jnode.net.SocketBuffer;
 import org.jnode.net.TransportLayer;
 import org.jnode.net.ethernet.EthernetConstants;
-import org.jnode.util.Statistics;
 import org.jnode.util.TimeoutException;
+import org.jnode.vm.objects.Statistics;
 import org.jnode.annotation.SharedStatics;
 
 /**

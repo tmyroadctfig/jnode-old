@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,16 +17,17 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.shell.syntax;
 
 import java.io.File;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
+import java.security.PrivilegedActionException;
 
 import org.jnode.driver.console.CompletionInfo;
 import org.jnode.shell.CommandLine.Token;
-import org.jnode.annotation.DoPrivileged;
 import sun.security.action.GetPropertyAction;
 
 /**
@@ -80,41 +81,55 @@ public class FileArgument extends Argument<File> {
     }
 
     @Override
-    @DoPrivileged
-    protected File doAccept(Token token, int flags) throws CommandSyntaxException {
+    protected File doAccept(final Token token, final int flags) throws CommandSyntaxException {
         if (token.text.length() > 0) {
-            File file = new File(token.text);
-            if ((flags & HYPHEN_IS_SPECIAL) == 0 || !file.getPath().equals("-")) {
-                if (isExisting(flags) && !file.exists()) {
-                    throw new CommandSyntaxException("this file or directory does not exist");
-                }
-                if (isNonexistent(flags) && file.exists()) {
-                    throw new CommandSyntaxException("this file or directory already exist");
-                }
-                if ((flags & ALLOW_DODGY_NAMES) == 0) {
-                    File f = file;
-                    do {
-                        // This assumes that option names start with '-'.
-                        if (f.getName().startsWith("-")) {
-                            if (f == file && !file.isAbsolute() && f.getParent() == null) {
-                                // The user most likely meant this to be an option name ...
-                                throw new CommandSyntaxException("unexpected or unknown option");
-                            } else {
-                                throw new CommandSyntaxException("file or directory name starts with a '-'");
+            try {
+                return AccessController.doPrivileged(new PrivilegedExceptionAction<File>() {
+                    @Override
+                    public File run() throws Exception {
+                        File file = new File(token.text);
+                        if ((flags & HYPHEN_IS_SPECIAL) == 0 || !file.getPath().equals("-")) {
+                            if (isExisting(flags) && !file.exists()) {
+                                throw new CommandSyntaxException("this file or directory does not exist");
+                            }
+                            if (isNonexistent(flags) && file.exists()) {
+                                throw new CommandSyntaxException("this file or directory already exist");
+                            }
+                            if ((flags & ALLOW_DODGY_NAMES) == 0) {
+                                File f = file;
+                                do {
+                                    // This assumes that option names start with '-'.
+                                    if (f.getName().startsWith("-")) {
+                                        if (f == file && !file.isAbsolute() && f.getParent() == null) {
+                                            // The user most likely meant this to be an option name ...
+                                            throw new CommandSyntaxException("unexpected or unknown option");
+                                        } else {
+                                            throw new CommandSyntaxException(
+                                                "file or directory name starts with a '-'");
+                                        }
+                                    }
+                                    f = f.getParentFile();
+                                } while (f != null);
                             }
                         }
-                        f = f.getParentFile();
-                    } while (f != null);
+                        return file;
+                    }
+                });
+            } catch (PrivilegedActionException x) {
+                Exception e = x.getException();
+                if (e instanceof CommandSyntaxException) {
+                    throw (CommandSyntaxException) e;
+                } else {
+                    throw new RuntimeException(e);
                 }
             }
-            return file;
         } else {
             throw new CommandSyntaxException("invalid file name");
         }
     }
 
     @Override
-    public void doComplete(final CompletionInfo completion, 
+    public void doComplete(final CompletionInfo completions, 
             final String partial, final int flags) {
         // Get last full directory from the partial pathname.
         final int idx = partial.lastIndexOf(File.separatorChar);
@@ -155,9 +170,9 @@ public class FileArgument extends Argument<File> {
                     String name = prefix + n;
                     if (name.startsWith(partial)) {
                         if (new File(f, n).isDirectory()) {
-                            completion.addCompletion(name + File.separatorChar, true);
+                            completions.addCompletion(name + File.separatorChar, true);
                         } else {
-                            completion.addCompletion(name);
+                            completions.addCompletion(name);
                         }
                     }
                 }
@@ -170,12 +185,12 @@ public class FileArgument extends Argument<File> {
         int tmp = partial.length() - idx;
         if ((tmp == 3 && partial.endsWith("..")) ||
             (tmp == 2 && partial.endsWith("."))) {
-            completion.addCompletion(partial + File.separatorChar, true);
+            completions.addCompletion(partial + File.separatorChar, true);
         }
         
         // Add "-" as a possible completion?
         if (partial.length() == 0 && (flags & HYPHEN_IS_SPECIAL) != 0) {
-            completion.addCompletion("-");
+            completions.addCompletion("-");
         }
     }
 

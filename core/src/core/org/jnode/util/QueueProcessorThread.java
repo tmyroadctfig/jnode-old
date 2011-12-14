@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,7 +20,7 @@
  
 package org.jnode.util;
 
-import org.jnode.system.BootLog;
+import org.jnode.bootlog.BootLogInstance;
 
 /**
  * @author epr
@@ -80,7 +80,7 @@ public class QueueProcessorThread<T> extends Thread {
      * @param ex
      */
     protected void handleException(Exception ex) {
-        BootLog.error("Exception in QueueProcessor: " + getName(), ex);
+        BootLogInstance.get().error("Exception in QueueProcessor: " + getName(), ex);
     }
 
     /**
@@ -89,7 +89,7 @@ public class QueueProcessorThread<T> extends Thread {
      * @param ex
      */
     protected void handleError(Error ex) {
-        BootLog.error("Error in QueueProcessor: " + getName(), ex);
+        BootLogInstance.get().error("Error in QueueProcessor: " + getName(), ex);
     }
 
     /**

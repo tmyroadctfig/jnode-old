@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,12 +22,13 @@ package org.jnode.shell;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringReader;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
@@ -36,7 +37,6 @@ import org.jnode.shell.CommandLine.Token;
 import org.jnode.shell.help.Help;
 import org.jnode.shell.help.HelpException;
 import org.jnode.shell.help.HelpFactory;
-import org.jnode.shell.syntax.CommandSyntaxException;
 
 /**
  * This interpreter simply parses the command line into a command name and
@@ -93,33 +93,20 @@ public class DefaultInterpreter implements CommandInterpreter {
     public String getName() {
         return "default";
     }
-
-    @Override
-    public int interpret(CommandShell shell, String line) throws ShellException {
-        CommandLine cmd = doParseCommandLine(line);
-        if (cmd == null) {
-            return 0;
-        }
-        try {
-            return shell.invoke(cmd, null, null);
-        } catch (CommandSyntaxException ex) {
-            throw new ShellException("Command arguments don't match syntax", ex);
-        }
-    }
-
+    
     /**
      * {@inheritDoc}
      * 
-     * The default interpreter and its subtypes treat a command script as a sequence of commands. 
+     * The default interpreter treats a command script as a sequence of commands. 
      * Commands are expected to consist of exactly one line.  Any line whose first non-whitespace 
      * character is '#' will be ignored.  Command line arguments from the script are not supported,
      * and will result in a {@link ShellException} being thrown.
      */
     @Override
-    public int interpret(CommandShell shell, Reader reader, String alias, String[] args) 
+    public int interpret(CommandShell shell, Reader reader, boolean script, String alias, String[] args) 
         throws ShellException {
         if (args != null && args.length > 0) {
-            throw new ShellException(
+            throw new ShellInvocationException(
                     "The " + getName() + " interpreter does not support script file arguments");
         }
         try {
@@ -128,45 +115,22 @@ public class DefaultInterpreter implements CommandInterpreter {
             int rc = 0;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.length() == 0 || line.startsWith("#")) {
-                    continue;
+                if (line.length() > 0 && !line.startsWith("#")) {
+                    rc = interpret(shell, line);
                 }
-                rc = interpret(shell, line);
+                if (!script) {
+                    break;
+                }
             }
             return rc;
         } catch (IOException ex) {
-            throw new ShellException("Problem reading command file: " + ex.getMessage(), ex);
+            throw new ShellInvocationException("Problem reading command: " + ex.getMessage(), ex);
         } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
+            try {
+                reader.close();
+            } catch (IOException ex) {
+                // ignore
             }
-        }
-    }
-
-    @Override
-    public boolean supportsMultilineCommands() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * The default interpreter and its subtypes treat a command script as a sequence of commands. 
-     * Commands are expected to consist of exactly one line.  Any line whose first non-whitespace 
-     * character is '#' will be ignored.  Command line arguments from the script are not supported,
-     * and will result in a {@link ShellException} being thrown.
-     */
-    @Override
-    public int interpret(CommandShell shell, File file, String alias, String[] args) 
-        throws ShellException {
-        try {
-            return interpret(shell, new FileReader(file), alias, args);
-        } catch (FileNotFoundException ex) {
-            throw new ShellException("Problem reading command file: " + ex.getMessage(), ex);
         }
     }
     
@@ -193,6 +157,15 @@ public class DefaultInterpreter implements CommandInterpreter {
         return false;
     }
     
+    protected int interpret(CommandShell shell, String line) 
+        throws ShellException {
+        CommandLine cmd = doParseCommandLine(line);
+        if (cmd == null) {
+            return 0;
+        }
+        return shell.invoke(cmd, null, null);
+    }
+
     private CommandLine doParseCommandLine(String line) throws ShellException {
         Tokenizer tokenizer = new Tokenizer(line);
         if (!tokenizer.hasNext()) {
@@ -275,6 +248,56 @@ public class DefaultInterpreter implements CommandInterpreter {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Get and expand the default command prompt.
+     */
+    public String getPrompt(CommandShell shell, boolean continuation) {
+        String prompt = shell.getProperty(CommandShell.PROMPT_PROPERTY_NAME);
+        final StringBuffer result = new StringBuffer();
+        boolean commandMode = false;
+        StringReader reader = new StringReader(prompt);
+        int i;
+        try {
+            while ((i = reader.read()) != -1) {
+                char c = (char) i;
+                if (commandMode) {
+                    switch (c) {
+                        case 'P':
+                            result.append(new File(System.getProperty(CommandShell.DIRECTORY_PROPERTY_NAME, "")));
+                            break;
+                        case 'G':
+                            result.append("> ");
+                            break;
+                        case 'D':
+                            final Date now = new Date();
+                            DateFormat.getDateTimeInstance().format(now, result, null);
+                            break;
+                        default:
+                            result.append(c);
+                    }
+                    commandMode = false;
+                } else {
+                    switch (c) {
+                        case '$':
+                            commandMode = true;
+                            break;
+                        default:
+                            result.append(c);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            // A StringReader shouldn't give an IOException unless we close it ... which we don't!
+            LOG.error("Impossible", ex);
+        }
+        return result.toString();
+    }
+    
+    @Override
+    public boolean supportsMultiline() {
+        return false;
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,10 +20,12 @@
  
 package org.jnode.shell.bjorne;
 
-import java.util.Iterator;
+import java.io.PrintWriter;
 
-import org.jnode.shell.CommandLine;
-import org.jnode.shell.ShellException;
+import org.jnode.shell.syntax.Argument;
+import org.jnode.shell.syntax.ArgumentSyntax;
+import org.jnode.shell.syntax.RepeatSyntax;
+import org.jnode.shell.syntax.SyntaxBundle;
 
 /**
  * This class implements the 'export' built-in.
@@ -31,31 +33,53 @@ import org.jnode.shell.ShellException;
  * @author crawley@jnode.org
  */
 final class ExportBuiltin extends BjorneBuiltin {
-    @SuppressWarnings("deprecation")
-    public int invoke(CommandLine command, BjorneInterpreter interpreter,
-            BjorneContext context) throws ShellException {
-        Iterator<String> args = command.iterator();
-        if (!args.hasNext()) {
-            throw new BjorneControlException(BjorneInterpreter.BRANCH_EXIT,
-                    context.getParent().getLastReturnCode());
+    private static final SyntaxBundle SYNTAX = 
+        new SyntaxBundle("export", new RepeatSyntax(new ArgumentSyntax("export")));
+    
+    static final Factory FACTORY = new Factory() {
+        public BjorneBuiltinCommandInfo buildCommandInfo(BjorneContext context) {
+            return new BjorneBuiltinCommandInfo("export", SYNTAX, new ExportBuiltin(context), context);
         }
-        while (args.hasNext()) {
-            String arg = args.next();
-            int pos = arg.indexOf('=');
-            if (pos == -1) {
-                context.getParent().setExported(arg, true);
-            } else if (pos == 0) { 
-                error("export: " + arg + ": not a valid identifier", context);
-            } else {
-                String name = arg.substring(0, pos);
-                String value = arg.substring(pos + 1);
-                if (!BjorneToken.isName(name)) {
-                    error("export: " + name + ": not a valid identifier", context);
+    };
+    
+    private final AssignmentArgument argVariables; 
+    
+    
+    ExportBuiltin(BjorneContext context) {
+        super("Export shell variables to the environment");
+        argVariables = new AssignmentArgument(
+                "export", context, Argument.MANDATORY, "variables to be exported");
+        registerArguments(argVariables);
+    }
+
+    public void execute() throws Exception {
+        int errorCount = 0;
+        if (!argVariables.isSet()) {
+            // FIXME - implement this?
+        } else {
+            BjorneContext pc = getParentContext();
+            PrintWriter err = getError().getPrintWriter();
+            for (String var : argVariables.getValues()) {
+                int pos = var.indexOf('=');
+                if (pos == -1) {
+                    pc.setVariableExported(var, true);
+                } else if (pos == 0) { 
+                    err.println("export: " + var + ": not a valid identifier");
+                    errorCount++;
+                } else {
+                    String name = var.substring(0, pos);
+                    String value = var.substring(pos + 1);
+                    if (!BjorneToken.isName(name)) {
+                        err.println("export: " + name + ": not a valid identifier");
+                        errorCount++;
+                    }
+                    pc.setVariable(name, value);
+                    pc.setVariableExported(name, true);
                 }
-                context.getParent().setVariable(name, value);
-                context.getParent().setExported(name, true);
             }
         }
-        return 0;
+        if (errorCount > 0) {
+            exit(1);
+        }
     }
 }

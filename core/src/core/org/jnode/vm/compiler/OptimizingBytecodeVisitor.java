@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,9 +20,7 @@
  
 package org.jnode.vm.compiler;
 
-import org.jnode.util.Counter;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
 import org.jnode.vm.bytecode.BasicBlock;
 import org.jnode.vm.bytecode.ControlFlowGraph;
 import org.jnode.vm.classmgr.VmByteCode;
@@ -32,6 +30,8 @@ import org.jnode.vm.classmgr.VmConstMethodRef;
 import org.jnode.vm.classmgr.VmMethod;
 import org.jnode.vm.classmgr.VmPrimitiveClass;
 import org.jnode.vm.classmgr.VmType;
+import org.jnode.vm.facade.VmUtils;
+import org.jnode.vm.objects.Counter;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
@@ -134,35 +134,35 @@ public final class OptimizingBytecodeVisitor extends
     /**
      * Statistic counter for #inlined invokespecial's
      */
-    private static Counter inlineSpecialCounter = Vm.getVm().getCounter(
+    private static Counter inlineSpecialCounter = VmUtils.getVm().getCounter(
         "inlined-invokespecial");
 
     /**
      * Statistic counter for #inlined invokespecial's
      */
-    private static Counter inlineStaticCounter = Vm.getVm().getCounter(
+    private static Counter inlineStaticCounter = VmUtils.getVm().getCounter(
         "inlined-invokestatic");
 
     /**
      * Statistic counter for #inlined invokespecial's
      */
-    private static Counter inlineVirtualCounter = Vm.getVm().getCounter(
+    private static Counter inlineVirtualCounter = VmUtils.getVm().getCounter(
         "inlined-invokevirtual");
 
     /**
      * Statistic counter for astore/aload sequence
      */
-    private static Counter storeLoadCounter = Vm.getVm().getCounter(
+    private static Counter storeLoadCounter = VmUtils.getVm().getCounter(
         "store-load");
 
     /**
      * Initialize this instance.
      *
+     * @param entryPoints
      * @param delegate
      * @param loader
      */
-    public OptimizingBytecodeVisitor(EntryPoints entryPoints,
-                                     InlineBytecodeVisitor delegate, VmClassLoader loader) {
+    public OptimizingBytecodeVisitor(EntryPoints entryPoints, InlineBytecodeVisitor delegate, VmClassLoader loader) {
         super(delegate);
         this.entryPoints = entryPoints;
         this.loader = loader;

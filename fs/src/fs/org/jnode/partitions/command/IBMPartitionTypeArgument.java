@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -50,12 +50,12 @@ public class IBMPartitionTypeArgument extends Argument<IBMPartitionTypes> {
     }
 
     @Override
-    public void doComplete(CompletionInfo completion, String partial, int flags) {
+    public void doComplete(CompletionInfo completions, String partial, int flags) {
         partial = partial.toLowerCase();
         for (IBMPartitionTypes pt : IBMPartitionTypes.values()) {
             String code = Integer.toHexString(pt.getCode());
             if (code.startsWith(partial)) {
-                completion.addCompletion(code);
+                completions.addCompletion(code);
             }
         }
     }

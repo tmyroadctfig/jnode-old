@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.plugin.model;
 
 import java.io.IOException;
@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.jnode.plugin.Extension;
 import org.jnode.plugin.ExtensionPoint;
 import org.jnode.plugin.PluginDescriptor;
@@ -43,9 +42,9 @@ import org.jnode.plugin.PluginPrerequisite;
 import org.jnode.plugin.PluginReference;
 import org.jnode.plugin.PluginRegistry;
 import org.jnode.plugin.PluginSecurityConstants;
-import org.jnode.util.BootableHashMap;
-import org.jnode.vm.VmSystemObject;
 import org.jnode.vm.isolate.VmIsolateLocal;
+import org.jnode.vm.objects.BootableHashMap;
+import org.jnode.vm.objects.VmSystemObject;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -137,11 +136,11 @@ public final class PluginRegistryModel extends VmSystemObject implements
     }
 
     /**
-     * Resolve the plugins corresponding to a collection of supplied descriptors.  
-     * 
+     * Resolve the plugins corresponding to a collection of supplied descriptors.
+     *
      * @param descriptors the collection of descriptors to be resolved.
      */
-    public void resolveDescriptors(Collection<PluginDescriptorModel> descriptors) 
+    public void resolveDescriptors(Collection<PluginDescriptorModel> descriptors)
         throws PluginException {
         // This method uses the brute-force approach of repeatedly checking the descriptors 
         // in order until if finds one that will resolve.  This gives O(N**2) calls to
@@ -164,7 +163,7 @@ public final class PluginRegistryModel extends VmSystemObject implements
 
     /**
      * Check to see if a plugin is resolvable given the current (simulated) registry state.
-     * 
+     *
      * @param descr the descriptor for the plugin at issue.
      * @return <code>true</code> if the plugin is resolvable.
      */
@@ -288,29 +287,28 @@ public final class PluginRegistryModel extends VmSystemObject implements
     }
 
     /**
-     * Load a plugin from a given loader.
-     *
-     * @param loader
-     * @param pluginId
-     * @param pluginVersion
-     * @return The descriptor of the loaded plugin.
-     * @throws PluginException
+     * {@inheritDoc}
      */
-    public PluginDescriptor loadPlugin(final PluginLoader loader, final String pluginId, final String pluginVersion)
+    public PluginDescriptor loadPlugin(final PluginLoader loader, final String pluginId, final String pluginVersion,
+                                       boolean resolve)
         throws PluginException {
         final SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             sm.checkPermission(PluginSecurityConstants.LOAD_PERM);
         }
         // Load the requested plugin
-        final HashMap<String, PluginDescriptorModel> descriptors = new HashMap<String, PluginDescriptorModel>();
-        final PluginDescriptorModel descr = loadPlugin(loader, pluginId, pluginVersion, false);
-        descriptors.put(descr.getId(), descr);
-        // Load the dependent plugins
-        loadDependencies(loader, descr, descriptors);
+        final PluginDescriptorModel descr = loadPluginImpl(loader, pluginId, pluginVersion);
 
-        // Resolve the loaded descriptors.
-        resolveDescriptors(descriptors.values());
+        if (resolve) {
+            final HashMap<String, PluginDescriptorModel> descriptors = new HashMap<String, PluginDescriptorModel>();
+            descriptors.put(descr.getId(), descr);
+            // Load the dependent plugins
+            loadDependencies(loader, descr, descriptors);
+
+            // Resolve the loaded descriptors.
+            resolveDescriptors(descriptors.values());
+        }
+
         return descr;
     }
 
@@ -343,13 +341,13 @@ public final class PluginRegistryModel extends VmSystemObject implements
         if (descriptors.containsKey(id)) {
             return;
         }
-        final PluginDescriptorModel descr = loadPlugin(loader, id, version, false);
+        final PluginDescriptorModel descr = loadPluginImpl(loader, id, version);
         descriptors.put(descr.getId(), descr);
         loadDependencies(loader, descr, descriptors);
     }
 
     /**
-     * Load a plugin from a given loader.
+     * Load a plugin from a given loader but doesn't resolve its dependencies.
      *
      * @param loader
      * @param pluginId
@@ -357,12 +355,8 @@ public final class PluginRegistryModel extends VmSystemObject implements
      * @return The descriptor of the loaded plugin.
      * @throws PluginException
      */
-    public PluginDescriptorModel loadPlugin(final PluginLoader loader, final String pluginId,
-                                            final String pluginVersion, boolean resolve) throws PluginException {
-        final SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(PluginSecurityConstants.LOAD_PERM);
-        }
+    private final PluginDescriptorModel loadPluginImpl(final PluginLoader loader, final String pluginId,
+                                                       final String pluginVersion) throws PluginException {
         final PluginRegistryModel registry = this;
         final PluginJar pluginJar;
         try {
@@ -386,11 +380,7 @@ public final class PluginRegistryModel extends VmSystemObject implements
                 throw new PluginException(ex);
             }
         }
-        final PluginDescriptorModel descr = pluginJar.getDescriptorModel();
-        if (resolve) {
-            descr.resolve(this);
-        }
-        return descr;
+        return pluginJar.getDescriptorModel();
     }
 
     /**

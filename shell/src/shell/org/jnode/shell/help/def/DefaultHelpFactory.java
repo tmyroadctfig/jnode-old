@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -183,7 +183,7 @@ public class DefaultHelpFactory extends HelpFactory {
 
     @Override
     public void describeOption(FlagArgument arg, TreeSet<String> flagTokens, PrintWriter out) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (String flagToken : flagTokens) {
             if (sb.length() > 0) {
                 sb.append(" | ");

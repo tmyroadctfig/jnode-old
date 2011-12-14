@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,14 +17,17 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.build;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -35,6 +38,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -47,6 +51,10 @@ import org.jnode.assembler.NativeStream;
 import org.jnode.assembler.UnresolvedObjectRefException;
 import org.jnode.assembler.NativeStream.ObjectRef;
 import org.jnode.assembler.x86.X86BinaryAssembler;
+import org.jnode.bootlog.BootLog;
+import org.jnode.bootlog.BootLogInstance;
+import org.jnode.emu.naming.BasicNameSpace;
+import org.jnode.naming.InitialNaming;
 import org.jnode.plugin.PluginDescriptor;
 import org.jnode.plugin.PluginException;
 import org.jnode.plugin.PluginRegistry;
@@ -54,15 +62,13 @@ import org.jnode.plugin.model.Factory;
 import org.jnode.plugin.model.PluginDescriptorModel;
 import org.jnode.plugin.model.PluginJar;
 import org.jnode.plugin.model.PluginRegistryModel;
-import org.jnode.util.BootableHashMap;
 import org.jnode.util.NumberUtils;
+import org.jnode.vm.BaseVmArchitecture;
 import org.jnode.vm.JvmType;
 import org.jnode.vm.Unsafe;
 import org.jnode.vm.VirtualMemoryRegion;
-import org.jnode.vm.Vm;
-import org.jnode.vm.VmArchitecture;
+import org.jnode.vm.VmImpl;
 import org.jnode.vm.VmSystemClassLoader;
-import org.jnode.vm.VmSystemObject;
 import org.jnode.vm.bytecode.BytecodeParser;
 import org.jnode.vm.classmgr.Modifier;
 import org.jnode.vm.classmgr.ObjectLayout;
@@ -79,8 +85,12 @@ import org.jnode.vm.classmgr.VmStaticField;
 import org.jnode.vm.classmgr.VmStatics;
 import org.jnode.vm.classmgr.VmType;
 import org.jnode.vm.compiler.NativeCodeCompiler;
+import org.jnode.vm.facade.Vm;
+import org.jnode.vm.facade.VmUtils;
 import org.jnode.vm.memmgr.HeapHelper;
 import org.jnode.vm.memmgr.VmHeapManager;
+import org.jnode.vm.objects.BootableHashMap;
+import org.jnode.vm.objects.VmSystemObject;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.vmmagic.unboxed.UnboxedObject;
 
@@ -111,7 +121,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
     private static final String zero16 = zero8 + zero8;
 
     /**
-     * Set of jbects that should not yet be emitted.
+     * Set of objects that should not yet be emitted.
      */
     private final Set<Object> blockedObjects = new HashSet<Object>();
 
@@ -138,6 +148,8 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
     private Set<String> legalInstanceClasses;
 
     private File listFile;
+
+    private File coreClassListFile;
 
     private int totalHighMethods;
 
@@ -201,7 +213,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
      * @param arch
      * @throws ClassNotFoundException
      */
-    private final void compileClasses(NativeStream os, VmArchitecture arch)
+    private final void compileClasses(NativeStream os, BaseVmArchitecture arch)
         throws ClassNotFoundException {
         final NativeCodeCompiler[] compilers = arch.getCompilers();
         final int optLevel = compilers.length - 1;
@@ -384,7 +396,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
      * @return The processor
      * @throws BuildException
      */
-    protected abstract VmProcessor createProcessor(Vm vm, VmSharedStatics statics,
+    protected abstract VmProcessor createProcessor(VmImpl vm, VmSharedStatics statics,
                                                    VmIsolatedStatics isolatedStatics) throws BuildException;
 
     private final void doExecute() throws BuildException {
@@ -443,7 +455,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
             final Map<String, byte[]> resources = loadSystemResource(piRegistry);
 
             /* Now create the processor */
-            final VmArchitecture arch = getArchitecture();
+            final BaseVmArchitecture arch = getArchitecture();
             final NativeStream os = createNativeStream();
             clsMgr = new VmSystemClassLoader(null/*classesURL*/, arch,
                 new BuildObjectResolver(os, this));
@@ -463,9 +475,9 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
             }
 
             // Create the VM
-            final Vm vm = new Vm(version, arch, clsMgr.getSharedStatics(), debug, clsMgr, piRegistry);
+            final VmImpl vm = new VmImpl(version, arch, clsMgr.getSharedStatics(), debug, clsMgr, piRegistry);
             blockedObjects.add(vm);
-            blockedObjects.add(Vm.getCompiledMethods());
+            blockedObjects.add(VmUtils.getVm().getCompiledMethods());
 
             final VmProcessor proc = createProcessor(vm, clsMgr.getSharedStatics(),
                 clsMgr.getIsolatedStatics());
@@ -499,14 +511,14 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
             loadClass(VmType[].class);
             loadClass(Vm.class);
             loadClass(VirtualMemoryRegion.class).link();
-            Vm.getHeapManager().loadClasses(clsMgr);
+            vm.getHeapManager().loadClasses(clsMgr);
             loadClass(VmHeapManager.class);
             loadClass(VmSharedStatics.class);
             loadClass(VmIsolatedStatics.class);
-            loadClass(Vm.getHeapManager().getClass());
+            loadClass(VmUtils.getVm().getHeapManager().getClass());
             loadClass(HeapHelper.class);
             loadClass("org.jnode.vm.HeapHelperImpl");
-            loadClass(Vm.getCompiledMethods().getClass());
+            loadClass(VmUtils.getVm().getCompiledMethods().getClass());
             loadClass(VmCompiledCode[].class);
             loadSystemClasses(resources.keySet());
 
@@ -553,8 +565,8 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
 
             // Emit the compiled method list
             log("Emit compiled methods", Project.MSG_VERBOSE);
-            blockedObjects.remove(Vm.getCompiledMethods());
-            final int compiledMethods = Vm.getCompiledMethods().size();
+            blockedObjects.remove(VmUtils.getVm().getCompiledMethods());
+            final int compiledMethods = VmUtils.getVm().getCompiledMethods().size();
             emitObjects(os, arch, blockedObjects, false);
             // Twice, this is intended!
             emitObjects(os, arch, blockedObjects, false);
@@ -590,7 +602,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
 
             // Verify no methods have been compiled after we wrote the
             // CompiledCodeList.
-            if (Vm.getCompiledMethods().size() != compiledMethods) {
+            if (VmUtils.getVm().getCompiledMethods().size() != compiledMethods) {
                 throw new BuildException(
                     "Method have been compiled after CompiledCodeList was written.");
             }
@@ -599,7 +611,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
             emitStaticInitializerCalls(os, bootClasses, clInitCaller);
 
             // This is the end of the image
-            X86BinaryAssembler.ObjectInfo dummyObjectAtEnd = 
+            X86BinaryAssembler.ObjectInfo dummyObjectAtEnd =
                 os.startObject(loadClass(VmMethodCode.class));
             pageAlign(os);
             dummyObjectAtEnd.markEnd();
@@ -633,7 +645,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
             clsMgr.getSharedStatics().dumpStatistics(out);
             log("Isolated statics");
             clsMgr.getIsolatedStatics().dumpStatistics(out);
-            vm.dumpStatistics(out);
+            VmUtils.dumpStatistics(out);
 
             logStatistics(os);
 
@@ -665,7 +677,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
      * @param blockObjects
      * @throws BuildException
      */
-    private final void emitObjects(NativeStream os, VmArchitecture arch,
+    private final void emitObjects(NativeStream os, BaseVmArchitecture arch,
                                    Set<Object> blockObjects, boolean skipCopyStatics)
         throws BuildException {
         log("Emitting objects", Project.MSG_DEBUG);
@@ -744,7 +756,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
                                 }
                                 if (!ref.isResolved()) {
                                     throw new RuntimeException("Unresolved reference to object " + ((obj == null) ?
-                                        "null" : obj.getClass() .getName()));
+                                        "null" : obj.getClass().getName()));
                                 }
                             }
                         }
@@ -791,14 +803,85 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
         throws ClassNotFoundException;
 
     public final void execute() throws BuildException {
-        // Create the image
-        doExecute();
-        // Remove all garbage objects
-        cleanup();
-        System.gc();
-        // Make sure that all finalizers are called, in order to remove tmp
-        // files.
-        Runtime.getRuntime().runFinalization();
+        try {
+            InitialNaming.setNameSpace(new BasicNameSpace());
+            BootLogInstance.set(new BootLog() {
+                @Override
+                public void warn(String msg) {
+                    System.out.println(msg);
+                }
+
+                @Override
+                public void warn(String msg, Throwable ex) {
+                    System.out.println(msg);
+                    ex.printStackTrace(System.out);
+                }
+
+                @Override
+                public void setDebugOut(PrintStream out) {
+                    // ignore
+                }
+
+                @Override
+                public void info(String msg, Throwable ex) {
+                    System.out.println(msg);
+                    ex.printStackTrace(System.out);
+                }
+
+                @Override
+                public void info(String msg) {
+                    System.out.println(msg);
+                }
+
+                @Override
+                public void fatal(String msg, Throwable ex) {
+                    System.out.println(msg);
+                    ex.printStackTrace(System.out);
+                }
+
+                @Override
+                public void fatal(String msg) {
+                    System.out.println(msg);
+                }
+
+                @Override
+                public void error(String msg, Throwable ex) {
+                    System.out.println(msg);
+                    ex.printStackTrace(System.out);
+                }
+
+                @Override
+                public void error(String msg) {
+                    System.out.println(msg);
+                }
+
+                @Override
+                public void debug(String msg, Throwable ex) {
+                    System.out.println(msg);
+                    ex.printStackTrace(System.out);
+                }
+
+                @Override
+                public void debug(String msg) {
+                    System.out.println(msg);
+                }
+            });
+
+            // Create the image
+            doExecute();
+            // Remove all garbage objects
+            cleanup();
+            System.gc();
+            // Make sure that all finalizers are called, in order to remove tmp
+            // files.
+            Runtime.getRuntime().runFinalization();
+        } catch (BuildException be) {
+            be.printStackTrace();
+            throw be;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new BuildException(t);
+        }
     }
 
     /**
@@ -807,7 +890,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
      * @return The target architecture
      * @throws BuildException
      */
-    protected abstract VmArchitecture getArchitecture() throws BuildException;
+    protected abstract BaseVmArchitecture getArchitecture() throws BuildException;
 
     /**
      * Gets the internal class loader.
@@ -912,18 +995,16 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
      * @return {@code true} if it should, {@code false} if not.
      */
     protected boolean isCompileHighOptLevel(VmType<?> vmClass) {
-        if (vmClass.isArray()) {
-            return true;
-        }
+        return vmClass.isArray() || isCompileHighOptLevel(vmClass.getName());
+    }
 
-        final String name = vmClass.getName();
+    private boolean isCompileHighOptLevel(String name) {
         if (compileHighOptLevelPackages.contains(name)) {
             return true;
         }
 
         final int lastDotIdx = name.lastIndexOf('.');
-        final String pkg = (lastDotIdx > 0) ? name.substring(0, lastDotIdx)
-            : "";
+        final String pkg = (lastDotIdx > 0) ? name.substring(0, lastDotIdx) : "";
 
         if (compileHighOptLevelPackages.contains(pkg)) {
             return true;
@@ -939,6 +1020,7 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
 
         return false;
     }
+
 
     /**
      * Link all undefined symbols from the kernel native code.
@@ -1027,39 +1109,14 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
             if (eName.endsWith(".class")) {
                 final String cName = eName.substring(0,
                     eName.length() - ".class".length()).replace('/', '.');
-                boolean load = false;
-
-                if (compileHighOptLevelPackages.contains(cName)) {
-                    load = true;
-                } else if (preloadPackages.contains(cName)) {
-                    load = true;
-                }
-
                 final int lastDotIdx = cName.lastIndexOf('.');
-                final String pkg = (lastDotIdx > 0) ? cName.substring(0,
-                    lastDotIdx) : "";
-
-                if (compileHighOptLevelPackages.contains(pkg)) {
-                    load = true;
-                } else if (preloadPackages.contains(pkg)) {
-                    load = true;
-                } else {
-                    for (String s : compileHighOptLevelPackages) {
-                        if (s.endsWith("*")) {
-                            if (cName.startsWith(s.substring(0, s.length() - 1))) {
-                                load = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (load) {
+                final String pkg = (lastDotIdx > 0) ? cName.substring(0, lastDotIdx) : "";
+                if (isCompileHighOptLevel(cName) ||
+                    preloadPackages.contains(cName) || preloadPackages.contains(pkg)) {
                     loadClass(cName, true);
                 }
             }
         }
-
     }
 
     protected abstract void logStatistics(NativeStream os);
@@ -1294,198 +1351,60 @@ public abstract class AbstractBootImageBuilder extends AbstractPluginsTask {
         this.listFile = listFile;
     }
 
+    /**
+     * Sets the core class list file.
+     *
+     * @param coreClassListFile The coreClassListFile to set
+     */
+    public void setCoreClassListFile(File coreClassListFile) {
+        this.coreClassListFile = coreClassListFile;
+    }
+
     protected void setupCompileHighOptLevelPackages() {
-        addCompileHighOptLevel("java.io.Data*");
-        addCompileHighOptLevel("java.io.String*");
-        addCompileHighOptLevel("java.io.ByteArray*");
-        addCompileHighOptLevel("java.io.CharArray*");
-        addCompileHighOptLevel("java.io.Print*");
-        addCompileHighOptLevel("java.io.Reader");
-        addCompileHighOptLevel("java.io.Input*");
-        addCompileHighOptLevel("java.io.Buffered*");
-        addCompileHighOptLevel("java.io.Writer");
-        addCompileHighOptLevel("java.io.Output*");
-        addCompileHighOptLevel("java.io.Filter*");
-        addCompileHighOptLevel("java.io.IOException");
-        addCompileHighOptLevel("java.io.ObjectStreamField");
-        addCompileHighOptLevel("java.io.ObjectStreamClass");
-
-        addCompileHighOptLevel("java.lang");
-        addCompileHighOptLevel("java.lang.ref");
-//        addCompileHighOptLevel("java.lang.reflect");   //<- produces inconsistent bootimage
-        
-        addCompileHighOptLevel("java.net.URL");
-
-        addCompileHighOptLevel("java.nio.Buffer");
-        addCompileHighOptLevel("java.nio.ByteBuffer*");
-        addCompileHighOptLevel("java.nio.DirectByteBuffer*");
-        addCompileHighOptLevel("java.nio.ByteOrder");
-        addCompileHighOptLevel("java.nio.Char*");
-        addCompileHighOptLevel("java.nio.charset.spi");
-        addCompileHighOptLevel("java.nio.charset");
-
-        addCompileHighOptLevel("java.security.ProtectionDomain");
-        addCompileHighOptLevel("java.security.AccessController");
-        addCompileHighOptLevel("java.security.AccessControlContext");
-        addCompileHighOptLevel("java.security.AccessControlException");
-        addCompileHighOptLevel("java.security.Permission");
-        addCompileHighOptLevel("java.security.PrivilegedAction");
-        addCompileHighOptLevel("java.security.PrivilegedActionException");
-        addCompileHighOptLevel("java.security.PrivilegedExceptionAction");
-        addCompileHighOptLevel("java.security.PermissionCollection");
-        addCompileHighOptLevel("java.security.CodeSource");
-        addCompileHighOptLevel("java.security.Policy");
-        addCompileHighOptLevel("java.security.AllPermission");
-        addCompileHighOptLevel("java.security.Permissions");
-        addCompileHighOptLevel("java.security.Security");
-        addCompileHighOptLevel("java.security.SecurityPermission");
-        addCompileHighOptLevel("java.security.BasicPermission");
-        
-        addCompileHighOptLevel("java.util.Collection*");
-        addCompileHighOptLevel("java.util.Map*");
-        addCompileHighOptLevel("java.util.List*");
-        addCompileHighOptLevel("java.util.Set*");
-        addCompileHighOptLevel("java.util.Iterator*");
-        addCompileHighOptLevel("java.util.Array*");
-        addCompileHighOptLevel("java.util.Abstract*");
-        addCompileHighOptLevel("java.util.Hash*");
-        addCompileHighOptLevel("java.util.TreeMap*");
-        addCompileHighOptLevel("java.util.TreeSet*");
-        addCompileHighOptLevel("java.util.Linked*");
-        addCompileHighOptLevel("java.util.Vector*");
-        addCompileHighOptLevel("java.util.Locale*");
-        addCompileHighOptLevel("java.util.WeakHashMap*");
-        addCompileHighOptLevel("java.util.Properties*");
-        addCompileHighOptLevel("java.util.Dictionary*");
-        addCompileHighOptLevel("java.util.StringTokenizer*");
-        addCompileHighOptLevel("java.util.Property*");
-        addCompileHighOptLevel("java.util.Enum*");
-
-        addCompileHighOptLevel("java.util.jar");
-        addCompileHighOptLevel("java.util.zip");
-
-        addCompileHighOptLevel("gnu.classpath");
-
-        addCompileHighOptLevel("org.jnode.assembler");
-        addCompileHighOptLevel("org.jnode.boot");
-        addCompileHighOptLevel("org.jnode.naming");
-        addCompileHighOptLevel("org.jnode.plugin");
-        addCompileHighOptLevel("org.jnode.plugin.manager");
-        addCompileHighOptLevel("org.jnode.plugin.model");
-        addCompileHighOptLevel("org.jnode.security");
-        addCompileHighOptLevel("org.jnode.system");
-        addCompileHighOptLevel("org.jnode.system.event");
-        addCompileHighOptLevel("org.jnode.util");
-        addCompileHighOptLevel("org.jnode.vm");
-        addCompileHighOptLevel("org.jnode.vm.bytecode");
-        addCompileHighOptLevel("org.jnode.vm.classmgr");
-        addCompileHighOptLevel("org.jnode.vm.compiler");
-        addCompileHighOptLevel("org.jnode.vm.isolate");
-        addCompileHighOptLevel("org.jnode.vm.scheduler");
+        addCompileHighOptLevel(loadClassList(coreClassListFile));
         for (NativeCodeCompiler compiler : getArchitecture().getCompilers()) {
             for (String packageName : compiler.getCompilerPackages()) {
                 addCompileHighOptLevel(packageName);
             }
         }
+    }
 
-        addCompileHighOptLevel("org.jnode.vm.memmgr");
-        addCompileHighOptLevel("org.jnode.vm.memmgr.def");
-//        addCompileHighOptLevel("org.jnode.vm.memmgr.mmtk");
-//        addCompileHighOptLevel("org.jnode.vm.memmgr.mmtk.genrc");
-//        addCompileHighOptLevel("org.jnode.vm.memmgr.mmtk.nogc");
-//        addCompileHighOptLevel("org.jnode.vm.memmgr.mmtk.ms");
-
-        //todo review for boot image size reduction
-//        addCompileHighOptLevel("sun.misc");
-//        addCompileHighOptLevel("sun.reflect");  <-- // this kills jnode while booting, maybe Reflection static{...}
-//        addCompileHighOptLevel("sun.reflect.annotation");
-//        addCompileHighOptLevel("sun.reflect.generics");
-//        addCompileHighOptLevel("sun.reflect.generics.factory");
-//        addCompileHighOptLevel("sun.reflect.generics.parser");
-//        addCompileHighOptLevel("sun.reflect.generics.reflectiveObjects");
-//        addCompileHighOptLevel("sun.reflect.generics.repository");
-//        addCompileHighOptLevel("sun.reflect.generics.scope");
-//        addCompileHighOptLevel("sun.reflect.generics.tree");
-//        addCompileHighOptLevel("sun.reflect.generics.visitor");
-//        addCompileHighOptLevel("sun.reflect.misc");
-        addCompileHighOptLevel("sun.misc.VM");
-        addCompileHighOptLevel("sun.nio");
-        addCompileHighOptLevel("sun.nio.cs.US_ASCII");
-        addCompileHighOptLevel("sun.nio.cs.ISO_8859_1*");
-        addCompileHighOptLevel("sun.nio.cs.Surrogate*");
-        addCompileHighOptLevel("sun.nio.cs.StreamEncoder");
-        addCompileHighOptLevel("sun.nio.cs.SingleByteDecoder");
-        addCompileHighOptLevel("sun.nio.cs.SingleByteEncoder");
-        addCompileHighOptLevel("sun.nio.cs.FastCharsetProvider");
-        addCompileHighOptLevel("sun.nio.cs.StandardCharsets");
-        addCompileHighOptLevel("sun.nio.cs.HistoricallyNamedCharset");
-        addCompileHighOptLevel("sun.nio.cs.StreamDecoder");
-        addCompileHighOptLevel("sun.nio.cs.ThreadLocalCoders");
-        addCompileHighOptLevel("sun.nio.cs.Unicode*");
-        addCompileHighOptLevel("sun.nio.cs.UTF*");
-
-        if (false) {
-            addCompileHighOptLevel("org.mmtk.plan");
-            addCompileHighOptLevel("org.mmtk.policy");
-            addCompileHighOptLevel("org.mmtk.utility");
-            addCompileHighOptLevel("org.mmtk.utility.alloc");
-            addCompileHighOptLevel("org.mmtk.utility.deque");
-            addCompileHighOptLevel("org.mmtk.utility.gcspy");
-            addCompileHighOptLevel("org.mmtk.utility.gcspy.drivers");
-            addCompileHighOptLevel("org.mmtk.utility.heap");
-            addCompileHighOptLevel("org.mmtk.utility.options");
-            addCompileHighOptLevel("org.mmtk.utility.scan");
-            addCompileHighOptLevel("org.mmtk.utility.statistics");
-            addCompileHighOptLevel("org.mmtk.vm");
-            addCompileHighOptLevel("org.mmtk.vm.gcspy");
-
-            addCompileHighOptLevel("java.awt");
-            addCompileHighOptLevel("java.awt.event");
-            addCompileHighOptLevel("java.awt.peer");
-            addCompileHighOptLevel("java.awt.font");
-            addCompileHighOptLevel("java.awt.geom");
-
-            addCompileHighOptLevel("gnu.javax.swing.text.html.parser");
-            addCompileHighOptLevel("gnu.javax.swing.text.html.parser.models");
-            addCompileHighOptLevel("gnu.javax.swing.text.html.parser.support");
-            addCompileHighOptLevel("gnu.javax.swing.text.html.parser.support.low");
-
-            addCompileHighOptLevel("javax.swing");
-            addCompileHighOptLevel("javax.swing.border");
-            addCompileHighOptLevel("javax.swing.event");
-            addCompileHighOptLevel("javax.swing.plaf");
-            addCompileHighOptLevel("javax.swing.plaf.basic");
-            addCompileHighOptLevel("javax.swing.plaf.metal");
-            addCompileHighOptLevel("javax.swing.text");
-            addCompileHighOptLevel("javax.swing.text.html");
-            addCompileHighOptLevel("javax.swing.text.html.parser");
-            addCompileHighOptLevel("javax.swing.text.rtf");
-            addCompileHighOptLevel("javax.swing.table");
-            addCompileHighOptLevel("javax.swing.tree");
-            addCompileHighOptLevel("javax.swing.colorchooser");
-            addCompileHighOptLevel("javax.swing.filechooser");
-            addCompileHighOptLevel("javax.swing.undo");
-
-            addCompileHighOptLevel("org.jnode.awt");
-            addCompileHighOptLevel("org.jnode.awt.swingpeers");
-
-            addCompileHighOptLevel("gnu.java.locale");
-
-            addCompileHighOptLevel("javax.net");
-            addCompileHighOptLevel("javax.net.ssl");
-
-            addCompileHighOptLevel("javax.security");
-            addCompileHighOptLevel("javax.security.auth");
-            addCompileHighOptLevel("javax.security.auth.callback");
-            addCompileHighOptLevel("javax.security.auth.login");
-            addCompileHighOptLevel("javax.security.auth.spi");
-            addCompileHighOptLevel("javax.security.cert");
-            addCompileHighOptLevel("javax.security.sasl");
-
-            addCompileHighOptLevel("org.ietf.jgss");
-
+    protected void addCompileHighOptLevel(List<String> classNames) {
+        for (String className : classNames) {
+            addCompileHighOptLevel(className);
         }
     }
+
+    protected List<String> loadClassList(File file) {
+        ArrayList<String> classNames = new ArrayList<String>();
+        FileReader fr;
+        try {
+            fr = new FileReader(file);
+        } catch (IOException ex) {
+            throw new BuildException("Cannot open '" + file + "'", ex);
+        }
+        try {
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#") || line.startsWith("/")) {
+                    continue;
+                }
+                classNames.add(line);
+            }
+        } catch (IOException ex) {
+            throw new BuildException("Error reading '" + file + "'", ex);
+        } finally {
+            try {
+                fr.close();
+            } catch (IOException ex) {
+                // ignore
+            }
+        }
+        return classNames;
+    }
+
 
     /**
      * Create a set of the names of those classes that can be safely

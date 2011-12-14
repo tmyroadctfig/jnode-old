@@ -93,13 +93,6 @@
     <!-- libraries needed to check plugin dependencies -->
     <property name="bcel-5.1.jar" value="${root.dir}/builder/lib/bcel-5.1.jar" />	
 
-    <!-- libraries needed to check rules in source code -->
-    <property name="pmd.jar" value="${root.dir}/builder/lib/pmd/pmd-3.0.jar"/>
-    <property name="jaxen.jar" value="${root.dir}/builder/lib/pmd/jaxen-core-1.0-fcs.jar"/>
-    <property name="saxpath.jar" value="${root.dir}/builder/lib/pmd/saxpath-1.0-fcs.jar"/>
-    <property name="xerces.jar" value="${root.dir}/builder/lib/pmd/xercesImpl-2.6.2.jar"/>
-    <property name="xmlParserAPIs.jar" value="${root.dir}/builder/pmd/lib/xmlParserAPIs-2.6.2.jar"/>
-
     <!-- lists of plugins to use while booting -->
     <property name="default-plugin-list" value="${root.dir}/all/conf/default-plugin-list.xml"/>
     <property name="full-plugin-list" value="${root.dir}/all/conf/full-plugin-list.xml"/>
@@ -109,6 +102,11 @@
     <property name="jnode-x86.iso" value="${cdroms.dir}/jnode-x86.iso"/>
     <property name="jnode-x86-lite.iso" value="${cdroms.dir}/jnode-x86-lite.iso"/>
     <property name="jnode-x86_64-lite.iso" value="${cdroms.dir}/jnode-x86_64-lite.iso"/>
+	
+	<!-- list of classes and packages that should to be compiled to native code 
+	     in the boot image.  -->
+	<property name="jnode-core-class-list" value="${root.dir}/all/conf/core-classes.txt"/>
+	<property name="jnode-x86-class-list" value="${root.dir}/all/conf/x86-classes.txt"/>
 
     <path id="cp">
         <pathelement location="${classlib.jar}"/>
@@ -180,6 +178,17 @@
     </patternset>
 
     <target name="prepare">
+    	<!-- Fail on a Windows platform if there are spaces in the root dir's pathname.  It will
+    	             lead to mkisofs dying with a misleading error message.  bluebit / crawley 2008-05-03 -->
+        <fail message="Cannot build JNode from a directory with spaces in the pathname.">
+          <condition>
+            <and>
+              <os family="windows"/>
+              <contains string="${root.dir}" substring=" " casesensitive="false" />
+            </and>
+          </condition>
+        </fail>
+    	
         <fail message="Java Runtime version 1.6 needed. Your version is: ${java.runtime.version}">
             <condition>
                 <not>
@@ -288,7 +297,7 @@
           <then>
             <delete file="${classlib.jar}"/>
             <echo message="Creating ${classlib.jar}"/>
-            <exec executable="unpack200">
+            <exec executable="${java.home}/bin/unpack200">
               <arg file="${root.dir}/all/lib/classlib.pack.gz"/>
               <arg file="${classlib.jar}"/>
             </exec>
@@ -390,7 +399,6 @@
                         <include name="org.classpath.ext.corba.xml"/>
                         <include name="org.classpath.ext.core.xml"/>
                         <include name="org.classpath.ext.imageio.xml"/>
-                        <include name="org.classpath.ext.jdwp.xml"/>
                         <include name="org.classpath.ext.management.xml"/>
                         <include name="org.classpath.ext.print.xml"/>
                         <include name="org.classpath.ext.security.xml"/>
@@ -478,7 +486,6 @@
                 <exclude name="org.classpath.ext.corba.xml"/>
                 <exclude name="org.classpath.ext.core.xml"/>
                 <exclude name="org.classpath.ext.imageio.xml"/>
-                <exclude name="org.classpath.ext.jdwp.xml"/>
                 <exclude name="org.classpath.ext.management.xml"/>
                 <exclude name="org.classpath.ext.print.xml"/>
                 <exclude name="org.classpath.ext.security.xml"/>
@@ -500,7 +507,7 @@
             pluginDir="${plugins.dir}"
             systemPluginList="${root.dir}/all/conf/system-plugin-list.xml">
             <insert userApplicationsDir="${user.applications.dir}"/>
-                    	
+
             <fileset dir="${root.dir}/all/conf">
                 <exclude name="system-plugin-list.xml"/>
                 <include name="*plugin-list.xml"/>
@@ -515,6 +522,7 @@
         <initjars destdir="${initjars.dir}"
             pluginDir="${plugins.dir}"
             systemPluginList="${root.dir}/all/conf/system-plugin-list.xml">
+            <insert userApplicationsDir="${user.applications.dir}"/>
             <fileset dir="${custom.plugin-list.dir}">
                 <include name="*plugin-list.xml"/>
             </fileset>
@@ -719,6 +727,7 @@ clean             Remove all intermediate build results.
                 <pathelement location="${root.dir}/core/src/openjdk/vm"/>
                 <pathelement location="${root.dir}/core/src/core"/>
                 <pathelement location="${root.dir}/core/src/driver"/>
+                <pathelement location="${root.dir}/core/src/emu"/>
                 <pathelement location="${root.dir}/core/src/mmtk-vm"/>
                 <pathelement location="${root.dir}/core/src/endorsed/nanoxml"/>
                 <pathelement location="${root.dir}/core/src/test"/>
@@ -789,21 +798,9 @@ clean             Remove all intermediate build results.
         <delete dir="${build.dir}/classpath-compare"/>
         <cp-compare destdir="${build.dir}/classpath-compare" type="classpath">
             <vmsources>
-                <fileset dir="${root.dir}/core/src/classpath/gnu">
+                <fileset dir="${root.dir}/core/src/classpath/ext">
                     <patternset refid="cp-includes-pattern"/>
                 </fileset>
-                <fileset dir="${root.dir}/core/src/classpath/java">
-                    <patternset refid="cp-includes-pattern"/>
-                </fileset>
-                <fileset dir="${root.dir}/core/src/classpath/javax">
-	                <patternset refid="cp-includes-pattern"/>
-				</fileset>
-                <fileset dir="${root.dir}/core/src/classpath/tools">
-                    <patternset refid="cp-includes-pattern"/>
-               	</fileset>
-                <fileset dir="${root.dir}/core/src/classpath/sun">
-                    <patternset refid="cp-includes-pattern"/>
-               	</fileset>
             </vmsources>
             <vmspecificsources>
                 <fileset dir="${root.dir}/core/src/classpath/vm">
@@ -851,18 +848,9 @@ clean             Remove all intermediate build results.
         <header update="on" headerFile="${root.dir}/all/template/header.txt">
             <fileset dir="${root.dir}/builder/src/builder" includes="**/*.java"/>
             <fileset dir="${root.dir}/cli/src/commands" includes="**/*.java"/>
-            <fileset dir="${root.dir}/core/src/classpath/ext" includes="**/*.java"/>
+            <fileset dir="${root.dir}/core/src/classpath/ext" includes="**/*.java" excludes="gnu/classpath/jdwp/**/*.java"/>
             <fileset dir="${root.dir}/core/src/classpath/vm" includes="**/*.java"
-                    excludes="gnu/classpath/jdwp/VMFrame.java,
-                               gnu/classpath/jdwp/VMIdManager.java,
-                               gnu/classpath/jdwp/VMMethod.java,
-                               gnu/classpath/jdwp/VMVirtualMachine.java,
-                               gnu/classpath/VMStackWalker.java,
-                               gnu/java/lang/VMInstrumentationImpl.java,
-                               gnu/java/nio/VMChannel.java,
-                               java/lang/Thread.java,
-                               java/lang/VMProcess.java,
-                               java/lang/VMSystem.java"/>
+                     excludes="java/lang/VMProcess.java,java/lang/VMSystem.java"/>
             <fileset dir="${root.dir}/core/src/openjdk/vm" includes="**/*.java" excludes="java/lang/NativeStrictMath.java"/>
             <fileset dir="${root.dir}/core/src/core" includes="**/*.java" excludes="org/jnode/imageio/jpeg/JPEGDecoder"/>
             <fileset dir="${root.dir}/core/src/mmtk-vm" includes="**/*.java" excludes="org/mmtk/vm/**/*.java"/>
@@ -1076,50 +1064,46 @@ clean             Remove all intermediate build results.
 		</checkDeps>
 	</target>
 
-    <!-- Define the task that check the rules -->
-    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"
-        classpathref="cp-jnode">
-        <classpath>
-            <pathelement location="${pmd.jar}"/>
-            <pathelement location="${jaxen.jar}"/>
-            <pathelement location="${saxpath.jar}"/>
-            <pathelement location="${xerces.jar}"/>
-            <pathelement location="${xmlParserAPIs.jar}"/>
-        </classpath>
-    </taskdef>
+    <target name="pmd" depends="prepare">
+        <echo>
+            WARNING: PMD rulset must be customized before regular use.
+        </echo>
+        <property name="pmd.home" value="../builder/lib/pmd"/>
+        <!-- Define the task that check the rules -->
+        <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+            <classpath>
+                <fileset dir="${pmd.home}" includes="*.jar"/>                
+            </classpath>
+        </taskdef>
+        <!-- Macro used to check that the rules are applied in the source code -->
+        <macrodef name="checkPMD">
+            <attribute name="projectName"/>
+            <attribute name="webSrcUrl"/>
+            <attribute name="projectSrc"/>
+            <sequential>
+                <property name="nbFailures" value="0"/>
+                <echo message="Scanning @{projectName}."/>
+                <property name="tmp" value="../@{projectSrc}"/>
+                <pmd failuresPropertyName="nbFailures">
+                    <formatter type="html" toFile="${reports.dir}/pmd_report-@{projectName}.html"/>
 
+                    <ruleset>rulesets/favorites.xml</ruleset>
+                    <ruleset>rulesets/basic.xml</ruleset>
 
-    <!-- Macro used to check that the rules are applied in the source code -->
-    <macrodef name="checkProjectRules">
-        <attribute name="projectName"/>
-        <attribute name="webSrcUrl"/>
-        <attribute name="projectSrc"/>
-        <sequential>
-            <property name="nbFailures" value="0"/>
-            <echo message="Scanning @{projectName}."/>
-            <property name="tmp" value="../@{projectSrc}"/>
-            <pmd failuresPropertyName="nbFailures">
-                <formatter type="html" toFile="${reports.dir}/pmd_report-@{projectName}.html"/>
-
-                <ruleset>rulesets/favorites.xml</ruleset>
-                <ruleset>rulesets/basic.xml</ruleset>
-
-                <fileset dir="../@{projectSrc}" includes="**/*.java"/>
-            </pmd>
-            <echo message="There was ${nbFailures} failures in @{projectName}."/>
-        </sequential>
-    </macrodef>
-
-    <target name="checkJNodeRules" depends="prepare">
+                    <fileset dir="../@{projectSrc}" includes="**/*.java"/>
+                </pmd>
+                <echo message="There was ${nbFailures} failures in @{projectName}."/>
+            </sequential>
+        </macrodef>
         <parallel>
-            <checkProjectRules projectName="distr" webSrcUrl="distr" projectSrc="distr"/>
-            <checkProjectRules projectName="JNode-Builder" webSrcUrl="builder" projectSrc="builder"/>
-            <checkProjectRules projectName="JNode-Core" webSrcUrl="core" projectSrc="core"/>
-            <checkProjectRules projectName="JNode-FS" webSrcUrl="fs" projectSrc="fs"/>
-            <checkProjectRules projectName="JNode-GUI" webSrcUrl="gui" projectSrc="gui"/>
-            <checkProjectRules projectName="JNode-Net" webSrcUrl="net" projectSrc="net"/>
-            <checkProjectRules projectName="JNode-Shell" webSrcUrl="shell" projectSrc="shell"/>
-            <checkProjectRules projectName="JNode-TestUI" webSrcUrl="textui" projectSrc="textui"/>
+            <checkPMD projectName="distr" webSrcUrl="distr" projectSrc="distr"/>
+            <checkPMD projectName="JNode-Builder" webSrcUrl="builder" projectSrc="builder"/>
+            <checkPMD projectName="JNode-Core" webSrcUrl="core" projectSrc="core"/>
+            <checkPMD projectName="JNode-FS" webSrcUrl="fs" projectSrc="fs"/>
+            <checkPMD projectName="JNode-GUI" webSrcUrl="gui" projectSrc="gui"/>
+            <checkPMD projectName="JNode-Net" webSrcUrl="net" projectSrc="net"/>
+            <checkPMD projectName="JNode-Shell" webSrcUrl="shell" projectSrc="shell"/>
+            <checkPMD projectName="JNode-TestUI" webSrcUrl="textui" projectSrc="textui"/>
         </parallel>
     </target>
 
@@ -1140,7 +1124,7 @@ clean             Remove all intermediate build results.
     </target>
 
     <target name="checkstyle" description="check the mandatory code conventions">
-        <taskdef resource="checkstyletask.properties" classpath="../core/lib/checkstyle-all-4.4.jar"/>
+        <taskdef resource="checkstyletask.properties" classpath="../core/lib/checkstyle-all-5.0.jar"/>
         <checkstyle config="jnode_checks.xml">
             <fileset dir="../builder/src/builder" includes="**/*.java"/>
             <fileset dir="../builder/src/configure" includes="**/*.java"/>
@@ -1168,7 +1152,7 @@ clean             Remove all intermediate build results.
     </target>
 
     <target name="checkstyle-new" description="check the recommanded code conventions">
-        <taskdef resource="checkstyletask.properties" classpath="../core/lib/checkstyle-all-4.4.jar"/>
+        <taskdef resource="checkstyletask.properties" classpath="../core/lib/checkstyle-all-5.0.jar"/>
         <checkstyle config="new_checks.xml">
             <!--
             <fileset dir="../builder/src/builder" includes="**/*.java"/>
@@ -1199,12 +1183,16 @@ clean             Remove all intermediate build results.
     </target>
 
   <target name="findbugs" depends="assemble-plugins">
-    <taskdef name="findbugs" classpath="../core/lib/findbugs/lib/findbugs-ant.jar"
+    <property name="findbugs.home" value="../builder/lib/findbugs"/>
+    <property name="findbugs.output" value="${reports.dir}/findbugs.html"/>
+    <taskdef name="findbugs" classpath="${findbugs.home}/lib/findbugs-ant.jar"
              classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
-    <findbugs home="../core/lib/findbugs/" output="html" outputFile="./build/findbugs.html" >
+    <findbugs home="${findbugs.home}" output="html" outputFile="${findbugs.output}" >
       <auxclasspath>
           <pathelement location="./build/plugins/rt_${jnode-ver}.jar" />
+          <pathelement location="./build/plugins/rt.vm_${jnode-ver}.jar" />
           <pathelement location="./build/plugins/org.classpath.ext.core_${jnode-ver}.jar" />
+          <pathelement location="./build/plugins/org.classpath.ext.security_${jnode-ver}.jar" />
           <pathelement location="./build/plugins/nanoxml_1.4.jar" />
           <pathelement location="${nanoxml-java.jar}" />
           <pathelement location="${log4j.jar}" />

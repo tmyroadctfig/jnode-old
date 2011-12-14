@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,7 +22,8 @@ package org.jnode.vm.scheduler;
 
 import org.jnode.vm.Unsafe;
 import org.jnode.vm.VmStackReader;
-import org.jnode.vm.VmSystemObject;
+import org.jnode.vm.facade.VmThreadVisitor;
+import org.jnode.vm.objects.VmSystemObject;
 import org.jnode.annotation.KernelSpace;
 import org.jnode.annotation.Uninterruptible;
 import org.vmmagic.pragma.UninterruptiblePragma;

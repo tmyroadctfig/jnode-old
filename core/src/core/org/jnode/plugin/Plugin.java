@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,8 +24,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.prefs.Preferences;
 
-import org.jnode.plugin.model.PluginDescriptorModel;
-import org.jnode.system.BootLog;
+import org.jnode.bootlog.BootLogInstance;
 
 
 /**
@@ -102,14 +101,14 @@ public abstract class Plugin {
         }
         if (!started) {
             if (descriptor.hasCustomPluginClass()) {
-                BootLog.debug("Starting plugin: " + descriptor.getId());
+                BootLogInstance.get().debug("Starting plugin: " + descriptor.getId());
             }
             started = true;
             try {
                 try {
                     startPlugin();
                 } finally {
-                    ((PluginDescriptorModel) descriptor).firePluginStarted();
+                    descriptor.firePluginStarted();
                 }
             } catch (PluginException ex) {
                 throw ex;
@@ -134,7 +133,7 @@ public abstract class Plugin {
             started = false;
             try {
                 try {
-                    ((PluginDescriptorModel) descriptor).firePluginStop();
+                    descriptor.firePluginStopped();
                 } finally {
                     stopPlugin();
                 }

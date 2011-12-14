@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,16 +23,16 @@ package org.jnode.boot;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.jnode.plugin.PluginDescriptor;
-import org.jnode.plugin.PluginManager;
-import org.jnode.plugin.manager.DefaultPluginManager;
-import org.jnode.plugin.model.PluginRegistryModel;
-import org.jnode.system.BootLog;
-import org.jnode.vm.Unsafe;
-import org.jnode.vm.VmSystem;
 import org.jnode.annotation.LoadStatics;
 import org.jnode.annotation.SharedStatics;
 import org.jnode.annotation.Uninterruptible;
+import org.jnode.bootlog.BootLogInstance;
+import org.jnode.plugin.PluginDescriptor;
+import org.jnode.plugin.PluginManager;
+import org.jnode.plugin.PluginRegistry;
+import org.jnode.plugin.manager.DefaultPluginManager;
+import org.jnode.vm.Unsafe;
+import org.jnode.vm.VmSystem;
 
 /**
  * First class that is executed when JNode boots.
@@ -46,7 +46,10 @@ public final class Main {
     public static final String MAIN_METHOD_SIGNATURE = "()I";
     public static final String REGISTRY_FIELD_NAME = "pluginRegistry";
 
-    protected static PluginRegistryModel pluginRegistry;
+    /**
+     *  Initialized in org.jnode.build.x86.BootImageBuilder.initMain().
+     */
+    private static PluginRegistry pluginRegistry;
 
     /**
      * First java entry point after the assembler kernel has booted.
@@ -63,13 +66,13 @@ public final class Main {
 
             Unsafe.debug("VmSystem.initialize\n");
             VmSystem.initialize();
-
+            
             // Load the plugins from the initjar
-            BootLog.info("Loading initjar plugins");
+            BootLogInstance.get().info("Loading initjar plugins");
             final InitJarProcessor proc = new InitJarProcessor(VmSystem.getInitJar());
             List<PluginDescriptor> descriptors = proc.loadPlugins(pluginRegistry);
 
-            BootLog.info("Starting PluginManager");
+            BootLogInstance.get().info("Starting PluginManager");
             final PluginManager piMgr = new DefaultPluginManager(pluginRegistry);
             piMgr.startSystemPlugins(descriptors);
 
@@ -79,7 +82,7 @@ public final class Main {
             if (mainClassName != null) {
                 mainClass = loader.loadClass(mainClassName);
             } else {
-                BootLog.warn("No Main-Class found");
+                BootLogInstance.get().warn("No Main-Class found");
                 mainClass = null;
             }
             final long end = VmSystem.currentKernelMillis();
@@ -95,12 +98,12 @@ public final class Main {
                     if (insatnce instanceof Runnable) {
                         ((Runnable) insatnce).run();
                     } else {
-                        BootLog.warn("No valid Main-Class found");
+                        BootLogInstance.get().warn("No valid Main-Class found");
                     }
                 }
             }
         } catch (Throwable ex) {
-            BootLog.error("Error in bootstrap", ex);
+            BootLogInstance.get().error("Error in bootstrap", ex);
             Unsafe.debugStackTrace(ex);
             sleepForever();
             return -2;

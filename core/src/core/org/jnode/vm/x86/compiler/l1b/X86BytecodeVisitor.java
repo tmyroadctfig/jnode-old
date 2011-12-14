@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,12 +17,11 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1b;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jnode.assembler.Label;
 import org.jnode.assembler.NativeStream;
 import org.jnode.assembler.x86.X86Assembler;
@@ -32,17 +31,14 @@ import org.jnode.assembler.x86.X86Register;
 import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.assembler.x86.X86Register.GPR32;
 import org.jnode.assembler.x86.X86Register.GPR64;
-import org.jnode.system.BootLog;
-import org.jnode.util.CounterGroup;
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
 import org.jnode.vm.bytecode.BasicBlock;
 import org.jnode.vm.bytecode.BytecodeParser;
 import org.jnode.vm.bytecode.TypeStack;
 import org.jnode.vm.classmgr.ObjectLayout;
 import org.jnode.vm.classmgr.Signature;
 import org.jnode.vm.classmgr.TIBLayout;
-import org.jnode.vm.classmgr.TypeSizeInfo;
 import org.jnode.vm.classmgr.VmArray;
 import org.jnode.vm.classmgr.VmClassLoader;
 import org.jnode.vm.classmgr.VmClassType;
@@ -65,6 +61,9 @@ import org.jnode.vm.compiler.CompileError;
 import org.jnode.vm.compiler.CompiledMethod;
 import org.jnode.vm.compiler.EntryPoints;
 import org.jnode.vm.compiler.InlineBytecodeVisitor;
+import org.jnode.vm.facade.TypeSizeInfo;
+import org.jnode.vm.facade.VmUtils;
+import org.jnode.vm.objects.CounterGroup;
 import org.jnode.vm.x86.compiler.AbstractX86StackManager;
 import org.jnode.vm.x86.compiler.X86CompilerConstants;
 import org.jnode.vm.x86.compiler.X86CompilerHelper;
@@ -74,7 +73,8 @@ import org.jnode.vm.x86.compiler.X86JumpTable;
 
 /**
  * Actual converter from bytecodes to X86 native code. Uses a virtual stack to
- * delay item emission, as described in the ORP project
+ * delay item emission, as described in the <a href="http://orp.sourceforge.net/">Open Runtime Platform (ORP)</a>
+ * project.
  *
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  * @author Patrik Reali
@@ -249,7 +249,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
     /**
      * My counters
      */
-    private final CounterGroup counters = Vm.getVm().getCounterGroup(getClass().getName());
+    private final CounterGroup counters = VmUtils.getVm().getCounterGroup(getClass().getName());
 
     /**
      * Do counting?
@@ -554,7 +554,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
         helper.setLabelPrefix(inlinedMethodInfo.getPreviousLabelPrefix());
         this.inlinedMethodInfo = inlinedMethodInfo.getPrevious();
         if (debug) {
-            BootLog.debug("endInlinedMethod");
+            BootLogInstance.get().debug("endInlinedMethod");
         }
     }
 
@@ -768,11 +768,11 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
         final Label notInstanceOfLabel = new Label(curInstrLabel
             + "notInstanceOf");
 
-        if (Vm.VerifyAssertions) {
-            Vm._assert(objectr.getSize() == helper.ADDRSIZE, "objectr size");
-            Vm._assert(typer.getSize() == helper.ADDRSIZE, "typer size");
-            Vm._assert(tmpr.getSize() == helper.ADDRSIZE, "tmpr size");
-            Vm._assert(cntr.getSize() == BITS32, "cntr size");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(objectr.getSize() == helper.ADDRSIZE, "objectr size");
+            VmUtils._assert(typer.getSize() == helper.ADDRSIZE, "typer size");
+            VmUtils._assert(tmpr.getSize() == helper.ADDRSIZE, "tmpr size");
+            VmUtils._assert(cntr.getSize() == BITS32, "cntr size");
         }
 
         if (!skipNullTest) {
@@ -1221,7 +1221,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
             os.log("Start of basic block " + bb);
         }
         if (debug) {
-            BootLog.debug("-- Start of BB " + bb);
+            BootLogInstance.get().debug("-- Start of BB " + bb);
         }
         startOfBB = true;
         this.vstack.reset();
@@ -1237,7 +1237,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
         constLocals.clear();
 
         if (debug) {
-            BootLog.debug("-- VStack: " + vstack.toString());
+            BootLogInstance.get().debug("-- VStack: " + vstack.toString());
         }
     }
 
@@ -1250,7 +1250,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
             os.log("Start of inlined method code");
         }
         if (debug) {
-            BootLog.debug("startInlinedMethodCode(" + inlinedMethod + ")");
+            BootLogInstance.get().debug("startInlinedMethodCode(" + inlinedMethod + ")");
         }
         // TODO: check whether this is really needed
         // For now yes, because a new basic block resets the registerpool
@@ -1270,7 +1270,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
             os.log("Start of inlined method header " + inlinedMethod.getName());
         }
         if (debug) {
-            BootLog.debug("startInlinedMethodHeader(" + inlinedMethod + ")");
+            BootLogInstance.get().debug("startInlinedMethodHeader(" + inlinedMethod + ")");
         }
         maxLocals = newMaxLocals;
         final Label curInstrLabel = getCurInstrLabel();
@@ -1289,7 +1289,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
      */
     public void startInstruction(int address) {
         if (debug) {
-            BootLog.debug("#" + address + "\t" + vstack);
+            BootLogInstance.get().debug("#" + address + "\t" + vstack);
         }
         if (log) {
             if (debug) {
@@ -1315,7 +1315,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
      */
     public void startMethod(VmMethod method) {
         if (debug) {
-            BootLog.debug("setMethod(" + method + ")");
+            BootLogInstance.get().debug("setMethod(" + method + ")");
         }
         this.currentMethod = method;
         this.maxLocals = method.getBytecode().getNoLocals();
@@ -3270,7 +3270,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
      */
     public void visit_inlinedReturn(int jvmType) {
         if (debug) {
-            BootLog.debug("inlinedReturn [type " + jvmType + "]");
+            BootLogInstance.get().debug("inlinedReturn [type " + jvmType + "]");
         }
 
         // Pop the return value
@@ -3449,7 +3449,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
             helper.invokeJavaMethod(sm);
             // Result is already on the stack.
         } catch (ClassCastException ex) {
-            BootLog.error(methodRef.getResolvedVmMethod().getClass().getName()
+            BootLogInstance.get().error(methodRef.getResolvedVmMethod().getClass().getName()
                 + "#" + methodRef.getName());
             throw ex;
         }
@@ -3504,7 +3504,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
         if (declClass.isMagicType()) {
             magicHelper.emitMagic(eContext, method, false, this, currentMethod);
         } else {
-            // TODO: port to orp-style
+            // TODO: port to ORP style (http://orp.sourceforge.net/)
             vstack.push(eContext);
 
             dropParameters(mts, true);
@@ -3979,7 +3979,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
         }
 
         if (os.isCode32()) {
-            // TODO: port to orp-style
+            // TODO: port to ORP style (http://orp.sourceforge.net/)
             vstack.push(eContext);
             final LongItem v2 = vstack.popLong();
             final LongItem v1 = vstack.popLong();
@@ -4051,7 +4051,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
         if (os.isCode32()) {
             final Label curInstrLabel = getCurInstrLabel();
 
-            // TODO: port to orp-style
+            // TODO: port to ORP style (http://orp.sourceforge.net/)
             vstack.push(eContext);
             final LongItem v2 = vstack.popLong();
             final LongItem v1 = vstack.popLong();
@@ -4179,7 +4179,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
         }
 
         final int n = matchValues.length;
-        // BootLog.debug("lookupswitch length=" + n);
+        // BootLogInstance.get().debug("lookupswitch length=" + n);
 
         final IntItem key = vstack.popInt();
         key.load(eContext);
@@ -4216,7 +4216,7 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
         }
 
         if (os.isCode32()) {
-            // TODO: port to orp-style
+            // TODO: port to ORP style (http://orp.sourceforge.net/)
             vstack.push(eContext);
             Item v2 = vstack.pop(JvmType.LONG);
             Item v1 = vstack.pop(JvmType.LONG);
@@ -5103,9 +5103,9 @@ final class X86BytecodeVisitor extends InlineBytecodeVisitor implements
             case JvmType.BYTE:
                 os.writeMOVSX(resultr, resultr, BYTESIZE);
                 break;
-                // case JvmType.CHAR:
-                // os.writeMOVZX(resultr, resultr, WORDSIZE);
-                // break;
+            // case JvmType.CHAR:
+            // os.writeMOVZX(resultr, resultr, WORDSIZE);
+            // break;
             case JvmType.SHORT:
                 os.writeMOVSX(resultr, resultr, WORDSIZE);
                 break;

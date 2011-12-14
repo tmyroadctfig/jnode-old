@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.fs.hfsplus;
 
 import java.io.IOException;
@@ -87,7 +87,7 @@ public class HfsPlusEntry implements FSEntry {
         if (!isDirectory()) {
             throw new IOException("It is not a Directory");
         }
-        return (HfsPlusDirectory) this;
+        return new HfsPlusDirectory(this);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class HfsPlusEntry implements FSEntry {
         if (!isFile()) {
             throw new IOException("It is not a file");
         }
-        return (HfsPlusFile) this;
+        return new HfsPlusFile(this);
     }
 
     @Override
@@ -162,6 +162,10 @@ public class HfsPlusEntry implements FSEntry {
     @Override
     public boolean isValid() {
         return valid;
+    }
+
+    public byte[] getData() {
+        return this.record.getData();
     }
 
 }

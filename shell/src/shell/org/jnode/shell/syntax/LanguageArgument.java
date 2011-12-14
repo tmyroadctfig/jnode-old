@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -50,10 +50,10 @@ public class LanguageArgument extends Argument<String> {
     }
     
     @Override
-    public void doComplete(CompletionInfo completion, String partial, int flags) {
+    public void doComplete(CompletionInfo completions, String partial, int flags) {
         for (String language : validLanguages) {
             if (language.startsWith(partial)) {
-                completion.addCompletion(language);
+                completions.addCompletion(language);
             }
         }
     }

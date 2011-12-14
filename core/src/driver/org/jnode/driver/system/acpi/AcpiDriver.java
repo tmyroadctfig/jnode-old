@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,10 +20,14 @@
  
 package org.jnode.driver.system.acpi;
 
+import static org.jnode.vm.VirtualMemoryRegion.ACPI;
+
 import java.io.PrintWriter;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+
 import javax.naming.NameNotFoundException;
+
 import org.apache.log4j.Logger;
 import org.jnode.driver.Driver;
 import org.jnode.driver.DriverException;
@@ -34,16 +38,15 @@ import org.jnode.driver.system.acpi.vm.NameSpace;
 import org.jnode.driver.system.firmware.AcpiDevice;
 import org.jnode.driver.system.firmware.AcpiRSDPInfo;
 import org.jnode.naming.InitialNaming;
-import org.jnode.system.MemoryResource;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
-import org.jnode.system.SimpleResourceOwner;
+import org.jnode.system.resource.MemoryResource;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
+import org.jnode.system.resource.SimpleResourceOwner;
 import org.jnode.util.NumberUtils;
-import org.jnode.vm.MemoryMapEntry;
-import static org.jnode.vm.VirtualMemoryRegion.ACPI;
-import org.jnode.vm.Vm;
-import org.jnode.vm.VmArchitecture;
+import org.jnode.vm.facade.MemoryMapEntry;
+import org.jnode.vm.facade.VmArchitecture;
+import org.jnode.vm.facade.VmUtils;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Extent;
 import org.vmmagic.unboxed.MagicUtils;
@@ -165,9 +168,9 @@ final class AcpiDriver extends Driver implements AcpiAPI {
      */
     private void mmapAcpiRegion()
         throws DriverException {
-        final VmArchitecture arch = Vm.getArch();
-        final MemoryMapEntry[] mmap = (MemoryMapEntry[]) AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
+        final VmArchitecture arch = VmUtils.getVm().getArch();
+        final MemoryMapEntry[] mmap = AccessController.doPrivileged(new PrivilegedAction<MemoryMapEntry[]>() {
+            public MemoryMapEntry[] run() {
                 return arch.getMemoryMap();
             }
         });

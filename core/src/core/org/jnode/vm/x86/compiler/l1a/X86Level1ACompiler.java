@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.NativeStream;
@@ -35,6 +35,8 @@ import org.jnode.vm.isolate.VmIsolateLocal;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.x86.X86CpuID;
 import org.jnode.vm.x86.compiler.AbstractX86Compiler;
+
+import static org.jnode.vm.x86.compiler.X86CompilerConstants.L1A_COMPILER_MAGIC;
 
 /**
  * Native code compiler for the Intel x86 architecture.
@@ -90,6 +92,8 @@ public final class X86Level1ACompiler extends AbstractX86Compiler {
     public X86Level1ACompiler() {
     }
 
+    private final ThreadLocal<X86BytecodeVisitor> byteCodeVisitorHolder = new ThreadLocal<X86BytecodeVisitor>();
+
     /**
      * Create the visitor that converts bytecodes into native code.
      *
@@ -105,8 +109,16 @@ public final class X86Level1ACompiler extends AbstractX86Compiler {
                                                             boolean isBootstrap) {
         final InlineBytecodeVisitor cbv;
         final EntryPoints entryPoints = getEntryPoints();
-        cbv = new X86BytecodeVisitor(os, cm, isBootstrap, entryPoints, getMagicHelper(), getTypeSizeInfo());
-        if (inlineMethods /*&& ((X86Assembler)os).isCode32()*/) {
+        X86BytecodeVisitor byteCodeVisitor = byteCodeVisitorHolder.get();
+        if (byteCodeVisitor == null) {
+            byteCodeVisitor = new X86BytecodeVisitor(os, cm, isBootstrap, entryPoints, getMagicHelper(),
+                getTypeSizeInfo());
+        } else {
+            byteCodeVisitorHolder.remove();
+            byteCodeVisitor.reset(os, cm, isBootstrap, entryPoints, getMagicHelper(), getTypeSizeInfo());
+        }
+        cbv = byteCodeVisitor;
+        if (inlineMethods) {
             final VmClassLoader loader = method.getDeclaringClass().getLoader();
             return new OptimizingBytecodeVisitor(entryPoints, cbv, loader);
         } else {
@@ -114,7 +126,18 @@ public final class X86Level1ACompiler extends AbstractX86Compiler {
         }
     }
 
-    private final MagicHelper getMagicHelper() {
+    @Override
+    protected synchronized void releaseBytecodeVisitor(CompilerBytecodeVisitor visitor) {
+        X86BytecodeVisitor bv;
+        if (inlineMethods) {
+            bv = (X86BytecodeVisitor) ((OptimizingBytecodeVisitor) visitor).getDelegate();
+        } else {
+            bv = (X86BytecodeVisitor) visitor;
+        }
+        byteCodeVisitorHolder.set(bv);
+    }
+
+    private MagicHelper getMagicHelper() {
         final MagicHelper helper = magicHelperHolder.get();
         if (helper != null) {
             return helper;

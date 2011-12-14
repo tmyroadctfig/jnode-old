@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -46,5 +46,9 @@ class CharIterator {
 
     public int lastCh() {
         return (pos > start) ? str.charAt(pos - 1) : -1;
+    }
+
+    public int nosRemaining() {
+        return limit - pos;
     }
 }

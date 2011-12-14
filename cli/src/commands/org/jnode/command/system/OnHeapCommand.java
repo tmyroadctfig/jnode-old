@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,33 +20,40 @@
  
 package org.jnode.command.system;
 
+import java.io.BufferedWriter;
 import java.io.PrintWriter;
 
 import org.jnode.shell.AbstractCommand;
 import org.jnode.shell.syntax.Argument;
 import org.jnode.shell.syntax.IntegerArgument;
 import org.jnode.shell.syntax.LongArgument;
-import org.jnode.vm.Vm;
-import org.jnode.vm.memmgr.HeapStatistics;
+import org.jnode.shell.syntax.StringArgument;
+import org.jnode.vm.facade.HeapStatistics;
+import org.jnode.vm.facade.ObjectFilter;
+import org.jnode.vm.facade.SimpleObjectFilter;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Martin Husted Hartvig (hagar@jnode.org)
  */
 public class OnHeapCommand extends AbstractCommand {
     
-    private static final String help_inst = "the minimum instance count to show";
-    private static final String help_size = "the minimum total size to show";
-    private static final String help_super = "Show the number of instances on the heap with memory usage";
-    private static final String str_on_heap = "On Heap:";
+    private static final String HELP_INST = "the minimum instance count to show";
+    private static final String HELP_SIZE = "the minimum total size to show";
+    private static final String HELP_CLASSNAME = "the classname filter";
+    private static final String HELP_SUPER = "Show the number of instances on the heap with memory usage";
+    private static final String STR_ON_HEAP = "On Heap:";
     
     private final IntegerArgument argMinInstanceCount;
     private final LongArgument argMinTotalSize;
+    private final StringArgument className;
 
     public OnHeapCommand() {
-        super(help_super);
-        argMinInstanceCount = new IntegerArgument("minCount", Argument.OPTIONAL, 1, Integer.MAX_VALUE, help_inst);
-        argMinTotalSize     = new LongArgument("minTotalSize", Argument.OPTIONAL, 1L, Long.MAX_VALUE, help_size);
-        registerArguments(argMinInstanceCount, argMinTotalSize);
+        super(HELP_SUPER);
+        argMinInstanceCount = new IntegerArgument("minCount", Argument.OPTIONAL, 1, Integer.MAX_VALUE, HELP_INST);
+        argMinTotalSize     = new LongArgument("minTotalSize", Argument.OPTIONAL, 1L, Long.MAX_VALUE, HELP_SIZE);
+        className           = new StringArgument("className", Argument.OPTIONAL | Argument.MULTIPLE, HELP_CLASSNAME);
+        registerArguments(argMinInstanceCount, argMinTotalSize, className);
     }
 
     public static void main(String[] args) throws Exception {
@@ -59,8 +66,16 @@ public class OnHeapCommand extends AbstractCommand {
     @Override
     public void execute() throws Exception {
         PrintWriter out = getOutput().getPrintWriter();
-        out.println(str_on_heap);
-        final HeapStatistics stats = Vm.getHeapManager().getHeapStatistics();
+        out.println(STR_ON_HEAP);
+        
+        ObjectFilter filter = null;
+        if (className.isSet()) {
+            SimpleObjectFilter f = new SimpleObjectFilter();
+            f.setClassName(className.getValues());
+            filter = f;
+        }
+        
+        final HeapStatistics stats = VmUtils.getVm().getHeapManager().getHeapStatistics(filter);
         
         if (argMinInstanceCount.isSet()) {
             stats.setMinimumInstanceCount(argMinInstanceCount.getValue());
@@ -69,7 +84,12 @@ public class OnHeapCommand extends AbstractCommand {
             stats.setMinimumTotalSize(argMinTotalSize.getValue());
         }
 
-        out.println(stats.toString());
+        BufferedWriter writer = new BufferedWriter(getOutput().getWriter(), 2048);
+        try {
+            stats.writeTo(writer);
+        } finally {
+            writer.flush();
+        }
     }
 
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,6 @@
 package org.jnode.plugin.model;
 
 import gnu.java.security.action.GetPolicyAction;
-
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
@@ -36,18 +35,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.plugin.PluginClassLoader;
 import org.jnode.plugin.PluginDescriptor;
 import org.jnode.plugin.PluginException;
-import org.jnode.system.BootLog;
 import org.jnode.vm.ResourceLoader;
 import org.jnode.vm.classmgr.VmClassLoader;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class PluginClassLoaderImpl extends PluginClassLoader {
+final class PluginClassLoaderImpl extends ClassLoader implements PluginClassLoader {
 
     /**
      * The registry
@@ -84,9 +82,14 @@ final class PluginClassLoaderImpl extends PluginClassLoader {
     }
 
     /**
-     * Initialize this instance.
-     *
+     * Wrap this {@link ClassLoader} around the given vmClassLoader.
+     * Requires special permission.
+     * 
+     * @param vmClassLoader
+     * @param registry
+     * @param descr
      * @param jar
+     * @param prerequisiteLoaders
      */
     protected PluginClassLoaderImpl(VmClassLoader vmClassLoader, PluginRegistryModel registry,
                                     PluginDescriptorModel descr, PluginJar jar,
@@ -99,7 +102,7 @@ final class PluginClassLoaderImpl extends PluginClassLoader {
     }
 
     /**
-     * Gets the names of the classes contained in this plugin
+     * Gets the names of the classes contained in this plugin.
      *
      * @return
      */
@@ -198,7 +201,7 @@ final class PluginClassLoaderImpl extends PluginClassLoader {
                     fragment.startPlugin(registry);
                 }
             } catch (PluginException ex) {
-                BootLog.error("Error starting plugin", ex);
+                BootLogInstance.get().error("Error starting plugin", ex);
             }
 
             // Define package (if needed)
@@ -297,7 +300,7 @@ final class PluginClassLoaderImpl extends PluginClassLoader {
                     fragment.startPlugin(registry);
                 }
             } catch (PluginException ex) {
-                BootLog.error("Cannot start plugin", ex);
+                BootLogInstance.get().error("Cannot start plugin", ex);
             }
         }
         return url;
@@ -331,7 +334,7 @@ final class PluginClassLoaderImpl extends PluginClassLoader {
                     startPlugin();
                     fragment.startPlugin(registry);
                 } catch (PluginException ex) {
-                    BootLog.error("Cannot start plugin", ex);
+                    BootLogInstance.get().error("Cannot start plugin", ex);
                 }
                 System.err.println("adding " + url);
                 if (!urls.contains(url))
@@ -347,7 +350,7 @@ final class PluginClassLoaderImpl extends PluginClassLoader {
             try {
                 startPlugin();
             } catch (PluginException ex) {
-                BootLog.error("Cannot start plugin", ex);
+                BootLogInstance.get().error("Cannot start plugin", ex);
             }
             System.err.println("adding " + url);
             if (!urls.contains(url))
@@ -392,4 +395,8 @@ final class PluginClassLoaderImpl extends PluginClassLoader {
     public PluginDescriptor getDeclaringPluginDescriptor() {
         return descriptor;
     }
+        
+    public String toString() {
+        return getClass().getName() + "(" + getDeclaringPluginDescriptor().getId() + ")";
+    }    
 }

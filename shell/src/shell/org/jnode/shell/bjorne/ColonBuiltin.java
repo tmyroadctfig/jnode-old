@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,8 +20,10 @@
  
 package org.jnode.shell.bjorne;
 
-import org.jnode.shell.CommandLine;
-import org.jnode.shell.ShellException;
+import org.jnode.shell.syntax.SequenceSyntax;
+import org.jnode.shell.syntax.SyntaxBundle;
+
+
 
 /**
  * This builtin does nothing.  It is intended for use in places where
@@ -30,8 +32,20 @@ import org.jnode.shell.ShellException;
  * @author crawley@jnode.org
  */
 final class ColonBuiltin extends BjorneBuiltin {
-    public int invoke(CommandLine command, BjorneInterpreter interpreter,
-            BjorneContext context) throws ShellException {
-        return 0;
+    private static final SyntaxBundle SYNTAX = new SyntaxBundle(":", new SequenceSyntax());
+    
+    static final Factory FACTORY = new Factory() {
+        public BjorneBuiltinCommandInfo buildCommandInfo(BjorneContext context) {
+            return new BjorneBuiltinCommandInfo(":", SYNTAX, new ColonBuiltin(), context);
+        }
+    };
+    
+    private ColonBuiltin() {
+        super("The no-op command");
+    }
+    
+    @Override
+    public void execute() throws Exception {
+        // no-op
     }
 }

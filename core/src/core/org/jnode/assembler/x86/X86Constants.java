@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -176,12 +176,12 @@ public interface X86Constants {
         /**
          * Use 32-bit code
          */
-        public static Mode CODE32 = new Mode(BITS32);
+        public static final Mode CODE32 = new Mode(BITS32);
 
         /**
          * Use 64-bit code
          */
-        public static Mode CODE64 = new Mode(BITS64);
+        public static final Mode CODE64 = new Mode(BITS64);
 
         private Mode(int operandSize) {
             this.operandSize = operandSize;

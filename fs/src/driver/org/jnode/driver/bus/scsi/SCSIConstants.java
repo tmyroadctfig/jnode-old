@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,7 +35,7 @@ public interface SCSIConstants {
     /**
      * Group1 timeout, do not retry
      */
-    public static final long GROUP1_TIMEOUT = 5000;
+    public static final long GROUP1_TIMEOUT = 10000;
     /**
      * Group2 timeout, you can retry
      */

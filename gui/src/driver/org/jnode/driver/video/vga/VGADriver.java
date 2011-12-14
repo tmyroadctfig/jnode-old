@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.driver.video.vga;
 
 import java.awt.image.DataBuffer;
@@ -34,18 +34,19 @@ import org.jnode.driver.video.NotOpenException;
 import org.jnode.driver.video.Surface;
 import org.jnode.driver.video.UnknownConfigurationException;
 import org.jnode.driver.video.vgahw.VgaConstants;
-import org.jnode.system.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceNotFreeException;
 
 /**
  * @author epr
  */
 public class VGADriver extends AbstractFrameBufferDriver implements VgaConstants {
+    private static final int NB_COLORS = 16;
 
-    static final IndexColorModel COLOR_MODEL = new IndexColorModel(4, 16, REDS, GREENS, BLUES) {
+    static final IndexColorModel COLOR_MODEL = new IndexColorModel(4, NB_COLORS, REDS, GREENS, BLUES) {
         // Typically overridden
         public SampleModel createCompatibleSampleModel(int w, int h) {
             // return new VGASampleModel(w, h);
-            return new SinglePixelPackedSampleModel(DataBuffer.TYPE_BYTE, w, h, new int[] {0xFF});
+            return new SinglePixelPackedSampleModel(DataBuffer.TYPE_BYTE, w, h, new int[]{0xFF});
         }
 
         /**
@@ -69,7 +70,7 @@ public class VGADriver extends AbstractFrameBufferDriver implements VgaConstants
          * <li>Arrange the components in the output array</li>
          * <p/>
          * </ol>
-         * 
+         *
          * @param rgb The color to be converted to dataElements. A pixel in sRGB
          *            color space, encoded in default 0xAARRGGBB format, assumed
          *            not alpha premultiplied.
@@ -81,22 +82,24 @@ public class VGADriver extends AbstractFrameBufferDriver implements VgaConstants
          * @see #getRGB(Object)
          */
         public Object getDataElements(int rgb, Object pixel) {
-            // TODO determin the reight color here
-            byte[] p = new byte[1];
+            final int r2 = (0x00FF0000 & rgb) >> 16;
+            final int g2 = (0x0000FF00 & rgb) >> 8;
+            final int b2 = (0x000000FF & rgb);
+            final byte[] p = (pixel == null) ? new byte[1] : (byte[]) pixel;
+
+            rgb = (0x00FFFFFF & rgb); // remove alpha component
+
             int min_i = 0;
             int min_rgb = Integer.MAX_VALUE;
-            for (int i = 0; i < 16; i++) {
+            for (int i = 0; i < NB_COLORS; i++) {
                 int c = getRGB(i);
-                if (c == rgb) {
+                if (c == rgb) { // compare without alpha component
                     min_i = i;
                     break;
                 } else {
                     int r1 = (0x00FF0000 & c) >> 16;
                     int g1 = (0x0000FF00 & c) >> 8;
                     int b1 = (0x000000FF & c);
-                    int r2 = (0x00FF0000 & rgb) >> 16;
-                    int g2 = (0x0000FF00 & rgb) >> 8;
-                    int b2 = (0x000000FF & rgb);
                     int dr = r1 - r2;
                     dr = dr < 0 ? -dr : dr;
                     int dg = g1 - g2;
@@ -104,7 +107,7 @@ public class VGADriver extends AbstractFrameBufferDriver implements VgaConstants
                     int db = b1 - b2;
                     db = db < 0 ? -db : db;
                     int v = dr + dg + db;
-                    if (min_rgb < v) {
+                    if (v < min_rgb) {
                         min_rgb = v;
                         min_i = i;
                     }

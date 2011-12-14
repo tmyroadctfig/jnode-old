@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,7 +24,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 import org.jnode.util.NumberUtils;
-import org.jnode.vm.VmSystemObject;
+import org.jnode.vm.objects.VmSystemObject;
 
 /**
  * This table is a mapping between a program counter and an address of that

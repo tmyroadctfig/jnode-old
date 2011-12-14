@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,11 +19,23 @@
  */
  
 package org.jnode.apps.jpartition.model;
-
+/**
+ * Represents something with a start (included) and a end (included).
+ * 
+ * @author Fabien DUMINY (fduminy@jnode.org)
+ *
+ */
 public interface Bounded {
 
+    /**
+     * Get the start of this element (included).
+     * @return start of this element (included).
+     */
     long getStart();
 
+    /**
+     * Get the end of this element (included).
+     * @return end of this element (included).
+     */
     long getEnd();
-
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,15 +17,14 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86.compiler.l1a;
 
 import org.jnode.assembler.x86.X86Assembler;
 import org.jnode.assembler.x86.X86Register;
 import org.jnode.assembler.x86.X86Register.GPR;
 import org.jnode.vm.JvmType;
-import org.jnode.vm.Vm;
-import org.jnode.vm.x86.compiler.X86CompilerConstants;
+import org.jnode.vm.facade.VmUtils;
 
 /**
  * @author Patrik Reali
@@ -33,7 +32,7 @@ import org.jnode.vm.x86.compiler.X86CompilerConstants;
  *         IntItems are items with type INT
  */
 
-final class IntItem extends WordItem implements X86CompilerConstants {
+final class IntItem extends WordItem {
 
     private int value;
 
@@ -47,7 +46,7 @@ final class IntItem extends WordItem implements X86CompilerConstants {
     }
 
     /**
-     * @see org.jnode.vm.x86.compiler.l1a.WordItem#cloneConstant()
+     * @see org.jnode.vm.x86.compiler.l1a.WordItem#cloneConstant(EmitterContext)
      */
     protected WordItem cloneConstant(EmitterContext ec) {
         return factory.createIConst(ec, getValue());
@@ -63,8 +62,8 @@ final class IntItem extends WordItem implements X86CompilerConstants {
     }
 
     final int getValue() {
-        if (Vm.VerifyAssertions) {
-            Vm._assert(isConstant(), "kind == Kind.CONSTANT");
+        if (VmUtils.verifyAssertions()) {
+            VmUtils._assert(isConstant(), "kind == Kind.CONSTANT");
         }
         return value;
     }

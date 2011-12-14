@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -225,6 +225,31 @@ public class SCSICDROMDriver extends Driver implements FSBlockDeviceAPI,
         final SCSIDevice dev = (SCSIDevice) getDevice();
         try {
             MMCUtils.startStopUnit(dev, CDBStartStopUnit.Action.EJECT, false);
+        } catch (SCSIException ex) {
+            final IOException ioe = new IOException();
+            ioe.initCause(ex);
+            throw ioe;
+        } catch (TimeoutException ex) {
+            final IOException ioe = new IOException();
+            ioe.initCause(ex);
+            throw ioe;
+        } catch (InterruptedException ex) {
+            throw new InterruptedIOException();
+        }
+    }
+
+    /**
+     * Load this device.
+     *
+     * @throws IOException
+     */
+    public void load() throws IOException {
+        if (locked) {
+            throw new IOException("Device is locked");
+        }
+        final SCSIDevice dev = (SCSIDevice) getDevice();
+        try {
+            MMCUtils.startStopUnit(dev, CDBStartStopUnit.Action.LOAD, false);
         } catch (SCSIException ex) {
             final IOException ioe = new IOException();
             ioe.initCause(ex);

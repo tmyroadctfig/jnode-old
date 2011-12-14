@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,7 +20,6 @@
  
 package org.jnode.shell;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.Reader;
 
@@ -42,43 +41,21 @@ public interface CommandInterpreter {
     }
 
     /**
-     * Parse and execute a command line, and return the resulting return code.
-     * 
-     * @param shell the CommandShell that provides low-level command invocation,
-     *        command history and so on.
-     * @param line the line of input to be interpreted.
-     * @return the return code.
-     * @throws ShellException
-     */
-    int interpret(CommandShell shell, String line) throws ShellException;
-    
-    /**
-     * Parse and execute a command file, returning the resulting return code.
-     * 
-     * @param shell the CommandShell that provides low-level command invocation,
-     *        command history and so on.
-     * @param file the file to be interpreted
-     * @param alias this will supply the script's notional command name to the interpreter.
-     * @param args command line arguments to be passed to the script.  If this parameter 
-     * is {@code null}, no arguments are passed.
-     * @return the return code.
-     * @throws ShellException
-     */
-    int interpret(CommandShell shell, File file, String alias, String[] args) throws ShellException;
-
-    /**
-     * Parse and execute a command file, returning the resulting return code.
+     * Parse and execute commands read from a reader, returning the resulting return code.
      * 
      * @param shell the CommandShell that provides low-level command invocation,
      *        command history and so on.
      * @param reader the reader to be interpreted. <b>The implementation must close it.</b> 
-     * @param alias this will supply the script's notional command name to the interpreter.
-     * @param args command line arguments to be passed to the script.  If this parameter 
+     * @param script if {@code true}, the interpreter should read and process commands until
+     * the EOF is reached, otherwise it should process just one complete command.
+     * @param alias this will supply a script's notional command name to the interpreter.  If 
+     * this parameter is {@code null}, no command name passed.
+     * @param args optional command line arguments to be passed to the script.  If this parameter 
      * is {@code null}, no arguments are passed.
      * @return the return code.
      * @throws ShellException
      */
-    int interpret(CommandShell shell, Reader reader, String alias, String[] args) throws ShellException;
+    int interpret(CommandShell shell, Reader reader, boolean script, String alias, String[] args) throws ShellException;
     
     /**
      * Parse a partial command line, returning the command line fragment to be
@@ -109,6 +86,22 @@ public interface CommandInterpreter {
      * @return the word with any necessary escaping or quoting added.
      */
     String escapeWord(String word);
+    
+    /**
+     * Test if the interpreter supports multiline commands.
+     * 
+     * @return {@code true} if the interpreter supports multiline commands.
+     */
+    boolean supportsMultiline();
+
+    /**
+     * Get the command prompt.
+     * 
+     * @param shell the shell that is supplying command input.
+     * @param continuation {@code true} if the interpreter is expecting a continuation line.
+     * @return the command prompt
+     */
+    String getPrompt(CommandShell shell, boolean continuation);
 
     /**
      * Get incremental help for the partial command line.  If the interpreter
@@ -121,18 +114,4 @@ public interface CommandInterpreter {
      * @throws ShellException 
      */
     boolean help(CommandShell shell, String partial, PrintWriter pw) throws ShellException;
-
-    /**
-     * This method should <code>true</code> if the interpreter supports continuation lines.  If so,
-     * it should throw IncompleteCommandException if it is expecting more input from the
-     * user.  The shell will respond by reading the next line from the user, appending it
-     * to the previous input, and attempting to interpret the line again.  Obviously, the
-     * interpreter needs to be side-effect free prior to throwing the exception.
-     * <p>
-     * If this method returns <code>false</code>, the interpreter will treat IncompleteCommandException
-     * as a regular ShellSyntaxException.
-     * 
-     * @return <code>true</code> if this interpreter supports continuation lines.
-     */
-    boolean supportsMultilineCommands();
 }

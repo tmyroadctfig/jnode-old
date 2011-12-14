@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,8 +20,8 @@
  
 package org.jnode.vm.memmgr.def;
 
-import org.jnode.system.BootLog;
 import org.jnode.annotation.MagicPermission;
+import org.jnode.bootlog.BootLogInstance;
 import org.jnode.vm.classmgr.ObjectFlags;
 import org.jnode.vm.scheduler.Monitor;
 import org.vmmagic.unboxed.Word;
@@ -117,7 +117,7 @@ final class FinalizerThread extends Thread {
                 }
             } catch (Throwable ex) {
                 try {
-                    BootLog.error("Error in FinalizerThread", ex);
+                    BootLogInstance.get().error("Error in FinalizerThread", ex);
                 } catch (Throwable ex2) {
                     // Ignore
                 }

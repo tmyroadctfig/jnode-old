@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,7 +30,7 @@ import org.jnode.driver.bus.usb.USBPipe;
 import org.jnode.driver.bus.usb.USBPipeListener;
 import org.jnode.driver.bus.usb.USBRequest;
 import org.jnode.driver.bus.usb.spi.AbstractUSBRequest;
-import org.jnode.system.ResourceManager;
+import org.jnode.system.resource.ResourceManager;
 import org.jnode.util.NumberUtils;
 import org.jnode.util.Queue;
 

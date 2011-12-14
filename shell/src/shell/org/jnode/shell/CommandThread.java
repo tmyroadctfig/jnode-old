@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -46,6 +46,13 @@ public interface CommandThread {
      * @return zero for success, non-zero for failure
      */
     public int getReturnCode();
+    
+    /**
+     * Get the exception that caused the thread to terminate.
+     * 
+     * @return the exception or {@code null}
+     */
+    public Throwable getTerminatingException();
 
     /**
      * @return <code>true</code> if the thread is still executing.

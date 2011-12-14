@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,7 +34,7 @@ import org.jnode.net.ipv4.IPv4Service;
 import org.jnode.util.Queue;
 import org.jnode.util.QueueProcessor;
 import org.jnode.util.QueueProcessorThread;
-import org.jnode.util.Statistics;
+import org.jnode.vm.objects.Statistics;
 
 /**
  * Protocol handler of the ICMP protocol.

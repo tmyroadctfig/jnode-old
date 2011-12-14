@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm;
 
 import java.io.IOException;
@@ -33,21 +33,21 @@ import javax.naming.NameNotFoundException;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
-import org.jnode.naming.InitialNaming;
-import org.jnode.plugin.PluginManager;
-import org.jnode.security.JNodePermission;
-import org.jnode.system.BootLog;
-import org.jnode.system.MemoryResource;
-import org.jnode.system.ResourceManager;
-import org.jnode.system.ResourceNotFreeException;
-import org.jnode.system.ResourceOwner;
-import org.jnode.system.SimpleResourceOwner;
 import org.jnode.annotation.Internal;
 import org.jnode.annotation.KernelSpace;
 import org.jnode.annotation.MagicPermission;
 import org.jnode.annotation.PrivilegedActionPragma;
 import org.jnode.annotation.SharedStatics;
 import org.jnode.annotation.Uninterruptible;
+import org.jnode.bootlog.BootLogInstance;
+import org.jnode.naming.InitialNaming;
+import org.jnode.permission.JNodePermission;
+import org.jnode.plugin.PluginManager;
+import org.jnode.system.resource.MemoryResource;
+import org.jnode.system.resource.ResourceManager;
+import org.jnode.system.resource.ResourceNotFreeException;
+import org.jnode.system.resource.ResourceOwner;
+import org.jnode.system.resource.SimpleResourceOwner;
 import org.jnode.vm.classmgr.AbstractExceptionHandler;
 import org.jnode.vm.classmgr.VmArray;
 import org.jnode.vm.classmgr.VmByteCode;
@@ -59,8 +59,10 @@ import org.jnode.vm.classmgr.VmConstantPool;
 import org.jnode.vm.classmgr.VmMethod;
 import org.jnode.vm.classmgr.VmStaticField;
 import org.jnode.vm.classmgr.VmType;
+import org.jnode.vm.facade.VmArchitecture;
+import org.jnode.vm.facade.VmUtils;
+import org.jnode.vm.facade.VmWriteBarrier;
 import org.jnode.vm.isolate.VmIsolate;
-import org.jnode.vm.memmgr.VmWriteBarrier;
 import org.jnode.vm.scheduler.VmProcessor;
 import org.jnode.vm.scheduler.VmThread;
 import org.vmmagic.unboxed.Address;
@@ -119,6 +121,11 @@ public final class VmSystem {
      */
     public static void initialize() {
         if (!inited) {
+            // Initialize Naming
+            InitialNaming.setNameSpace(new DefaultNameSpace());
+
+            // Initialize BootLog
+            BootLogImpl.initialize();
 
             // Initialize resource manager
             final ResourceManager rm = ResourceManagerImpl.initialize();
@@ -133,15 +140,15 @@ public final class VmSystem {
             // Initialize VmThread
             VmThread.initialize();
 
-            final Vm vm = Vm.getVm();
+            final org.jnode.vm.facade.Vm vm = VmUtils.getVm();
 
             // Initialize the monitors for the heap manager
-            Vm.getHeapManager().start();
+            vm.getHeapManager().start();
 
             Locale.setDefault(Locale.ENGLISH);
 
             // Find & start all processors
-            vm.initializeProcessors(rm);
+            ((VmImpl) vm).initializeProcessors(rm);
 
             /* We're done initializing */
             inited = true;
@@ -199,7 +206,7 @@ public final class VmSystem {
                 throw new UnsupportedOperationException();
             }
         });
-        
+
         // Trigger initialization of the global environment variables.
         System.getenv();
     }
@@ -232,7 +239,7 @@ public final class VmSystem {
         } else if (VmIsolate.isRoot()) {
             return bootOutStream;
         } else {
-            return  VmIOContext.getGlobalOutStream();
+            return VmIOContext.getGlobalOutStream();
         }
     }
 
@@ -249,16 +256,16 @@ public final class VmSystem {
         final Extent size = end.toWord().sub(start.toWord()).toExtent();
         if (size.toWord().isZero()) {
             // No initial jarfile
-            BootLog.info("No initial jarfile found");
+            BootLogInstance.get().info("No initial jarfile found");
             return null;
         } else {
-            BootLog.info("Found initial jarfile of " + size.toInt() + "b");
+            BootLogInstance.get().info("Found initial jarfile of " + size.toInt() + "b");
             try {
                 final ResourceOwner owner = new SimpleResourceOwner("System");
                 return rm.claimMemoryResource(owner, start, size,
                     ResourceManager.MEMMODE_NORMAL);
             } catch (ResourceNotFreeException ex) {
-                BootLog.error("Cannot claim initjar resource", ex);
+                BootLogInstance.get().error("Cannot claim initjar resource", ex);
                 return null;
             }
         }
@@ -275,8 +282,8 @@ public final class VmSystem {
      */
     public static void insertSystemProperties(Properties res) {
 
-        final Vm vm = Vm.getVm();
-        final VmArchitecture arch = Vm.getArch();
+        final org.jnode.vm.facade.Vm vm = VmUtils.getVm();
+        final VmArchitecture arch = vm.getArch();
 
         // Standard Java properties
         res.put("file.separator", "/");
@@ -410,7 +417,7 @@ public final class VmSystem {
      * @return Object
      */
     public static Object clone(Cloneable obj) {
-        return Vm.getHeapManager().clone(obj);
+        return VmUtils.getVm().getHeapManager().clone(obj);
     }
 
     /**
@@ -525,10 +532,10 @@ public final class VmSystem {
     @Internal
     public static final Object allocStack(int size) {
         try {
-            return Vm.getHeapManager()
+            return VmUtils.getVm().getHeapManager()
                 .newInstance(
                     systemLoader.loadClass(
-                        "org.jnode.vm.VmSystemObject", true), size);
+                        "org.jnode.vm.objects.VmSystemObject", true), size);
         } catch (ClassNotFoundException ex) {
             throw (NoClassDefFoundError) new NoClassDefFoundError()
                 .initCause(ex);
@@ -566,7 +573,7 @@ public final class VmSystem {
             final VmType exClass = VmMagic.getObjectType(ex);
             final VmMethod method = reader.getMethod(frame);
             if (method == null) {
-                Unsafe.debug("Unknown method");
+                Unsafe.debug("Unknown method in class " + ex.getClass().getName());
                 return null;
             }
 
@@ -793,7 +800,7 @@ public final class VmSystem {
         }
 
         if (isObjectArray) {
-            final VmWriteBarrier wb = Vm.getHeapManager().getWriteBarrier();
+            final VmWriteBarrier wb = VmUtils.getVm().getHeapManager().getWriteBarrier();
             if (wb != null) {
                 wb.arrayCopyWriteBarrier(src, srcPos, srcPos + length);
             }
@@ -831,7 +838,7 @@ public final class VmSystem {
                     }
                 }
             } catch (Exception ex) {
-                BootLog.error("Error getting rtcIncrement ", ex);
+                BootLogInstance.get().error("Error getting rtcIncrement ", ex);
                 rtcIncrement = 1;
             }
         }
@@ -863,10 +870,10 @@ public final class VmSystem {
      * @return the time of a system timer in nanoseconds.
      * @since 1.5
      */
-    public static long nanoTime() {        
+    public static long nanoTime() {
         if (ghz == -1) {
             final long measureDuration = 1000; // in milliseconds
-            
+
             long start = Unsafe.getCpuCycles();
             long ms_start = currentTimeMillis();
             long ms_end;
@@ -885,15 +892,15 @@ public final class VmSystem {
 
             ghz = (end - start) / (ms * 1000000L);
             if (ghz <= 0) {
-                ghz = 0;   
-            }         
+                ghz = 0;
+            }
         }
-        
+
         if (ghz == 0) {
             //todo these are CPUs under 1GHz, improve this case
             return currentTimeMillis() * 1000000L;
         }
-        
+
         return Unsafe.getCpuCycles() / ghz;
     }
 
@@ -926,7 +933,7 @@ public final class VmSystem {
      * @return free memory in system ram
      */
     public static long freeMemory() {
-        return Vm.getHeapManager().getFreeMemory();
+        return VmUtils.getVm().getHeapManager().getFreeMemory();
     }
 
     /**
@@ -935,14 +942,14 @@ public final class VmSystem {
      * @return the total amount of system memory
      */
     public static long totalMemory() {
-        return Vm.getHeapManager().getTotalMemory();
+        return VmUtils.getVm().getHeapManager().getTotalMemory();
     }
 
     /**
      * Call the garbage collector
      */
     public static void gc() {
-        Vm.getHeapManager().gc();
+        VmUtils.getVm().getHeapManager().gc();
     }
 
     static class SystemOutputStream extends OutputStream {
@@ -1187,6 +1194,21 @@ public final class VmSystem {
             getIOContext().enterContext();
         } else {
             throw new RuntimeException("IO Context cannot be reset");
+        }
+    }
+
+    /**
+     * Wait for ms milliseconds in a busy waiting loop.
+     * This method is very CPU intensive, so be carefull.
+     *
+     * @param ms
+     */
+    public static void loop(long ms) {
+        final long start = currentKernelMillis();
+        while (true) {
+            if ((start + ms) <= currentKernelMillis()) {
+                break;
+            }
         }
     }
 }

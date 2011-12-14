@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2009 JNode.org
+ * Copyright (C) 2003-2010 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -49,10 +49,10 @@ public class ArgumentCompleter implements Completable {
         }
     }
 
-    public void complete(CompletionInfo completion, CommandShell shell) {
-        argument.complete(completion, token == null ? "" : token.text, 0);
+    public void complete(CompletionInfo completions, CommandShell shell) {
+        argument.complete(completions, token == null ? "" : token.text, 0);
         if (token != null) {
-            completion.setCompletionStart(token.start);
+            completions.setCompletionStart(token.start);
         }
     }
 
