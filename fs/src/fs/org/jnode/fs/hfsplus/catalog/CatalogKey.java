@@ -49,7 +49,7 @@ public class CatalogKey extends AbstractKey {
         int currentOffset = offset;
         byte[] ck = new byte[2];
         System.arraycopy(src, currentOffset, ck, 0, 2);
-        keyLength = BigEndian.getInt16(ck, 0);
+        keyLength = BigEndian.getInt16(ck, 0) + 2;
         currentOffset += 2;
         ck = new byte[4];
         System.arraycopy(src, currentOffset, ck, 0, 4);
@@ -71,7 +71,7 @@ public class CatalogKey extends AbstractKey {
     public CatalogKey(final CatalogNodeId parentID, final HfsUnicodeString name) {
         this.parentId = parentID;
         this.nodeName = name;
-        this.keyLength = MINIMUM_KEY_LENGTH + (name.getLength() * 2) + 2;
+        this.keyLength = MINIMUM_KEY_LENGTH + (name.getLength() * 2);
     }
 
     public final CatalogNodeId getParentId() {

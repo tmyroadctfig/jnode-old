@@ -36,6 +36,7 @@ public class HfsPlusFile implements FSFile {
 
     public HfsPlusFile(HfsPlusEntry entry) {
         this.file = new CatalogFile(entry.getData());
+        this.entry = entry;
     }
 
     @Override
