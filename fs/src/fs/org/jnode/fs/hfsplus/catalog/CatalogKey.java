@@ -44,6 +44,7 @@ public class CatalogKey extends AbstractKey {
      * @param src
      * @param offset
      */
+    
     public CatalogKey(final byte[] src, final int offset) {
         int currentOffset = offset;
         byte[] ck = new byte[2];
@@ -70,7 +71,7 @@ public class CatalogKey extends AbstractKey {
     public CatalogKey(final CatalogNodeId parentID, final HfsUnicodeString name) {
         this.parentId = parentID;
         this.nodeName = name;
-        this.keyLength = MINIMUM_KEY_LENGTH + name.getLength();
+        this.keyLength = MINIMUM_KEY_LENGTH + (name.getLength() * 2) + 2;
     }
 
     public final CatalogNodeId getParentId() {
@@ -108,10 +109,11 @@ public class CatalogKey extends AbstractKey {
      * @see org.jnode.fs.hfsplus.tree.AbstractKey#getBytes()
      */
     public byte[] getBytes() {
-        byte[] data = new byte[this.getKeyLength()];
-        BigEndian.setInt16(data, 0, this.getKeyLength());
+    	int length = this.getKeyLength();
+        byte[] data = new byte[length];
+        BigEndian.setInt16(data, 0, length);
         System.arraycopy(parentId.getBytes(), 0, data, 2, 4);
-        System.arraycopy(nodeName.getBytes(), 0, data, 6, nodeName.getLength());
+        System.arraycopy(nodeName.getBytes(), 0, data, 6, (nodeName.getLength() *2) + 2);
         return data;
     }
 
