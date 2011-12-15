@@ -71,7 +71,7 @@ public class CatalogKey extends AbstractKey {
     public CatalogKey(final CatalogNodeId parentID, final HfsUnicodeString name) {
         this.parentId = parentID;
         this.nodeName = name;
-        this.keyLength = MINIMUM_KEY_LENGTH + (name.getLength() * 2);
+        this.keyLength = MINIMUM_KEY_LENGTH + (name.getLength() * 2) + 2;
     }
 
     public final CatalogNodeId getParentId() {
