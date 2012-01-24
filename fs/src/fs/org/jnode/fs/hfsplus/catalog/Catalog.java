@@ -206,7 +206,7 @@ public class Catalog {
             CatalogIndexNode node = new CatalogIndexNode(data, nodeSize);
             IndexRecord record = (IndexRecord) node.find(parentID);
             currentOffset = (record.getIndex() * nodeSize);
-            ByteBuffer nodeData = ByteBuffer.allocate(nodeSize);
+            nodeData = ByteBuffer.allocate(nodeSize);
             catalogFile.read(fs, currentOffset, nodeData);
             nodeData.rewind();
             data = ByteBufferUtils.toArray(nodeData);
