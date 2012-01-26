@@ -95,7 +95,7 @@ public class GptPartitionTableEntry implements PartitionTableEntry {
     }
 
     public long getEndOffset() {
-        return LittleEndian.getInt64(first16KiB, offset + 0x28) * blockSize;
+        return (LittleEndian.getInt64(first16KiB, offset + 0x28) + 1) * blockSize;
     }
 
     public long getFlags() {
