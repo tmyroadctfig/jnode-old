@@ -129,6 +129,18 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
 //        if (hasIncompatFeature(Ext2Constants.EXT3_FEATURE_INCOMPAT_RECOVER))
 //            throw new FileSystemException(getDevice().getId() +
 //                    " Unsupported filesystem feature (RECOVER) disallows mounting");
+//        if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_EXTENTS))
+//            throw new FileSystemException(getDevice().getId() +
+//                    " Unsupported filesystem feature (EXTENTS) disallows mounting");
+        if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_64BIT))
+            throw new FileSystemException(getDevice().getId() +
+                    " Unsupported filesystem feature (64BIT) disallows mounting");
+        if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_MMP))
+            throw new FileSystemException(getDevice().getId() +
+                    " Unsupported filesystem feature (MMP) disallows mounting");
+        if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_FLEX_BG))
+            throw new FileSystemException(getDevice().getId() +
+                    " Unsupported filesystem feature (FLEX_BG) disallows mounting");
 
         // an unsupported RO_COMPAT feature means that the filesystem can only
         // be mounted readonly
@@ -138,6 +150,22 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
         }
         if (hasROFeature(Ext2Constants.EXT2_FEATURE_RO_COMPAT_BTREE_DIR)) {
             log.info(getDevice().getId() + " Unsupported filesystem feature (BTREE_DIR) forces readonly mode");
+            setReadOnly(true);
+        }
+        if (hasROFeature(Ext2Constants.EXT4_FEATURE_ROCOMPAT_HUGE_FILE)) {
+            log.info(getDevice().getId() + " Unsupported filesystem feature (HUGE_FILE) forces readonly mode");
+            setReadOnly(true);
+        }
+        if (hasROFeature(Ext2Constants.EXT4_FEATURE_ROCOMPAT_GDT_CSUM)) {
+            log.info(getDevice().getId() + " Unsupported filesystem feature (GDT_CSUM) forces readonly mode");
+            setReadOnly(true);
+        }
+        if (hasROFeature(Ext2Constants.EXT4_FEATURE_ROCOMPAT_DIR_NLINK)) {
+            log.info(getDevice().getId() + " Unsupported filesystem feature (DIR_NLINK) forces readonly mode");
+            setReadOnly(true);
+        }
+        if (hasROFeature(Ext2Constants.EXT4_FEATURE_ROCOMPAT_EXTRA_ISIZE)) {
+            log.info(getDevice().getId() + " Unsupported filesystem feature (EXTRA_ISIZE) forces readonly mode");
             setReadOnly(true);
         }
 
