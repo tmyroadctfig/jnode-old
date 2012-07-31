@@ -98,7 +98,9 @@ public class Ext2Entry extends AbstractFSEntry implements FSEntryLastChanged, FS
             return AbstractFSEntry.ROOT_ENTRY;
         else if (mode == Ext2Constants.EXT2_S_IFDIR)
             return AbstractFSEntry.DIR_ENTRY;
-        else if (mode == Ext2Constants.EXT2_S_IFREG || mode == Ext2Constants.EXT2_FT_SYMLINK)
+        else if (mode == Ext2Constants.EXT2_S_IFREG || mode == Ext2Constants.EXT2_S_IFLNK ||
+                 mode == Ext2Constants.EXT2_S_IFIFO || mode == Ext2Constants.EXT2_S_IFCHR ||
+                 mode == Ext2Constants.EXT2_S_IFBLK)
             return AbstractFSEntry.FILE_ENTRY;
         else
             return AbstractFSEntry.OTHER_ENTRY;
