@@ -106,7 +106,7 @@ public class INode {
         log.setLevel(Level.DEBUG);
     }
 
-    protected int getINodeNr() {
+    public int getINodeNr() {
         return desc.getINodeNr();
     }
 
