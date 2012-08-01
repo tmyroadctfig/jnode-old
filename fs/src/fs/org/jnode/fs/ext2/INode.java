@@ -301,7 +301,7 @@ public class INode {
                 extentHeader = new ExtentHeader(getINodeBlockData());
             }
 
-            return extentHeader.getBlockNumber(i);
+            return extentHeader.getBlockNumber(fs, i);
         }
         else {
             return getDataBlockNrIndirect(i);
