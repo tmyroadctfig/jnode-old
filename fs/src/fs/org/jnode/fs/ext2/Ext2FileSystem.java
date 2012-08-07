@@ -349,7 +349,7 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
      * 
      * @return data block nr
      */
-    protected byte[] getBlock(long nr) throws IOException {
+    public byte[] getBlock(long nr) throws IOException {
         if (isClosed())
             throw new IOException("FS closed (fs instance: " + this + ")");
         // log.debug("blockCache size: "+blockCache.size());
