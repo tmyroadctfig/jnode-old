@@ -67,13 +67,6 @@ public final class ISO9660Entry implements FSEntry {
     }
 
     /**
-     * @see org.jnode.fs.FSEntry#getLastAccessed()
-     */
-    public long getLastAccessed() {
-        return 0;
-    }
-
-    /**
      * @see org.jnode.fs.FSEntry#isFile()
      */
     public boolean isFile() {
@@ -101,13 +94,6 @@ public final class ISO9660Entry implements FSEntry {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-	public void setLastAccessed(long lastAccessed) {
-	    throw new UnsupportedOperationException("Filesystem is read-only");
-	}
-
-    /**
-	 * @see org.jnode.fs.FSEntry#setLastAccessed(long)
-	 */
 	public void setLastAccessed(long lastAccessed) {
 	    throw new UnsupportedOperationException("Filesystem is read-only");
 	}
