@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import org.jnode.shell.AbstractCommand;
 import org.jnode.shell.syntax.Argument;
 import org.jnode.shell.syntax.ClassNameArgument;
@@ -143,24 +142,28 @@ public class JavaCommand extends AbstractCommand {
             }
         }
 
-        private URL findResource(String name, String[] dirs) 
+        private URL findResource(String name, String[] dirs)
             throws MalformedURLException {
-            for (int i = 0; i < dirs.length; i++) {
-                File d = new File(dirs[i]);
-                if (d.isDirectory()) {
-                    return findResource(name, d.list());
-                } else if (d.getName().equals(name)) {
-                    return d.toURI().toURL();
+        findResource:
+            while (true) {
+                for (int i = 0; i < dirs.length; i++) {
+                    File d = new File(dirs[i]);
+                    if (d.isDirectory()) {
+                        dirs = d.list();
+                        continue findResource;
+                    } else if (d.getName().equals(name)) {
+                        return d.toURI().toURL();
+                    }
                 }
+                return null;
             }
-            return null;
         }
 
         private byte[] loadClassData(String name) throws ClassNotFoundException {
             String fn = name.replace('.', '/');
             File f = null;
-            for (int i = 0; i < dirs.length; i++) {
-                f = new File(dirs[i] + fn + ".class");
+            for (String dir : dirs) {
+                f = new File(dir + fn + ".class");
                 if (f.exists()) {
                     break;
                 }

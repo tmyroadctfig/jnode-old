@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -186,7 +186,7 @@ public class JarBuffer implements JarConstants {
         for (Map.Entry<String, ByteBuffer> entry : jb.entries().entrySet()) {
             final ByteBuffer ebuf = entry.getValue();
             if (ebuf.limit() > 0) {
-                System.out.println(entry.getKey() + " " + ebuf.limit() + " 0x"
+                System.out.println(entry.getKey() + ' ' + ebuf.limit() + " 0x"
                     + NumberUtils.hex(ebuf.getInt(0)));
             }
         }

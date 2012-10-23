@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -46,7 +46,7 @@ public class SelectorMap extends VmSystemObject {
         final String id = InternString.internString(name + '#' + signature);
         final Integer selector = (Integer) map.get(id);
         if (selector != null) {
-            return selector.intValue();
+            return selector;
         } else {
             return getNew(id);
         }
@@ -62,7 +62,7 @@ public class SelectorMap extends VmSystemObject {
     private synchronized int getNew(String id) {
         Integer selector = (Integer) map.get(id);
         if (selector != null) {
-            return selector.intValue();
+            return selector;
         } else {
             final int sel = ++lastSelector;
             map.put(id, sel);

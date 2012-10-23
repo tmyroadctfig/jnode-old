@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,15 @@
  
 package org.jnode.vm.compiler.ir.quad;
 
+import org.jnode.vm.compiler.ir.AddressingMode;
+import org.jnode.vm.compiler.ir.CodeGenerator;
+import org.jnode.vm.compiler.ir.Constant;
+import org.jnode.vm.compiler.ir.IRBasicBlock;
+import org.jnode.vm.compiler.ir.Operand;
+import org.jnode.vm.compiler.ir.RegisterLocation;
+import org.jnode.vm.compiler.ir.StackLocation;
+import org.jnode.vm.compiler.ir.Variable;
+
 import static org.jnode.vm.compiler.ir.AddressingMode.CONSTANT;
 import static org.jnode.vm.compiler.ir.AddressingMode.REGISTER;
 import static org.jnode.vm.compiler.ir.AddressingMode.STACK;
@@ -37,15 +46,6 @@ import static org.jnode.vm.compiler.ir.quad.BinaryOperation.LAND;
 import static org.jnode.vm.compiler.ir.quad.BinaryOperation.LMUL;
 import static org.jnode.vm.compiler.ir.quad.BinaryOperation.LOR;
 import static org.jnode.vm.compiler.ir.quad.BinaryOperation.LXOR;
-
-import org.jnode.vm.compiler.ir.AddressingMode;
-import org.jnode.vm.compiler.ir.CodeGenerator;
-import org.jnode.vm.compiler.ir.Constant;
-import org.jnode.vm.compiler.ir.IRBasicBlock;
-import org.jnode.vm.compiler.ir.Operand;
-import org.jnode.vm.compiler.ir.RegisterLocation;
-import org.jnode.vm.compiler.ir.StackLocation;
-import org.jnode.vm.compiler.ir.Variable;
 
 /**
  * This class represents binary operations of the form:
@@ -174,8 +174,8 @@ public class BinaryQuad<T> extends AssignQuad<T> {
 
     public String toString() {
         return getAddress() + ": " + getLHS().toString() + " = " +
-            refs[0].toString() + " " + operation.getOperation() +
-            " " + refs[1].toString();
+            refs[0].toString() + ' ' + operation.getOperation() +
+            ' ' + refs[1].toString();
     }
 
     /**

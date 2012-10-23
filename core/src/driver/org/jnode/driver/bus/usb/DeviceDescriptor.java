@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -182,7 +182,7 @@ public final class DeviceDescriptor extends AbstractDescriptor {
             ", manu:" + ((manufacturer != null) ? manufacturer : ("%" + getManufacturerStringIndex())) +
             ", prod:" + ((product != null) ? product : ("%" + getProductStringIndex())) +
             ", sernr:" + ((serialNumber != null) ? serialNumber : ("%" + getSerialNumberStringIndex())) +
-            ", #cnf:" + getNumConfigurations() + "]";
+            ", #cnf:" + getNumConfigurations() + ']';
     }
 
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,7 +27,6 @@ import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Map;
-
 import org.jnode.assembler.x86.X86Assembler;
 import org.jnode.assembler.x86.X86BinaryAssembler;
 import org.jnode.assembler.x86.X86Constants;
@@ -263,8 +262,8 @@ public class IRTest {
         System.out.print(" ");
         Variable[] vars = quad.getBasicBlock().getVariables();
         System.out.print("[");
-        for (int j = 0; j < vars.length; j += 1) {
-            System.out.print(vars[j]);
+        for (Variable var : vars) {
+            System.out.print(var);
             System.out.print(",");
         }
         System.out.print("] ");

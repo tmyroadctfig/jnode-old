@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,6 @@
 package org.jnode.net.arp;
 
 import java.net.SocketException;
-
 import org.jnode.net.HardwareAddress;
 import org.jnode.net.NetworkLayerHeader;
 import org.jnode.net.ProtocolAddress;
@@ -34,6 +33,8 @@ import org.jnode.net.ipv4.IPv4Address;
  * @author epr
  */
 public class ARPHeader implements NetworkLayerHeader {
+    
+    private final static int ARP_DATA_LENGTH = 28;
 
     private HardwareAddress srcHWAddress;
     private ProtocolAddress srcPAddress;
@@ -83,7 +84,7 @@ public class ARPHeader implements NetworkLayerHeader {
             targetHWAddress = new EthernetAddress(skbuf, 18);
             targetPAddress = new IPv4Address(skbuf, 24);
         } else {
-            throw new SocketException("Unknown hw,ptype: " + hwtype + "," + ptype);
+            throw new SocketException("Unknown hw,ptype: " + hwtype + ',' + ptype);
         }
     }
 
@@ -142,6 +143,10 @@ public class ARPHeader implements NetworkLayerHeader {
      */
     public ProtocolAddress getDestinationAddress() {
         return targetPAddress;
+    }
+
+    public int getDataLength() {
+        return ARP_DATA_LENGTH;
     }
 
     /**

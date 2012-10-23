@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.fs.hfsplus.catalog;
 
 import org.jnode.fs.hfsplus.HfsUnicodeString;
@@ -60,6 +60,7 @@ public class CatalogKey extends AbstractKey {
         int currentOffset = offset;
         byte[] ck = new byte[2];
         System.arraycopy(src, currentOffset, ck, 0, 2);
+        //TODO Understand why the +2 is necessary
         keyLength = BigEndian.getInt16(ck, 0) + 2;
         currentOffset += 2;
         ck = new byte[4];

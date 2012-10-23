@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +23,6 @@ package org.jnode.plugin;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
 import org.jnode.bootlog.BootLogInstance;
 
 /**
@@ -64,7 +63,7 @@ public class PluginUtils {
             loader = PluginUtils.class.getClassLoader();
         } else {
             // relative name to absolute
-            fullName = parent.getPackage().getName() + "." + bundleName;
+            fullName = parent.getPackage().getName() + '.' + bundleName;
             loader = parent.getClassLoader();
         }
 

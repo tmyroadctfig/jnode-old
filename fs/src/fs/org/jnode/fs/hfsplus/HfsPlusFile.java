@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -33,6 +33,7 @@ public class HfsPlusFile implements FSFile {
     private CatalogFile file;
 
     public HfsPlusFile(HfsPlusEntry entry) {
+        this.entry = entry;
         this.file = new CatalogFile(entry.getData());
         this.entry = entry;
     }
@@ -63,7 +64,6 @@ public class HfsPlusFile implements FSFile {
         // TODO Auto-generated method stub
 
     }
-
 
     @Override
     public boolean isValid() {

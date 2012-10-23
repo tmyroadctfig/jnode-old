@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,7 +22,6 @@ package org.jnode.debugger;
 
 import java.io.PrintStream;
 import java.util.Map;
-
 import org.jnode.driver.input.KeyboardEvent;
 import org.jnode.vm.scheduler.VmThread;
 
@@ -46,7 +45,7 @@ public class ThreadState extends DebugState {
 
     public void print(PrintStream out) {
         final int max = ((ThreadListState) getParent()).size();
-        out.println("[Thread " + index + "/" + max + "]");
+        out.println("[Thread " + index + '/' + max + ']');
         showThread(out, thread);
     }
 

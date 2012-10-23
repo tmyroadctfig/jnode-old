@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,9 +22,7 @@ package org.jnode.driver.net.spi;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
-
 import javax.naming.NameNotFoundException;
-
 import org.apache.log4j.Logger;
 import org.jnode.driver.Device;
 import org.jnode.driver.DeviceAlreadyRegisteredException;
@@ -101,9 +99,9 @@ public abstract class AbstractNetDriver extends Driver
             if (renameToDevicePrefixOnly()) {
                 dm.rename(device, getDevicePrefix(), true);
             } else {
-                final String prefix = getDevicePrefix() + "-";
+                final String prefix = getDevicePrefix() + '-';
                 if (!device.getId().startsWith(prefix)) {
-                    dm.rename(device, getDevicePrefix() + "-" + device.getId(), false);
+                    dm.rename(device, getDevicePrefix() + '-' + device.getId(), false);
                 }
             }
         } catch (DeviceAlreadyRegisteredException ex) {
@@ -263,7 +261,7 @@ public abstract class AbstractNetDriver extends Driver
         if (!protocolAddresses.isEmpty()) {
             out.println("Protocol addresses:");
             for (int protId : protocolAddresses.keySet()) {
-                out.println("    0x" + NumberUtils.hex(protId, 4) + " "
+                out.println("    0x" + NumberUtils.hex(protId, 4) + ' '
                         + getProtocolAddressInfo(protId));
             }
         }

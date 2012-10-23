@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jnode.driver.console.Console;
 import org.jnode.driver.console.KeyEventBindings;
 import org.jnode.driver.console.TextConsole;
@@ -37,8 +36,8 @@ import org.jnode.driver.console.VirtualKey;
 import org.jnode.driver.console.textscreen.ConsoleKeyEventBindings;
 import org.jnode.driver.console.textscreen.KeyboardReaderAction;
 import org.jnode.shell.AbstractCommand;
-import org.jnode.shell.ShellUtils;
 import org.jnode.shell.CommandLine.Token;
+import org.jnode.shell.ShellUtils;
 import org.jnode.shell.syntax.Argument;
 import org.jnode.shell.syntax.CommandSyntaxException;
 import org.jnode.shell.syntax.EnumArgument;
@@ -84,7 +83,7 @@ public class BindKeysCommand extends AbstractCommand {
                     field.getName().startsWith("VK_")) {
                 try {
                     Integer vk = (Integer) field.get(null);
-                    String name = constCase(KeyEvent.getKeyText(vk.intValue()));
+                    String name = constCase(KeyEvent.getKeyText(vk));
                     VK_NAME_MAP.put(name, vk);
                     VK_MAP.put(vk, name);
                 } catch (IllegalAccessException ex) {
@@ -432,7 +431,11 @@ public class BindKeysCommand extends AbstractCommand {
         } else if (ch < '\177') {
             sb.append('\'').append(ch).append('\'');
         } else {
-            sb.append('\'').append(ch).append("' (0x" + Integer.toHexString(ch)).append(')');
+            sb.append('\'');
+            sb.append(ch);
+            sb.append("' (0x");
+            sb.append(Integer.toHexString(ch));
+            sb.append(')');
         }
         return sb.toString();
     }

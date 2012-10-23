@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,6 @@
 package org.jnode.net.ipv4.udp;
 
 import gnu.java.net.PlainDatagramSocketImpl;
-
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.DatagramSocketImplFactory;
@@ -33,7 +32,6 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Random;
-
 import org.apache.log4j.Logger;
 import org.jnode.driver.net.NetworkException;
 import org.jnode.net.SocketBuffer;
@@ -84,7 +82,7 @@ public class UDPProtocol implements IPv4Protocol, IPv4Constants {
     /**
      * for random listener ports
      */
-    private final Integer zero = Integer.valueOf(0);
+    private final Integer zero = 0;
     private final Random random = new Random();
 
     private final int startRandom = 1024;
@@ -199,7 +197,7 @@ public class UDPProtocol implements IPv4Protocol, IPv4Constants {
      * @param skbuf
      */
     private synchronized void deliver(UDPHeader hdr, SocketBuffer skbuf) throws SocketException {
-        final Integer lport = Integer.valueOf(hdr.getDstPort());
+        final Integer lport = hdr.getDstPort();
         final IPv4Header ipHdr = (IPv4Header) skbuf.getNetworkLayerHeader();
         final UDPDatagramSocketImpl socket = (UDPDatagramSocketImpl) sockets.get(lport);
         if (socket != null) {
@@ -224,20 +222,20 @@ public class UDPProtocol implements IPv4Protocol, IPv4Constants {
      * @param socket
      */
     protected synchronized void bind(UDPDatagramSocketImpl socket) throws SocketException {
-        Integer lport = new Integer(socket.getLocalPort());
+        Integer lport = socket.getLocalPort();
 
         if (lport.compareTo(zero) != 0 && sockets.containsKey(lport)) {
-            throw new SocketException("Port already bound (" + lport + ")");
+            throw new SocketException("Port already bound (" + lport + ')');
         } else {
             Integer ran;
 
             while (lport.compareTo(zero) == 0) {
-                ran = Integer.valueOf(random.nextInt(stopRandom) + startRandom);
+                ran = random.nextInt(stopRandom) + startRandom;
 
                 if (!sockets.containsKey(ran)) {
                     // Should we have one stop condition more??
                     lport = ran;
-                    socket.setLocalPort(lport.intValue());
+                    socket.setLocalPort(lport);
                 }
             }
 
@@ -251,7 +249,7 @@ public class UDPProtocol implements IPv4Protocol, IPv4Constants {
      * @param socket
      */
     protected synchronized void unbind(UDPDatagramSocketImpl socket) {
-        final Integer lport = Integer.valueOf(socket.getLocalPort());
+        final Integer lport = socket.getLocalPort();
         if (sockets.get(lport) == socket) {
             sockets.remove(lport);
         }

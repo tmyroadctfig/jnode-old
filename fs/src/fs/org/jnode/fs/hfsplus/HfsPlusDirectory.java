@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.fs.hfsplus;
 
 import java.io.FileNotFoundException;
@@ -35,6 +35,7 @@ import org.jnode.fs.hfsplus.catalog.Catalog;
 import org.jnode.fs.hfsplus.catalog.CatalogFile;
 import org.jnode.fs.hfsplus.catalog.CatalogFolder;
 import org.jnode.fs.hfsplus.catalog.CatalogKey;
+import org.jnode.fs.hfsplus.catalog.CatalogLeafNode;
 import org.jnode.fs.hfsplus.catalog.CatalogNodeId;
 import org.jnode.fs.hfsplus.tree.LeafRecord;
 import org.jnode.fs.spi.FSEntryTable;
@@ -60,23 +61,21 @@ public class HfsPlusDirectory implements FSDirectory {
 
     @Override
     public FSEntry addDirectory(String name) throws IOException {
-        log.debug("<<< BEGIN addDirectory " + name + " >>>");
         if (getFileSystem().isReadOnly()) {
             throw new ReadOnlyFileSystemException();
         }
 
         if (getEntry(name) != null) {
-            throw new IOException("File or Directory already exists" + name);
+            throw new IOException("File or Directory already exists : " + name);
         }
         FSEntry newEntry = createDirectoryEntry(name);
         setFreeEntry(newEntry);
-        log.debug("<<< END addDirectory " + name + " >>>");
+        log.debug("Directory " + name + " added");
         return newEntry;
     }
 
     @Override
     public FSEntry addFile(String name) throws IOException {
-        log.debug("<<< BEGIN addFile " + name + " >>>");
         if (getFileSystem().isReadOnly()) {
             throw new ReadOnlyFileSystemException();
         }
@@ -86,7 +85,6 @@ public class HfsPlusDirectory implements FSDirectory {
         FSEntry newEntry = createFileEntry(name);
         setFreeEntry(newEntry);
 
-        log.debug("<<< END addFile " + name + " >>>");
         return newEntry;
     }
 
@@ -111,7 +109,6 @@ public class HfsPlusDirectory implements FSDirectory {
 
     @Override
     public void flush() throws IOException {
-        log.debug("<<< BEGIN flush >>>");
         if (getFileSystem().isReadOnly()) {
             throw new ReadOnlyFileSystemException();
         }
@@ -121,7 +118,7 @@ public class HfsPlusDirectory implements FSDirectory {
             // entries.resetDirty();
             entry.resetDirty();
         }
-        log.debug("<<< END flush >>>");
+        log.debug("Directory flushed.");
     }
 
     @Override
@@ -181,7 +178,6 @@ public class HfsPlusDirectory implements FSDirectory {
                 entries = FSEntryTable.EMPTY_TABLE;
             }
         }
-        log.debug("<<< END checkEntriesLoaded >>>");
     }
 
     /**
@@ -231,16 +227,17 @@ public class HfsPlusDirectory implements FSDirectory {
         }
         Catalog catalog = ((HfsPlusFileSystem) getFileSystem()).getCatalog();
         SuperBlock volumeHeader = ((HfsPlusFileSystem) getFileSystem()).getVolumeHeader();
-        LeafRecord folderRecord =
+        CatalogLeafNode node =
                 catalog.createNode(name, this.folder.getFolderId(),
                         new CatalogNodeId(volumeHeader.getNextCatalogId()),
                         CatalogFolder.RECORD_TYPE_FOLDER_THREAD);
-        folder.setValence(folder.getValence() + 1);
+        folder.incrementValence();
 
-        HfsPlusEntry newEntry = new HfsPlusEntry((HfsPlusFileSystem) getFileSystem(), this, name, folderRecord);
+        HfsPlusEntry newEntry = new HfsPlusEntry((HfsPlusFileSystem) getFileSystem(), this, name, node.getNodeRecord(0));
         newEntry.setDirty();
-        volumeHeader.setFolderCount(volumeHeader.getFolderCount() + 1);
+        volumeHeader.incrementFolderCount();
         log.debug("New volume header :\n" + volumeHeader.toString());
+        volumeHeader.update();
 
         return newEntry;
     }

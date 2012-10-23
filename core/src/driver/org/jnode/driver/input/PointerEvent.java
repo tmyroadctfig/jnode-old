@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -107,9 +107,9 @@ public class PointerEvent extends SystemEvent {
         String btn = ((getButtons() & BUTTON_LEFT) != 0 ? "L" : "l") +
             ((getButtons() & BUTTON_MIDDLE) != 0 ? "M" : "m") + ((getButtons() & BUTTON_RIGHT) != 0 ? "R" : "r");
 
-        String pos = x + " " + y + " " + z + (absolute ? " ABS" : " REL");
+        String pos = x + " " + y + ' ' + z + (absolute ? " ABS" : " REL");
 
-        return "{" + btn + "}" + pos;
+        return '{' + btn + '}' + pos;
     }
 
     /**

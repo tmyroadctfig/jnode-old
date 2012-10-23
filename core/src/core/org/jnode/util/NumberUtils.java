@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -254,7 +254,7 @@ public class NumberUtils {
      * @return the text for of the size
      */
     public static String toDecimalByte(long v, int nbDecimals) {
-        return DecimalScaleFactor.apply(v, nbDecimals) + "B";
+        return DecimalScaleFactor.apply(v, nbDecimals) + 'B';
     }
 
     /**
@@ -265,7 +265,7 @@ public class NumberUtils {
      * @return the text for of the size
      */
     public static String toBinaryByte(long v, int nbDecimals) {
-        return BinaryScaleFactor.apply(v, nbDecimals) + "B";
+        return BinaryScaleFactor.apply(v, nbDecimals) + 'B';
     }
 
     /**
@@ -284,7 +284,7 @@ public class NumberUtils {
      * @return the numeric value of the size
      */
     public static long getSize(String size) {
-        if ((size == null) || size.trim().equals(""))
+        if ((size == null) || size.trim().isEmpty())
             return 0;
 
         size = size.trim();
@@ -299,7 +299,7 @@ public class NumberUtils {
     }
 
     public static SizeUnit getSizeUnit(String size) {
-        if ((size == null) || size.trim().equals(""))
+        if ((size == null) || size.trim().isEmpty())
             return null;
 
         size = size.trim();

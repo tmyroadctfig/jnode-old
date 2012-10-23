@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -64,17 +64,15 @@ public class EEPRO100TxFD {
         this.mem = rm.asMemoryResource(data);
 
         final Address memAddr = mem.getAddress();
-        // int addr = Address.as32bit(memAddr);
-        int offset = 0;
 
-        this.firstDPDOffset = offset;
+        this.firstDPDOffset = 0;
         this.firstDPDAddress = memAddr.add(firstDPDOffset);
     }
 
     /**
      * Initialize this ring to its default (empty) state
      */
-    public void initialize(SocketBuffer src) throws IllegalArgumentException {
+    public void initialize(SocketBuffer src) {
         // Setup the DPD
 
         // Copy the data from the buffer
@@ -153,19 +151,19 @@ public class EEPRO100TxFD {
     }
 
     public String toString() {
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         str.append("Status  : ");
         str.append(NumberUtils.hex(this.getStatus()));
-        str.append("\n");
+        str.append('\n');
         str.append("Command : ");
         str.append(NumberUtils.hex(this.getCommand()));
-        str.append("\n");
+        str.append('\n');
         str.append("Link    : ");
         str.append(NumberUtils.hex(this.getLink()));
-        str.append("\n");
+        str.append('\n');
         str.append("Count   : ");
         str.append(NumberUtils.hex(this.getCount()));
-        str.append("\n");
+        str.append('\n');
         return str.toString();
     }
 }

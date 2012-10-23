@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,7 +22,6 @@ package org.jnode.vm.compiler.ir;
 
 import java.util.Iterator;
 import java.util.List;
-
 import org.jnode.util.ObjectArrayIterator;
 import org.jnode.vm.bytecode.BytecodeParser;
 import org.jnode.vm.classmgr.VmByteCode;
@@ -251,8 +250,7 @@ public class IRControlFlowGraph<T> implements Iterable<IRBasicBlock<T>> {
 
     public void deconstrucSSA() {
         final List<PhiAssignQuad<T>> phiQuads = new BootableArrayList<PhiAssignQuad<T>>();
-        for (int i = 0; i < bblocks.length; i += 1) {
-            IRBasicBlock<T> b = bblocks[i];
+        for (IRBasicBlock<T> b : bblocks) {
             for (Quad<T> q : b.getQuads()) {
                 if (q instanceof PhiAssignQuad) {
                     phiQuads.add((PhiAssignQuad<T>) q);
@@ -262,8 +260,7 @@ public class IRControlFlowGraph<T> implements Iterable<IRBasicBlock<T>> {
             }
         }
         int n = phiQuads.size();
-        for (int i = 0; i < n; i += 1) {
-            PhiAssignQuad<T> paq = phiQuads.get(i);
+        for (PhiAssignQuad<T> paq : phiQuads) {
             Variable<T> lhs = paq.getLHS();
             IRBasicBlock<T> firstBlock = null;
             VariableRefAssignQuad<T> firstPhiMove = null;
@@ -412,9 +409,9 @@ public class IRControlFlowGraph<T> implements Iterable<IRBasicBlock<T>> {
             sb.append(bb.toString());
             sb.append(":\n  predecessors:");
             final List<IRBasicBlock<T>> pred = bb.getPredecessors();
-            for (int i = 0; i < pred.size(); i += 1) {
+            for (IRBasicBlock<T> aPred : pred) {
                 sb.append("\n    ");
-                sb.append(pred.get(i).toString());
+                sb.append(aPred.toString());
             }
             sb.append("\n  successors:");
             for (IRBasicBlock<T> succ : bb.getSuccessors()) {
@@ -425,7 +422,7 @@ public class IRControlFlowGraph<T> implements Iterable<IRBasicBlock<T>> {
             sb.append(bb.getIDominator());
             sb.append("\n  DF:");
             for (IRBasicBlock<T> dfb : bb.getDominanceFrontier()) {
-                sb.append(" ");
+                sb.append(' ');
                 sb.append(dfb);
             }
             sb.append("\n\n");

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -238,8 +238,8 @@ public abstract class VmStackReader extends VmSystemObject {
             Unsafe.debug("Debug stacktrace:<no stack trace>\n");
         } else {
             Unsafe.debug("Debug stacktrace: ");
-            for (int i = 0; i < frames.length; i++) {
-                final VmStackFrame s = (VmStackFrame) frames[i];
+            for (VmStackFrame frame : frames) {
+                final VmStackFrame s = (VmStackFrame) frame;
                 Unsafe.debug(s.getMethod().getDeclaringClass().getName());
                 Unsafe.debug("::");
                 Unsafe.debug(s.getMethod().getName());

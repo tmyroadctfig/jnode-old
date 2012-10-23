@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,9 +22,7 @@ package org.jnode.driver.net._3c90x;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
 import javax.naming.NameNotFoundException;
-
 import org.jnode.driver.Device;
 import org.jnode.driver.DriverException;
 import org.jnode.driver.bus.pci.PCIBaseAddress;
@@ -453,7 +451,7 @@ public class _3c90xCore extends AbstractDeviceCore implements _3c90xConstants, I
      * @param device
      * @param flags
      */
-    protected int getIOBase(Device device, _3c90xFlags flags) throws DriverException {
+    protected final int getIOBase(Device device, _3c90xFlags flags) throws DriverException {
         final PCIHeaderType0 config = ((PCIDevice) device).getConfig().asHeaderType0();
         final PCIBaseAddress[] addrs = config.getBaseAddresses();
         if (addrs.length < 1) {

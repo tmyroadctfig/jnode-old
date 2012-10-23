@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -196,7 +196,7 @@ public class SocketBuffer {
                 next.pull(count);
             } else {
                 throw new IllegalArgumentException("Cannot pull " + count + " bytes (" + start +
-                        "," + size + ")");
+                    ',' + size + ')');
             }
         } else {
             start += count;
@@ -227,7 +227,7 @@ public class SocketBuffer {
                 next.unpull(remaining);
             } else {
                 throw new IllegalArgumentException("Cannot unpull " + count + " bytes (" + start +
-                        "," + size + ")");
+                    ',' + size + ')');
             }
         }
         testBuffer();
@@ -624,7 +624,7 @@ public class SocketBuffer {
             }
             if (start + size > data.length) {
                 throw new RuntimeException("start(" + start + ")+size(" + size +
-                        ") must be <= data.length(" + data.length + ")");
+                        ") must be <= data.length(" + data.length + ')');
             }
         }
     }

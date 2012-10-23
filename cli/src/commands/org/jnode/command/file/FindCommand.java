@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jnode.command.util.AbstractDirectoryWalker;
 import org.jnode.shell.AbstractCommand;
 import org.jnode.shell.syntax.Argument;
@@ -47,7 +46,7 @@ public class FindCommand extends AbstractCommand {
 
         @Override
         protected void handleRestrictedFile(File file) throws IOException {
-            err.println("Permission denied for \"" + file + "\"");
+            err.println("Permission denied for \"" + file + '"');
         }
 
         @Override

@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -127,10 +127,10 @@ public class UsbBluetoothDriver extends Driver implements USBPipeListener, UsbNe
     public void requestCompleted(USBRequest request) {
         // log.debug("Bluetooth Completed");
         final byte[] data = intData.getData();
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("Data received : ");
-        for (int i = 0; i < data.length; i++) {
-            buffer.append(NumberUtils.hex(data[0], 2)).append(" ");
+        for (byte aData : data) {
+            buffer.append(NumberUtils.hex(data[0], 2)).append(' ');
         }
         log.debug(buffer.toString());
     }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -246,7 +246,7 @@ public class TCPProtocol implements IPv4Protocol, IPv4Constants, TCPConstants {
         throws SocketException {
         if (DEBUG) {
             if (log.isDebugEnabled()) {
-                log.debug("send(ipHdr, " + tcpHdr + ")");
+                log.debug("send(ipHdr, " + tcpHdr + ')');
             }
         }
         skbuf.setTransportLayerHeader(tcpHdr);

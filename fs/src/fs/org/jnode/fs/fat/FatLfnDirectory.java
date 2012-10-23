@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,10 +23,10 @@ package org.jnode.fs.fat;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
-
 import org.jnode.fs.FSEntry;
 import org.jnode.fs.ReadOnlyFileSystemException;
 
@@ -171,9 +171,7 @@ public class FatLfnDirectory extends FatDirectory {
 
         for (LfnEntry currentEntry : shortNameIndex.values()) {
             FatBasicDirEntry[] encoded = currentEntry.compactForm();
-            for (int i = 0; i < encoded.length; i++) {
-                destination.add(encoded[i]);
-            }
+            Collections.addAll(destination, encoded);
         }
 
         final int size = destination.size();

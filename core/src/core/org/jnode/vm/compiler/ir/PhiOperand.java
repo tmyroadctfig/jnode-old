@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,6 @@
 package org.jnode.vm.compiler.ir;
 
 import java.util.List;
-
 import org.jnode.vm.objects.BootableArrayList;
 
 /**
@@ -62,10 +61,10 @@ public class PhiOperand<T> extends Operand<T> {
         for (int i = 0; i < n; i += 1) {
             sb.append(sources.get(i).toString());
             if (i < n - 1) {
-                sb.append(",");
+                sb.append(',');
             }
         }
-        sb.append(")");
+        sb.append(')');
         return sb.toString();
     }
 

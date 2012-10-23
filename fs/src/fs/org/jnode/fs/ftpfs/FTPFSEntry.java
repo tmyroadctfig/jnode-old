@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,12 +20,10 @@
  
 package org.jnode.fs.ftpfs;
 
-import org.jnode.fs.FSEntry;
-import org.jnode.fs.FSAccessRights;
-
-import java.io.IOException;
-
 import com.enterprisedt.net.ftp.FTPFile;
+import java.io.IOException;
+import org.jnode.fs.FSAccessRights;
+import org.jnode.fs.FSEntry;
 
 /**
  * @author Levente S\u00e1ntha

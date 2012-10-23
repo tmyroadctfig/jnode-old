@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,7 +24,6 @@ import java.io.UTFDataFormatException;
 import java.lang.annotation.Annotation;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
-
 import org.jnode.annotation.AllowedPackages;
 import org.jnode.annotation.CheckPermission;
 import org.jnode.annotation.DoPrivileged;
@@ -44,7 +43,6 @@ import org.jnode.vm.JvmType;
 import org.jnode.vm.facade.VmUtils;
 import org.vmmagic.pragma.PragmaException;
 import org.vmmagic.pragma.UninterruptiblePragma;
-
 import sun.reflect.annotation.AnnotationParser;
 import sun.reflect.annotation.ExceptionProxy;
 
@@ -243,7 +241,7 @@ public final class ClassDecoder {
         final int maj_version = data.getChar();
 
         if (false) {
-            BootLogInstance.get().debug("Class file version " + maj_version + ";"
+            BootLogInstance.get().debug("Class file version " + maj_version + ';'
                 + min_version);
         }
 
@@ -505,7 +503,7 @@ public final class ClassDecoder {
 
         String signature = method.getSignature();
         if (!method.isStatic()) {
-            signature = "(" + Signature.toSignature(method.getDeclaringClass()) + signature.substring(1);
+            signature = '(' + Signature.toSignature(method.getDeclaringClass()) + signature.substring(1);
         }
 
         final VmMethod nativeMethod = nativeType.getNativeMethodReplacement(method.getName(), signature);
@@ -1243,7 +1241,7 @@ public final class ClassDecoder {
 
                     if (defo instanceof ExceptionProxy)
                         throw new RuntimeException("Error parsing annotation parameter value (annotation= " +
-                            annType.getName() + ", parameter=" + mts.getName() + ")");
+                            annType.getName() + ", parameter=" + mts.getName() + ')');
 
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -1273,9 +1271,9 @@ public final class ClassDecoder {
         final int tag = data.get() & 0xFF;
         switch (tag) {
             case 'B':
-                return Byte.valueOf((byte) cp.getInt(data.getChar()));
+                return (byte) cp.getInt(data.getChar());
             case 'C':
-                return Character.valueOf((char) cp.getInt(data.getChar()));
+                return (char) cp.getInt(data.getChar());
             case 'D':
                 return cp.getDouble(data.getChar());
             case 'F':
@@ -1285,9 +1283,9 @@ public final class ClassDecoder {
             case 'J':
                 return cp.getLong(data.getChar());
             case 'S':
-                return Short.valueOf((short) cp.getInt(data.getChar()));
+                return (short) cp.getInt(data.getChar());
             case 'Z':
-                return Boolean.valueOf(cp.getInt(data.getChar()) != 0);
+                return cp.getInt(data.getChar()) != 0;
             case 's':
                 return cp.getAny(data.getChar());
             case 'e': // enum
@@ -1314,7 +1312,7 @@ public final class ClassDecoder {
             }
             default:
                 throw new ClassFormatError("Unknown element_value tag '"
-                    + (char) tag + "'");
+                    + (char) tag + '\'');
         }
     }
 
@@ -1358,7 +1356,7 @@ public final class ClassDecoder {
             }
             default:
                 throw new ClassFormatError("Unknown element_value tag '"
-                    + (char) tag + "'");
+                    + (char) tag + '\'');
         }
     }
 
@@ -1436,7 +1434,7 @@ public final class ClassDecoder {
         private String[] allowedPackages;
 
         public PragmaAnnotation(Class<? extends Annotation> cls, char flags) {
-            this.typeDescr = "L" + cls.getName().replace('.', '/') + ";";
+            this.typeDescr = 'L' + cls.getName().replace('.', '/') + ';';
             this.flags = flags;
         }
 

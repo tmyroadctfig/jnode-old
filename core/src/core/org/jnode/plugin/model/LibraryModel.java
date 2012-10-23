@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,6 @@
 package org.jnode.plugin.model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import org.jnode.nanoxml.XMLElement;
 import org.jnode.plugin.Library;
 import org.jnode.plugin.PluginException;
@@ -44,8 +43,7 @@ final class LibraryModel extends PluginModelObject implements Library {
         type = getAttribute(e, "type", false);
 
         final ArrayList<String> list = new ArrayList<String>();
-        for (Iterator<?> i = e.getChildren().iterator(); i.hasNext();) {
-            final XMLElement exE = (XMLElement) i.next();
+        for (final XMLElement exE : e.getChildren()) {
             if (exE.getName().equals("export")) {
                 list.add(getAttribute(exE, "name", true));
             }

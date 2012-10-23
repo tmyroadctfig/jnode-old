@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,7 +27,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import org.jnode.net.nfs.Protocol;
 import org.jnode.net.nfs.nfs2.CreateFileResult;
 import org.jnode.net.nfs.nfs2.FileAttribute;
@@ -82,8 +81,7 @@ public class NFS2OutputStream extends OutputStream {
         }
 
         ExportEntry exportEntry = null;
-        for (int i = 0; i < exportList.size(); i++) {
-            ExportEntry e = exportList.get(i);
+        for (ExportEntry e : exportList) {
             if (path.startsWith(e.getDirectory())) {
                 if (exportEntry == null) {
                     exportEntry = e;
@@ -119,7 +117,7 @@ public class NFS2OutputStream extends OutputStream {
                 String t = tokenList.get(i);
                 LookupResult lookup = nfsClient.lookup(tempFileHandle, t);
                 if (lookup.getFileAttribute().getType() == FileAttribute.FILE) {
-                    throw new IOException("The path contains a file : " + t + ".");
+                    throw new IOException("The path contains a file : " + t + '.');
                 } else if (lookup.getFileAttribute().getType() == FileAttribute.DIRECTORY) {
                     tempFileHandle = lookup.getFileHandle();
                 } else {

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -31,10 +31,8 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.jnode.nanoxml.XMLElement;
-
 import org.apache.log4j.Logger;
+import org.jnode.nanoxml.XMLElement;
 import org.jnode.net.ipv4.IPv4Address;
 
 /**
@@ -83,11 +81,11 @@ public class BOOTPServer {
             XMLElement xml = new XMLElement();
             xml.parseFromReader(reader);
             List<XMLElement> children = xml.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                XMLElement child = (XMLElement) children.get(i);
+            for (XMLElement aChildren : children) {
+                XMLElement child = (XMLElement) aChildren;
                 try {
                     table.put(child.getStringAttribute("ethernetAddress").toUpperCase(),
-                            new TableEntry(child));
+                        new TableEntry(child));
                 } catch (IllegalArgumentException ex) {
                     log.debug("Invalid IP address", ex);
                 }
@@ -121,7 +119,7 @@ public class BOOTPServer {
     }
 
     private void processRequest(DatagramPacket packet) throws IOException {
-        log.debug("Received packet: " + packet.getAddress() + ":" + packet.getPort() + " " +
+        log.debug("Received packet: " + packet.getAddress() + ':' + packet.getPort() + ' ' +
                 new String(packet.getData(), packet.getOffset(), packet.getLength()));
         BOOTPHeader hdr = new BOOTPHeader(packet);
         if (hdr.getOpcode() != BOOTPHeader.BOOTREQUEST) {

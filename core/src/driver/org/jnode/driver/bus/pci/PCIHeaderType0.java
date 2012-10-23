@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -76,9 +76,7 @@ public final class PCIHeaderType0 extends PCIDeviceConfig {
         }
         if (idx < 6) {
             PCIBaseAddress[] result = new PCIBaseAddress[idx];
-            for (int i = 0; i < idx; i++) {
-                result[i] = addresses[i];
-            }
+            System.arraycopy(addresses, 0, result, 0, idx);
             return result;
         } else {
             return addresses;

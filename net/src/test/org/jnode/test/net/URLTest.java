@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,7 +34,7 @@ public class URLTest {
         final InputStream is = url.openConnection().getInputStream();
         try {
             int ch;
-            final StringBuffer buf = new StringBuffer();
+            final StringBuilder buf = new StringBuilder();
             while ((ch = is.read()) >= 0) {
                 buf.append((char) ch);
             }

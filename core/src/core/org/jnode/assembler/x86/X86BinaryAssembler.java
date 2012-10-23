@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,15 +17,8 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.assembler.x86;
-
-import static org.jnode.assembler.x86.X86Register.CS;
-import static org.jnode.assembler.x86.X86Register.DS;
-import static org.jnode.assembler.x86.X86Register.ES;
-import static org.jnode.assembler.x86.X86Register.FS;
-import static org.jnode.assembler.x86.X86Register.GS;
-import static org.jnode.assembler.x86.X86Register.SS;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,7 +26,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-
 import org.jnode.assembler.BootImageNativeStream;
 import org.jnode.assembler.Label;
 import org.jnode.assembler.NativeStream;
@@ -51,6 +43,13 @@ import org.jnode.vm.classmgr.ObjectLayout;
 import org.jnode.vm.classmgr.VmClassType;
 import org.jnode.vm.classmgr.VmType;
 import org.jnode.vm.x86.X86CpuID;
+
+import static org.jnode.assembler.x86.X86Register.CS;
+import static org.jnode.assembler.x86.X86Register.DS;
+import static org.jnode.assembler.x86.X86Register.ES;
+import static org.jnode.assembler.x86.X86Register.FS;
+import static org.jnode.assembler.x86.X86Register.GS;
+import static org.jnode.assembler.x86.X86Register.SS;
 
 /**
  * Implementation of AbstractX86Stream.
@@ -247,12 +246,12 @@ public class X86BinaryAssembler extends X86Assembler implements X86Constants,
          */
         public void setOffset(int offset) {
             if (this.dataOffset != -1) {
-                if ("".equals(getObject().toString())) {
+                if (getObject().toString().isEmpty()) {
                     return;
                 }
                 throw new RuntimeException(
                     "Offset is already set. Duplicate labels? ("
-                        + getObject() + ")");
+                        + getObject() + ')');
             }
             if (offset < 0) {
                 throw new IllegalArgumentException("Offset: " + offset);
@@ -292,7 +291,7 @@ public class X86BinaryAssembler extends X86Assembler implements X86Constants,
 //            System.out.println("offset " + offset);
             final int distance = offset - addr - 1; //get8(addr);
             if (!X86Utils.isByte(distance)) {
-                throw new IllegalArgumentException("Jump out of byte-range (" + distance + ")");
+                throw new IllegalArgumentException("Jump out of byte-range (" + distance + ')');
             }
             if (isRelJump() && (distance == 0)) {
                 // JMP
@@ -2219,7 +2218,7 @@ public class X86BinaryAssembler extends X86Assembler implements X86Constants,
                     write8(distance);
                 } else {
                     throw new UnresolvedObjectRefException("Label " + label
-                        + " is out of range (distance " + distance + ")");
+                        + " is out of range (distance " + distance + ')');
                 }
             } catch (UnresolvedObjectRefException x) {
                 throw new RuntimeException(x);
@@ -2478,7 +2477,7 @@ public class X86BinaryAssembler extends X86Assembler implements X86Constants,
                 write8(distance);
             } else {
                 throw new UnresolvedObjectRefException("Label " + label
-                    + " is out of range (distance " + distance + ")");
+                    + " is out of range (distance " + distance + ')');
             }
         } else {
             throw new UnresolvedObjectRefException("Label " + label

@@ -1,7 +1,7 @@
 /*
- * $Id: BasicBlockFinder.java 5709 2010-01-03 11:46:38Z lsantha $
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,11 +17,10 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.vm.bytecode;
 
 import java.util.TreeMap;
-
 import org.jnode.bootlog.BootLogInstance;
 import org.jnode.vm.JvmType;
 import org.jnode.vm.classmgr.VmByteCode;
@@ -334,9 +333,9 @@ public class DeadBlockFinder extends BytecodeVisitorSupport implements BytecodeF
      * @see BytecodeVisitor#visit_tableswitch(int, int, int, int[])
      */
     public void visit_tableswitch(int defValue, int lowValue, int highValue, int[] addresses) {
-        for (int i = 0; i < addresses.length; i++) {
-            addBranch(addresses[i], true);
-            condYieldPoint(addresses[i]);
+        for (int address : addresses) {
+            addBranch(address, true);
+            condYieldPoint(address);
         }
         addBranch(defValue, false);
         condYieldPoint(defValue);
@@ -349,9 +348,9 @@ public class DeadBlockFinder extends BytecodeVisitorSupport implements BytecodeF
      * @see BytecodeVisitor#visit_lookupswitch(int, int[], int[])
      */
     public void visit_lookupswitch(int defValue, int[] matchValues, int[] addresses) {
-        for (int i = 0; i < addresses.length; i++) {
-            addBranch(addresses[i], true);
-            condYieldPoint(addresses[i]);
+        for (int address : addresses) {
+            addBranch(address, true);
+            condYieldPoint(address);
         }
         addBranch(defValue, false);
         condYieldPoint(defValue);

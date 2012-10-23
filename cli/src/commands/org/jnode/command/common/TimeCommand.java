@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -63,7 +63,7 @@ public class TimeCommand extends AbstractCommand {
 
         StringBuilder sb = new StringBuilder(Alias.getValue());
         for (String arg : Args.getValues()) {
-            sb.append(" ");
+            sb.append(' ');
             sb.append(arg);
         }
         

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +23,6 @@ package org.jnode.vm.classmgr;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-
 import org.jnode.annotation.MagicPermission;
 import org.jnode.vm.InternString;
 import org.jnode.vm.LoadCompileService;
@@ -255,7 +254,7 @@ public abstract class VmMethod extends VmMember implements VmSharedStaticsEntry 
     public final String getMangledName() {
         if (mangledName == null) {
             mangledName = InternString.internString(declaringClass.getMangledName()
-                + Mangler.mangle("#" + getName() + '.' + getSignature()));
+                + Mangler.mangle('#' + getName() + '.' + getSignature()));
         }
         return mangledName;
     }

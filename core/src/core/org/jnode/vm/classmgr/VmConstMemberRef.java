@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -102,7 +102,7 @@ abstract class VmConstMemberRef extends VmResolvableConstObject {
     public final String toString() {
         String type = getClass().getName();
         type = type.substring(type.lastIndexOf('.') + 1 + 2);
-        return type + ": " + getClassName() + "." + getName() + " [" + getSignature() + "]";
+        return type + ": " + getClassName() + '.' + getName() + " [" + getSignature() + ']';
     }
 
     /**

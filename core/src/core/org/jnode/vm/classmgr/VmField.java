@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,6 @@
 package org.jnode.vm.classmgr;
 
 import java.lang.reflect.Field;
-
 import org.jnode.vm.isolate.VmIsolateLocal;
 
 public abstract class VmField extends VmMember {
@@ -157,7 +156,7 @@ public abstract class VmField extends VmMember {
 
     public String getMangledName() {
         return Mangler.mangleClassName(declaringClass.getName())
-            + Mangler.mangle("." + getName() + '.' + getSignature());
+            + Mangler.mangle('.' + getName() + '.' + getSignature());
     }
 
     /**

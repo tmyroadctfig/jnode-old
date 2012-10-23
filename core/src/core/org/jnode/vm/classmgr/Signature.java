@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,9 +21,8 @@
 package org.jnode.vm.classmgr;
 
 import java.util.ArrayList;
-
-import org.jnode.vm.JvmType;
 import org.jnode.vm.InternString;
+import org.jnode.vm.JvmType;
 import org.jnode.vm.facade.TypeSizeInfo;
 
 /**
@@ -293,7 +292,7 @@ public class Signature {
         }
 
         if (cls.isArray()) {
-            return "[" + toSignature(cls.getComponentType());
+            return '[' + toSignature(cls.getComponentType());
         } else if (cls.isPrimitive()) {
             if (cls == Boolean.TYPE) {
                 return "Z";
@@ -316,7 +315,7 @@ public class Signature {
             }
             return cls.getName();
         } else {
-            return "L" + cls.getName().replace('.', '/') + ";";
+            return 'L' + cls.getName().replace('.', '/') + ';';
         }
     }
 
@@ -331,8 +330,8 @@ public class Signature {
         StringBuilder b = new StringBuilder();
         b.append('(');
         if (argTypes != null) {
-            for (int i = 0; i < argTypes.length; i++) {
-                b.append(toSignature(argTypes[i]));
+            for (Class argType : argTypes) {
+                b.append(toSignature(argType));
             }
         }
         b.append(')');
@@ -356,7 +355,7 @@ public class Signature {
         }
 
         if (cls.isArray()) {
-            return "[" + toSignature(((VmArrayClass) cls).getComponentType());
+            return '[' + toSignature(((VmArrayClass) cls).getComponentType());
         } else if (cls.isPrimitive()) {
             if (cls == VmType.getPrimitiveClass('Z')) {
                 return "Z";
@@ -379,7 +378,7 @@ public class Signature {
             }
             return cls.getName();
         } else {
-            return "L" + cls.getName().replace('.', '/') + ";";
+            return 'L' + cls.getName().replace('.', '/') + ';';
         }
     }
 
@@ -394,8 +393,8 @@ public class Signature {
         StringBuilder b = new StringBuilder();
         b.append('(');
         if (argTypes != null) {
-            for (int i = 0; i < argTypes.length; i++) {
-                b.append(toSignature(argTypes[i]));
+            for (VmType argType : argTypes) {
+                b.append(toSignature(argType));
             }
         }
         b.append(')');

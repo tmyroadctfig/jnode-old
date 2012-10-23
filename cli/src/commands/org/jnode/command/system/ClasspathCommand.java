@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,11 +21,12 @@
 package org.jnode.command.system;
 
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
 import org.jnode.shell.AbstractCommand;
 import org.jnode.shell.syntax.Argument;
 import org.jnode.shell.syntax.FlagArgument;
@@ -77,16 +78,24 @@ public class ClasspathCommand extends AbstractCommand {
         clearClassPath();
         if (urls != null) {
             for (URL url : urls) {
-                addToClassPath(url);
+                try {
+                    addToClassPath(url);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    private void addToClassPath(URL url) {
+    private void addToClassPath(URL url) throws URISyntaxException {
         URL[] urls = getClassLoader().getURLs();
+        
         if (urls != null) {
+            URI uri = url.toURI();
+            URI classLoaderUri;
             for (URL u : urls) {
-                if (u.equals(url)) {
+                classLoaderUri = u.toURI();
+                if (classLoaderUri.equals(uri)) {
                     return;
                 }
             }

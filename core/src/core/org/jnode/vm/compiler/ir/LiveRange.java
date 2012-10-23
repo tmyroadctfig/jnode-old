@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -49,12 +49,12 @@ public class LiveRange<T> implements Comparable<LiveRange<T>> {
 
     public String toString() {
         String leader = variable.toString() + ": " +
-            assignAddress + "-" + lastUseAddress;
+            assignAddress + '-' + lastUseAddress;
         Location loc = getLocation();
         if (loc == null) {
             return leader;
         }
-        return leader + " (" + loc + ")";
+        return leader + " (" + loc + ')';
     }
 
     /**

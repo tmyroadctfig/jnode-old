@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,9 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Stack;
-
 import javax.naming.NameNotFoundException;
-
 import org.apache.log4j.Logger;
 import org.jnode.command.util.AbstractDirectoryWalker;
 import org.jnode.driver.Device;
@@ -240,22 +238,22 @@ public class DuCommand extends AbstractCommand {
 
     private void printFileSize(final File filename, final long size) {
         if (argAll.isSet()) {
-            out.println(sizeToString(size) + "\t" + filename);
+            out.println(sizeToString(size) + '\t' + filename);
         }
     }
 
     private void printDirSize(final File filename, final long dirSizeOnly, final long subDirSize) {
         if (!argSum.isSet()) {
             if (argSeperateDirs.isSet()) {
-                out.println(sizeToString(dirSizeOnly) + "\t" + filename);
+                out.println(sizeToString(dirSizeOnly) + '\t' + filename);
             } else {
-                out.println(sizeToString(dirSizeOnly + subDirSize) + "\t" + filename);
+                out.println(sizeToString(dirSizeOnly + subDirSize) + '\t' + filename);
             }
         }
     }
 
     private void printSize(final String filename, final long size) {
-        out.println(sizeToString(size) + "\t" + filename);
+        out.println(sizeToString(size) + '\t' + filename);
     }
 
     private void log(String message) {

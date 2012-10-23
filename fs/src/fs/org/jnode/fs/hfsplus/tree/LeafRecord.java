@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -36,7 +36,7 @@ public class LeafRecord extends AbstractNodeRecord {
     public LeafRecord(final Key key, final byte[] nodeData, final int offset, final int recordDataSize) {
         this.key = key;
         this.recordData = new byte[recordDataSize];
-        System.arraycopy(nodeData, offset + key.getKeyLength(), this.recordData, 0, recordDataSize);
+        System.arraycopy(nodeData, offset + (key.getKeyLength()-2), this.recordData, 0, recordDataSize);
         type = BigEndian.getInt16(this.recordData, 0);
     }
 

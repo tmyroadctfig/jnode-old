@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,6 +24,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.apache.log4j.Logger;
+import org.jnode.annotation.SharedStatics;
 import org.jnode.driver.ApiNotFoundException;
 import org.jnode.driver.Device;
 import org.jnode.driver.net.NetDeviceAPI;
@@ -40,7 +41,6 @@ import org.jnode.net.TransportLayer;
 import org.jnode.net.ethernet.EthernetConstants;
 import org.jnode.util.TimeoutException;
 import org.jnode.vm.objects.Statistics;
-import org.jnode.annotation.SharedStatics;
 
 /**
  * @author epr
@@ -262,7 +262,7 @@ public class ARPNetworkLayer implements NetworkLayer, ARPConstants {
         if (DEBUG) {
             if (log.isDebugEnabled()) {
                 log.debug("getHardwareAddress(" + address + ", " + myAddress + ", " + device.getId() +
-                    ", " + timeout + ")");
+                    ", " + timeout + ')');
             }
         }
 

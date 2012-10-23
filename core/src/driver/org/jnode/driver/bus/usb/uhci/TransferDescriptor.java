@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -311,6 +311,6 @@ public final class TransferDescriptor extends AbstractTreeStructure implements U
      */
     public String toString() {
         return "TD[" + NumberUtils.hex(getInt(0)) + ", " + NumberUtils.hex(getInt(4)) + ", " +
-            NumberUtils.hex(getInt(8)) + ", " + NumberUtils.hex(getInt(12)) + "->" + linkPointer + "]";
+            NumberUtils.hex(getInt(8)) + ", " + NumberUtils.hex(getInt(12)) + "->" + linkPointer + ']';
     }
 }

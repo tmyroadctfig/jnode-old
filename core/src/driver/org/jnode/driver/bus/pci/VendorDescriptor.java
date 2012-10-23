@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -61,7 +61,7 @@ public class VendorDescriptor {
         DeviceDescriptor result;
         result = (DeviceDescriptor) devices.get(deviceId);
         if (result == null) {
-            result = new DeviceDescriptor(deviceId, "? (" + deviceId + ")");
+            result = new DeviceDescriptor(deviceId, "? (" + deviceId + ')');
         }
         return result;
     }

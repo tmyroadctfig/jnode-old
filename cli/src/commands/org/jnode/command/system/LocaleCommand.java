@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.TreeSet;
-
 import org.jnode.shell.AbstractCommand;
 import org.jnode.shell.syntax.Argument;
 import org.jnode.shell.syntax.CountryArgument;
@@ -112,8 +111,8 @@ public class LocaleCommand extends AbstractCommand {
     }
 
     private String formatLocale(Locale l) {
-        return (l.getDisplayName() + " : " + l.getLanguage() + 
-                " " + l.getCountry() + " " + l.getVariant());
+        return (l.getDisplayName() + " : " + l.getLanguage() +
+            ' ' + l.getCountry() + ' ' + l.getVariant());
     }
 
     /**

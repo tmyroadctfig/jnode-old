@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -71,7 +71,7 @@ public class UnaryQuad<T> extends AssignQuad<T> {
 
     public String toString() {
         return getAddress() + ": " + getLHS().toString() + " = " +
-            operation.name() + " " + refs[0].toString();
+            operation.name() + ' ' + refs[0].toString();
     }
 
     public Operand<T> propagate(Variable<T> operand) {

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -82,7 +82,7 @@ final class IOResourceImpl extends Region implements IOResource {
             return res;
         } else {
             final Object curOwner = get(resources, res).getOwner();
-            throw new ResourceNotFreeException("port " + NumberUtils.hex(startPort) + "-" +
+            throw new ResourceNotFreeException("port " + NumberUtils.hex(startPort) + '-' +
                 NumberUtils.hex(startPort + length - 1) + " is owned by " + curOwner);
         }
     }

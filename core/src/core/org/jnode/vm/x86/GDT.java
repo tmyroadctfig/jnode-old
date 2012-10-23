@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,9 +21,8 @@
 package org.jnode.vm.x86;
 
 import java.io.PrintStream;
-
-import org.jnode.util.NumberUtils;
 import org.jnode.annotation.MagicPermission;
+import org.jnode.util.NumberUtils;
 import org.vmmagic.unboxed.Address;
 
 /**
@@ -102,7 +101,7 @@ final class GDT {
 
     public final void dump(PrintStream out) {
         for (int i = 0; i < gdt.length; i += 2) {
-            out.println("GDT[" + i + "] " + NumberUtils.hex(gdt[i + 1]) + " " + NumberUtils.hex(gdt[i]));
+            out.println("GDT[" + i + "] " + NumberUtils.hex(gdt[i + 1]) + ' ' + NumberUtils.hex(gdt[i]));
         }
     }
 }

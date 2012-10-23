@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,12 +21,12 @@
 package org.jnode.command.argument;
 
 import java.util.Arrays;
-
 import org.jnode.command.util.NumberRange;
-//import org.jnode.driver.console.CompletionInfo;
 import org.jnode.shell.CommandLine.Token;
-import org.jnode.shell.syntax.CommandSyntaxException;
 import org.jnode.shell.syntax.Argument;
+import org.jnode.shell.syntax.CommandSyntaxException;
+
+//import org.jnode.driver.console.CompletionInfo;
 
 /**
  * Captures a list of multiple number ranges.
@@ -93,9 +93,7 @@ public class NumberListArgument extends Argument<NumberRange> {
                 i++;
             }
         }
-        for (int i = 0; i < (ranges.length - 1); i++) {
-            values.add(ranges[i]);
-        }
+        values.addAll(Arrays.asList(ranges).subList(0, ranges.length - 1));
         return ranges[ranges.length - 1];
     }
     

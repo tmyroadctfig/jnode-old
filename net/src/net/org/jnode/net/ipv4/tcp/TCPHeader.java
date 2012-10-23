@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -109,10 +109,6 @@ public class TCPHeader implements TransportLayerHeader, TCPConstants {
             phdr.set16(10, tcpLength + headerLength);
             phdr.append(skbuf);
 
-            /*
-             * final int ccs1 = IPv4Utils.calcChecksum(phdr, 0, 12); final int
-             * ccs2 = IPv4Utils.calcChecksum(skbuf, 0, udpLength, ccs1);
-             */
             final int ccs2 = IPv4Utils.calcChecksum(phdr, 0, headerLength + tcpLength + 12);
             this.checksumOk = (ccs2 == 0);
             if (!checksumOk) {
@@ -291,13 +287,13 @@ public class TCPHeader implements TransportLayerHeader, TCPConstants {
         b.append(dstPort);
         b.append(": ");
         b.append(getFlagsAsString());
-        b.append(" ");
+        b.append(' ');
         b.append(sequenceNr & 0xFFFFFFFFL);
-        b.append(":");
+        b.append(':');
         b.append((sequenceNr + tcpLength) & 0xFFFFFFFFL);
-        b.append("(");
+        b.append('(');
         b.append(tcpLength);
-        b.append(")");
+        b.append(')');
         if (isFlagAcknowledgeSet()) {
             b.append(", ack ");
             b.append(ackNr & 0xFFFFFFFFL);

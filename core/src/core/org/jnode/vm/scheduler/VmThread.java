@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.vm.scheduler;
 
 import org.jnode.annotation.Inline;
@@ -1060,10 +1060,10 @@ public abstract class VmThread extends VmSystemObject implements org.jnode.vm.fa
      */
     public String toString() {
         if (javaThread != null) {
-            return "%" + javaThread.getName() + ", st"
-                + STATE_NAMES[threadState] + "%";
+            return '%' + javaThread.getName() + ", st"
+                + STATE_NAMES[threadState] + '%';
         } else {
-            return "%@null@, st" + threadState + "%";
+            return "%@null@, st" + threadState + '%';
         }
     }
 

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,11 +30,6 @@ import org.jnode.util.NumberUtils;
  * @author flesire
  */
 public class EEPRO100Buffer implements EEPRO100Constants {
-    //--- Constants
-//    private static final int FRAME_SIZE = EthernetConstants.ETH_FRAME_LEN;
-//    private static final int PKT_BUF_SZ = 1536;
-//    private static final int DATA_BUFFER_SIZE = 1536;
-//    private static final int PacketReceived = 0xc000;
 
     //---
     protected final Logger log = Logger.getLogger(getClass());
@@ -48,12 +43,6 @@ public class EEPRO100Buffer implements EEPRO100Constants {
     private int curRx;
     private int dirtyRx;
     public EEPRO100RxFD[] rxRing = new EEPRO100RxFD[RX_RING_SIZE];
-//    private EEPRO100RxFD[] rxPackets = new EEPRO100RxFD[128];
-//    private int rx_packets;
-//    private int rxErrors;
-//    private EEPRO100RxFD last_rxf;
-//    private int rxPacketIndex;
-//    private int lastRxTime;
 
     // --- Tx Variables
     private int txThreshold = 0x01200000;
@@ -62,10 +51,6 @@ public class EEPRO100Buffer implements EEPRO100Constants {
     public EEPRO100TxFD[] txRing = new EEPRO100TxFD[TX_RING_SIZE];
     @SuppressWarnings("unused")
     private EEPRO100TxFD lastCmd;
-//    private int lastCmdTime;
-
-    // --- Others variables
-//    private int jiffies;
 
     public EEPRO100Buffer(EEPRO100Registers regs, ResourceManager rm) {
         this.regs = regs;
@@ -82,7 +67,7 @@ public class EEPRO100Buffer implements EEPRO100Constants {
         /* Base = 0 */
         regs.setReg32(SCBPointer, 0);
         regs.setReg16(SCBCmd, SCBMaskAll | RxAddrLoad);
-        EEPRO100Utils.waitForCmdDone(regs);
+        regs.waitForCmdDone();
         log.debug("Set RX base addr.");
         rxPacket = new EEPRO100RxFD(rm);
         rxPacket.setStatus(0x0001);
@@ -96,7 +81,7 @@ public class EEPRO100Buffer implements EEPRO100Constants {
         rxPacket.initialize();
         regs.setReg32(SCBPointer, rxPacket.getBufferAddress());
         regs.setReg16(SCBCmd, SCBMaskAll | RxStart);
-        EEPRO100Utils.waitForCmdDone(regs);
+        regs.waitForCmdDone();
         log.debug("Started rx process.");
         // Start the receiver.
         rxPacket.setStatus(0);
@@ -111,7 +96,7 @@ public class EEPRO100Buffer implements EEPRO100Constants {
      *
      */
     public final void initSingleTxRing() {
-        EEPRO100Utils.waitForCmdDone(regs);
+        regs.waitForCmdDone();
         log.debug("Set TX base addr.");
         txFD = new EEPRO100TxFD(rm);
         txFD.setCommand(CmdIASetup);
@@ -134,7 +119,7 @@ public class EEPRO100Buffer implements EEPRO100Constants {
         regs.setReg16(SCBStatus, status & IntrAllNormal);
 
         log.debug("transmitting status = " + NumberUtils.hex(status) + ", cmd=" +
-                NumberUtils.hex(regs.getReg16(SCBStatus)) + "\n");
+                NumberUtils.hex(regs.getReg16(SCBStatus)) + '\n');
 
         txFD.setStatus(0);
         txFD.setCommand(CmdSuspend | CmdTx | CmdTxFlex);
@@ -146,7 +131,7 @@ public class EEPRO100Buffer implements EEPRO100Constants {
 
         regs.setReg16(SCBPointer, txFD.getBufferAddress());
         regs.setReg16(SCBCmd, SCBMaskAll | CUStart);
-        EEPRO100Utils.waitForCmdDone(regs);
+        regs.waitForCmdDone();
 
         s1 = regs.getReg16(SCBStatus);
         // TODO wait 10 ms for transmiting;
@@ -173,7 +158,7 @@ public class EEPRO100Buffer implements EEPRO100Constants {
 
             regs.setReg16(SCBPointer, rxPacket.getStatus());
             regs.setReg16(SCBCmd, SCBMaskAll | RxStart);
-            EEPRO100Utils.waitForCmdDone(regs);
+            regs.waitForCmdDone();
 
             log.debug("Got a packet: Len=" + NumberUtils.hex(rxPacket.getCount()));
 
@@ -204,7 +189,7 @@ public class EEPRO100Buffer implements EEPRO100Constants {
         txRing[txEntry].setCount(getTxThreshold());
 //        EEPRO100TxFD lastCmd0 = lastCmd;
         lastCmd = txRing[txEntry];
-        EEPRO100Utils.waitForCmdDone(regs);
+        regs.waitForCmdDone();
         regs.setReg8(SCBCmd, CUResume);
     }
 

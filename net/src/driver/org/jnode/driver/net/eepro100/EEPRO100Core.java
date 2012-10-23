@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,9 +21,7 @@
 package org.jnode.driver.net.eepro100;
 
 import java.security.PrivilegedExceptionAction;
-
 import javax.naming.NameNotFoundException;
-
 import org.jnode.driver.Device;
 import org.jnode.driver.DriverException;
 import org.jnode.driver.bus.pci.PCIBaseAddress;
@@ -248,7 +246,7 @@ public class EEPRO100Core extends AbstractDeviceCore implements IRQHandler, EEPR
         // disable
         regs.setReg32(SCBPort, 2);
         Counter count = new Counter("chrono");
-        while (((Integer) count.getValue()).intValue() <= 20)
+        while ((Integer) count.getValue() <= 20)
             count.inc();
         regs.setReg16(SCBCmd, SCBMaskAll);
         int intr_status = regs.getReg16(SCBStatus);
@@ -394,10 +392,9 @@ public class EEPRO100Core extends AbstractDeviceCore implements IRQHandler, EEPR
         regs.setReg16(SCBeeprom, EE_ENB | EE_SHIFT_CLK);
         eepromDelay(2);
         do {
-            // FIXME ... what is this craziness??
-            short dataVal =
-                    new Integer(((cmd & (1 << cmdLength)) == 0) ? EE_WRITE_0 : EE_WRITE_1)
-                            .shortValue();
+            int dataVal;
+            int test = cmd & 1 << cmdLength;
+            dataVal = (test == 0) ? EE_WRITE_0 : EE_WRITE_1;
             regs.setReg16(SCBeeprom, dataVal);
             eepromDelay(2);
             regs.setReg16(SCBeeprom, dataVal | EE_SHIFT_CLK);
@@ -415,10 +412,8 @@ public class EEPRO100Core extends AbstractDeviceCore implements IRQHandler, EEPR
      * @param delay
      */
     final void systemDelay(int delay) {
-        // SystemResource.getTimer().udelay(4);
         int i = 100;
-        while (i-- > 0)
-            ;
+        while (i-- > 0);
     }
 
     // --- MD IO METHODS
@@ -466,15 +461,14 @@ public class EEPRO100Core extends AbstractDeviceCore implements IRQHandler, EEPR
     }
  
     public void setupInterrupt() {
-        int bogusCount = 20;
-        int status;
 
         if ((buffers.getCurRx() - buffers.getDirtyRx()) > 15) {
-            log.debug("curRx > dirtyRx " + buffers.getCurRx() + " " + buffers.getDirtyRx()); 
+            log.debug("curRx > dirtyRx " + buffers.getCurRx() + ' ' + buffers.getDirtyRx());
         }
 
+        int bogusCount = 20;
         do {
-            status = regs.getReg16(SCBStatus);
+            int status = regs.getReg16(SCBStatus);
             regs.setReg16(SCBStatus, status & IntrAllNormal);
             if ((status & IntrAllNormal) == 0)
                 break;
@@ -482,8 +476,7 @@ public class EEPRO100Core extends AbstractDeviceCore implements IRQHandler, EEPR
                 // buffers.rx(driver);
 
                 if ((status & (IntrCmdDone | IntrCmdIdle | IntrDrvrIntr)) != 0) {
-                    int dirtyTx0;
-                    dirtyTx0 = buffers.getDirtyTx();
+                    int dirtyTx0 = buffers.getDirtyTx();
                     while ((buffers.getCurTx() - dirtyTx0) > 0) {
                         int entry = dirtyTx0 & (TX_RING_SIZE - 1);
                         status = buffers.txRing[entry].getStatus();
@@ -522,7 +515,6 @@ public class EEPRO100Core extends AbstractDeviceCore implements IRQHandler, EEPR
                          * The ring is no longer full, clear tbusy.
                          */
                         txFull = false;
-                        // netif_resume_tx_queue(dev);
                     }
                 }
             if ((status & IntrRxSuspend) != 0) {
@@ -539,8 +531,6 @@ public class EEPRO100Core extends AbstractDeviceCore implements IRQHandler, EEPR
 
         } while (true);
         log.debug(flags.getName() + " : End handleInterrupt");
-        return;
-
     }
 
     // --- Accessors ---

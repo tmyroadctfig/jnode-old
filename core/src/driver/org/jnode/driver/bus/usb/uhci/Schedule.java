@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -196,7 +196,7 @@ public class Schedule implements USBConstants {
     }
 
     public String toString() {
-        return "Schedule{lowQH:" + lowSpeedControlQH + ", highQH:" + highSpeedControlQH + "}";
+        return "Schedule{lowQH:" + lowSpeedControlQH + ", highQH:" + highSpeedControlQH + '}';
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -70,6 +70,6 @@ public abstract class MPInterruptAssignmentEntry extends MPEntry {
             ", src bus:0x" + NumberUtils.hex(getSourceBusID(), 2) +
             ",irq:" + getSourceBusIRQ() +
             "), dst ID:0x" + NumberUtils.hex(getDestinationApicID(), 2) +
-            ",INTN:" + getDestinationApicINTN() + ")";
+            ",INTN:" + getDestinationApicINTN() + ')';
     }
 }

@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -75,8 +75,12 @@ class JNodeFileSystem extends FileSystem {
 		return VMFile.mkdir(f.getPath());
 	}
 
+    /**
+     * The resulting temporary file may have more restrictive access permission
+     * on some platforms, if restrictive is true.
+     */
 	@Override
-	public boolean createFileExclusively(String pathname) throws IOException {
+	public boolean createFileExclusively(String pathname, boolean restrictive) throws IOException {
 		return VMFile.create(pathname);
 	}
 

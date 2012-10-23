@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -143,8 +143,7 @@ public class TCPOutChannel {
      */
     public void timeout() throws SocketException {
         //allocation free looping
-        for (int i = 0; i < unackedSegments.size(); i++) {
-            TCPOutSegment seg = unackedSegments.get(i);
+        for (TCPOutSegment seg : unackedSegments) {
             seg.timeout(tcp);
         }
     }
@@ -182,7 +181,7 @@ public class TCPOutChannel {
     public synchronized void send(IPv4Header ipHdr, TCPHeader hdr, byte[] data, int offset,
                                   int length) throws SocketException {
         if (DEBUG) {
-            log.debug("outChannel.send(ipHdr,hdr,data," + offset + ", " + length + ")");
+            log.debug("outChannel.send(ipHdr,hdr,data," + offset + ", " + length + ')');
         }
         // Check for maximum datalength
         if (length > mss) {

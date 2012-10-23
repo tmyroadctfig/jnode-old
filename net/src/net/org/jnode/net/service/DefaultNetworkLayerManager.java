@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.jnode.driver.ApiNotFoundException;
 import org.jnode.driver.Device;
@@ -175,11 +174,10 @@ public class DefaultNetworkLayerManager implements NetworkLayerManager,
         if (networkLayersEP != null) {
             layers.clear();
             final Extension[] extensions = networkLayersEP.getExtensions();
-            for (int i = 0; i < extensions.length; i++) {
-                final Extension ext = extensions[i];
+            for (final Extension ext : extensions) {
                 final ConfigurationElement[] elements = ext.getConfigurationElements();
-                for (int j = 0; j < elements.length; j++) {
-                    configureLayer(layers, elements[j]);
+                for (ConfigurationElement element : elements) {
+                    configureLayer(layers, element);
                 }
             }
         }

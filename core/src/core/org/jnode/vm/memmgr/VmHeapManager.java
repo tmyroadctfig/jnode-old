@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,11 +17,10 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.vm.memmgr;
 
 import java.io.PrintWriter;
-
 import org.jnode.annotation.Inline;
 import org.jnode.annotation.MagicPermission;
 import org.jnode.annotation.NoInline;
@@ -146,7 +145,7 @@ public abstract class VmHeapManager extends VmSystemObject implements org.jnode.
         if (!arrayCls.isArray()) {
             throw new IllegalArgumentException(
                 "Cannot instantiate a non-array like this ["
-                    + arrayCls.getName() + "]");
+                    + arrayCls.getName() + ']');
         }
 
         final int slotSize = getCurrentProcessor().getArchitecture()

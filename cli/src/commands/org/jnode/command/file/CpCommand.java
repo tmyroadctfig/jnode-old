@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-
 import org.jnode.shell.AbstractCommand;
 import org.jnode.shell.syntax.Argument;
 import org.jnode.shell.syntax.FileArgument;
@@ -370,7 +369,7 @@ public class CpCommand extends AbstractCommand {
                             if (line.charAt(0) == 'y' || line.charAt(0) == 'Y') {
                                 return true;
                             } else if (line.charAt(0) == 'n' || line.charAt(0) == 'N') {
-                                return vskip("'" + target + "'");
+                                return vskip("'" + target + '\'');
                             }
                         }
                         out.print(STR_ASK_AGAIN);

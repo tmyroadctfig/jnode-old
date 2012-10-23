@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+ 
 package org.jnode.plugin;
 
 import java.io.File;
@@ -85,7 +85,7 @@ public class AutoUnzipPlugin extends Plugin {
             // copy each plugin's resource to the plugin root directory 
             final PluginDescriptor desc = AutoUnzipPlugin.this.getDescriptor();
             final ClassLoader cl = desc.getPluginClassLoader();
-            final String pluginRoot = pluginRootFile.getAbsolutePath() + "/";
+            final String pluginRoot = pluginRootFile.getAbsolutePath() + '/';
             final byte[] buffer = new byte[10240];
 
             if (!(cl instanceof PluginClassLoader)) {

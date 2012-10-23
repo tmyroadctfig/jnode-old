@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -116,7 +116,7 @@ public final class PCIRomAddress {
 
     public String toString() {
         final int base = getRomBase();
-        return NumberUtils.hex(getRomBase()) + "-" + NumberUtils.hex(base + size - 1) +
+        return NumberUtils.hex(getRomBase()) + '-' + NumberUtils.hex(base + size - 1) +
             (isEnabled() ? " enabled" : " disabled");
     }
 }

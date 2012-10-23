@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,6 +21,7 @@
 package org.jnode.plugin.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.jnode.nanoxml.XMLElement;
 import org.jnode.plugin.Extension;
@@ -51,7 +52,7 @@ final class ExtensionPointModel extends PluginModelObject implements
         super(plugin);
         id = getAttribute(e, "id", true);
         name = getAttribute(e, "name", true);
-        uniqueId = plugin.getId() + "." + id;
+        uniqueId = plugin.getId() + '.' + id;
         if (id.indexOf('.') >= 0) {
             throw new PluginException("id cannot contain a '.'");
         }
@@ -210,9 +211,7 @@ final class ExtensionPointModel extends PluginModelObject implements
         if (extensionsCache == null) {
             extensionsCache = new ArrayList<Extension>();
             if (extensionArray != null) {
-                for (int i = 0; i < extensionArray.length; i++) {
-                    extensionsCache.add(extensionArray[i]);
-                }
+                Collections.addAll(extensionsCache, extensionArray);
             }
         }
         return extensionsCache;

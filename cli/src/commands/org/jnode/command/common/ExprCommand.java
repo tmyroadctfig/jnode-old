@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,7 +24,6 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.jnode.shell.AbstractCommand;
 
 
@@ -319,7 +318,7 @@ public class ExprCommand extends AbstractCommand {
     
     private int asInteger(Object obj) throws ExprException {
         if (obj instanceof Integer) {
-            return ((Integer) obj).intValue();
+            return (Integer) obj;
         } else {
             try {
                 return Integer.parseInt(obj.toString());

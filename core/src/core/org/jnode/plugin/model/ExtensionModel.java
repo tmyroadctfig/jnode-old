@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,6 @@
 package org.jnode.plugin.model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import org.jnode.nanoxml.XMLElement;
 import org.jnode.plugin.ConfigurationElement;
 import org.jnode.plugin.Extension;
@@ -49,8 +48,7 @@ final class ExtensionModel extends PluginModelObject implements Extension {
         id = getAttribute(e, "id", false);
 
         final ArrayList<ConfigurationElementModel> list = new ArrayList<ConfigurationElementModel>();
-        for (Iterator<?> i = e.getChildren().iterator(); i.hasNext();) {
-            final XMLElement ce = (XMLElement) i.next();
+        for (final XMLElement ce : e.getChildren()) {
             list.add(new ConfigurationElementModel(plugin, ce));
         }
         elements = (ConfigurationElement[]) list.toArray(new ConfigurationElement[list.size()]);
@@ -59,7 +57,7 @@ final class ExtensionModel extends PluginModelObject implements Extension {
             if (id.indexOf('.') >= 0) {
                 throw new PluginException("id cannot contain an '.' character");
             }
-            uniqueId = plugin.getId() + "." + id;
+            uniqueId = plugin.getId() + '.' + id;
         } else {
             uniqueId = null;
         }

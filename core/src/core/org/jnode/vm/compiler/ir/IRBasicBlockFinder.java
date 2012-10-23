@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jnode.vm.bytecode.BytecodeFlags;
 import org.jnode.vm.bytecode.BytecodeVisitorSupport;
 import org.jnode.vm.classmgr.VmByteCode;
@@ -212,18 +211,18 @@ public class IRBasicBlockFinder<T> extends BytecodeVisitorSupport implements Com
     }
 
     public void visit_tableswitch(int defValue, int lowValue, int highValue, int[] addresses) {
-        for (int i = 0; i < addresses.length; i++) {
+        for (int address : addresses) {
             // Next block could be successor, e.g. switch could fall through
-            addBranch(addresses[i], CONDITIONAL_BRANCH);
+            addBranch(address, CONDITIONAL_BRANCH);
         }
         // Same for default case
         addBranch(defValue, CONDITIONAL_BRANCH);
     }
 
     public void visit_lookupswitch(int defValue, int[] matchValues, int[] addresses) {
-        for (int i = 0; i < addresses.length; i++) {
+        for (int address : addresses) {
             // Next block could be successor, e.g. switch could fall through
-            addBranch(addresses[i], CONDITIONAL_BRANCH);
+            addBranch(address, CONDITIONAL_BRANCH);
         }
         // Same for default case
         addBranch(defValue, CONDITIONAL_BRANCH);
@@ -278,7 +277,7 @@ public class IRBasicBlockFinder<T> extends BytecodeVisitorSupport implements Com
     private final void addBranch(int target, byte flags) {
         IRBasicBlock pred = this.currentBlock;
         IRBasicBlock succ = startBB(target);
-        branchTargets.put(new Integer(getInstructionAddress()), new Integer(target));
+        branchTargets.put(getInstructionAddress(), target);
         endBB(flags);
     }
 

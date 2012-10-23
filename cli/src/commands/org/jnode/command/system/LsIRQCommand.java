@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -45,7 +45,7 @@ public class LsIRQCommand extends AbstractCommand {
         final IRQManager irqMgr = proc.getIRQManager();
         final int max = irqMgr.getNumIRQs();
         for (int i = 0; i < max; i++) {
-            getOutput().getPrintWriter().println("IRQ" + i + "\t" + irqMgr.getIrqCount(i) + "\t"
+            getOutput().getPrintWriter().println("IRQ" + i + '\t' + irqMgr.getIrqCount(i) + '\t'
                     + irqMgr.getHandlerInfo(i));
         }
     }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -38,13 +38,13 @@ final class DefGCStatistics extends VmSystemObject implements GCStatistics {
     long lastMarkedObjects;
 
     public String toString() {
-        return "lastGCTime          " + lastGCTime + "\n" +
-            "lastMarkIterations  " + lastMarkIterations + "\n" +
-            "lastMarkDuration    " + lastMarkDuration + "\n" +
-            "lastSweepDuration   " + lastSweepDuration + "\n" +
-            "lastCleanupDuration " + lastCleanupDuration + "\n" +
-            "lastVerifyDuration  " + lastVerifyDuration + "\n" +
-            "lastMarkedObjects   " + lastMarkedObjects + "\n" +
+        return "lastGCTime          " + lastGCTime + '\n' +
+            "lastMarkIterations  " + lastMarkIterations + '\n' +
+            "lastMarkDuration    " + lastMarkDuration + '\n' +
+            "lastSweepDuration   " + lastSweepDuration + '\n' +
+            "lastCleanupDuration " + lastCleanupDuration + '\n' +
+            "lastVerifyDuration  " + lastVerifyDuration + '\n' +
+            "lastMarkedObjects   " + lastMarkedObjects + '\n' +
             "lastFreedBytes      " + lastFreedBytes;
     }
 

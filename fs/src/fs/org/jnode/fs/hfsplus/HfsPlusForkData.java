@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -112,6 +112,31 @@ public class HfsPlusForkData {
 
     public ExtentDescriptor getExtent(int index) {
         return extents[index];
+    }
+    /**
+     * Read a block of data
+     *
+     * @param fileSystem the associated file system.
+     * @param offset the offset to read from.
+     * @param buffer the buffer to read into.
+     * @throws java.io.IOException if an error occurs.
+     */
+    public void read(HfsPlusFileSystem fileSystem, long offset, ByteBuffer buffer) throws IOException {
+        for (ExtentDescriptor extentDescriptor : extents) {
+            if (buffer.remaining() > 0 && !extentDescriptor.isEmpty()) {
+                long length = extentDescriptor.getSize(fileSystem.getVolumeHeader().getBlockSize());
+
+                if (offset != 0 && length < offset) {
+                    offset -= length;
+                } else {
+
+                    long firstOffset = extentDescriptor.getStartOffset(fileSystem.getVolumeHeader().getBlockSize());
+                    fileSystem.getApi().read(firstOffset + offset, buffer);
+
+                    offset = 0;
+                }
+            }
+        }
     }
 
     /**

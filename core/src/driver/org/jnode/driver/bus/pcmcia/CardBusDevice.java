@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010 JNode.org
+ * Copyright (C) 2003-2012 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -45,7 +45,7 @@ public class CardBusDevice extends Device implements DeviceInfoAPI {
      * @param function
      */
     public CardBusDevice(CardBusBus bus, int function) {
-        super(bus, "cardbus(" + bus.getBus() + "," + function + ")");
+        super(bus, "cardbus(" + bus.getBus() + ',' + function + ')');
         this.bus = bus.getBus();
         this.function = function;
     }
