@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.jnode.fs.FSFileSlackSpace;
 import org.jnode.fs.FileSystemException;
 import org.jnode.fs.ReadOnlyFileSystemException;
 import org.jnode.fs.spi.AbstractFSFile;
@@ -32,7 +33,7 @@ import org.jnode.util.ByteBufferUtils;
 /**
  * @author Andras Nagy
  */
-public class Ext2File extends AbstractFSFile {
+public class Ext2File extends AbstractFSFile implements FSFileSlackSpace {
 
     Ext2Entry entry;
     INode iNode;
@@ -149,6 +150,20 @@ public class Ext2File extends AbstractFSFile {
 
     @Override
     public void read(long fileOffset, ByteBuffer destBuf) throws IOException {
+        if (fileOffset + destBuf.remaining() > getLength())
+            throw new IOException("Can't read past the file!");
+
+        readImpl(fileOffset, destBuf);
+    }
+
+    /**
+     * A read implementation that doesn't check the file length.
+     *
+     * @param fileOffset the offset to read from.
+     * @param destBuf the destination buffer.
+     * @throws IOException if an error occurs reading.
+     */
+    public void readImpl(long fileOffset, ByteBuffer destBuf) throws IOException {
         final int len = destBuf.remaining();
         final int off = 0;
         //TODO optimize it also to use ByteBuffer at lower level 
@@ -185,9 +200,6 @@ public class Ext2File extends AbstractFSFile {
         //so synchronize to the inode
         synchronized (iNode) {
             try {
-                if (len + off > getLength())
-                    throw new IOException("Can't read past the file!");
-
                 if ((iNode.getMode() & Ext2Constants.EXT2_S_IFLNK) == Ext2Constants.EXT2_S_IFLNK) {
                     // Sym-links are a special case: the data seems to be stored inline in the iNode
                     System.arraycopy(iNode.getINodeBlockData(), 0, dest, 0, Math.min(64, dest.length));
@@ -341,5 +353,21 @@ public class Ext2File extends AbstractFSFile {
             ioe.initCause(ex);
             throw ioe;
         }
+    }
+
+    @Override
+    public byte[] getSlackSpace() throws IOException {
+        int blockSize = ((Ext2FileSystem) getFileSystem()).getBlockSize();
+
+        int slackSpaceSize = blockSize - (int) (getLength() % blockSize);
+
+        if (slackSpaceSize == blockSize) {
+            slackSpaceSize = 0;
+        }
+
+        byte[] slackSpace = new byte[slackSpaceSize];
+        readImpl(getLength(), ByteBuffer.wrap(slackSpace));
+
+        return slackSpace;
     }
 }

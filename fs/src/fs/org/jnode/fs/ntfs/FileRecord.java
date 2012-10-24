@@ -570,7 +570,7 @@ class FileRecord extends NTFSRecord {
     /**
      * Holds code common to both types of attribute list.
      */
-    private abstract class AttributeIterator {
+    public abstract class AttributeIterator {
         /**
          * Gets the next element from the iterator.
          *

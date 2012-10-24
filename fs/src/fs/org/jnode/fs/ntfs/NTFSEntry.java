@@ -30,9 +30,6 @@ import org.jnode.fs.FSEntryLastChanged;
 import org.jnode.fs.FSFile;
 import org.jnode.fs.FSObject;
 import org.jnode.fs.FileSystem;
-import org.jnode.fs.FSEntryCreated;
-import org.jnode.fs.FSEntryLastAccessed;
-import org.jnode.fs.FSEntryLastChanged;
 
 /**
  * @author vali
@@ -133,7 +130,7 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
     public FSFile getFile() {
         if (this.isFile()) {
             if (cachedFSObject == null) {
-                cachedFSObject = new NTFSFile(indexEntry);
+                cachedFSObject = new NTFSFile(fs, indexEntry);
             }
             return (FSFile) cachedFSObject;
         } else {

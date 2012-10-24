@@ -23,10 +23,11 @@ package org.jnode.fs.hfsplus;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.jnode.fs.FSFile;
+import org.jnode.fs.FSFileSlackSpace;
 import org.jnode.fs.FileSystem;
 import org.jnode.fs.hfsplus.catalog.CatalogFile;
 
-public class HfsPlusFile implements FSFile {
+public class HfsPlusFile implements FSFile, FSFileSlackSpace {
 
     private HfsPlusEntry entry;
 
@@ -73,5 +74,21 @@ public class HfsPlusFile implements FSFile {
     @Override
     public FileSystem<?> getFileSystem() {
         return entry.getFileSystem();
+    }
+
+    @Override
+    public byte[] getSlackSpace() throws IOException {
+        int blockSize = ((HfsPlusFileSystem) getFileSystem()).getVolumeHeader().getBlockSize();
+
+        int slackSpaceSize = blockSize - (int) (getLength() % blockSize);
+
+        if (slackSpaceSize == blockSize) {
+            slackSpaceSize = 0;
+        }
+
+        byte[] slackSpace = new byte[slackSpaceSize];
+        read(getLength(), ByteBuffer.wrap(slackSpace));
+
+        return slackSpace;
     }
 }

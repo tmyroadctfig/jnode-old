@@ -26,9 +26,10 @@ import java.util.NoSuchElementException;
 
 import org.apache.log4j.Logger;
 import org.jnode.fs.FSFile;
+import org.jnode.fs.FSFileSlackSpace;
 
 
-public class FatFile extends FatEntry implements FSFile {
+public class FatFile extends FatEntry implements FSFile, FSFileSlackSpace {
     private static final Logger log = Logger.getLogger(FatFile.class);
 
     public FatFile(FatFileSystem fs, FatDirectory parent, FatRecord record) {
@@ -123,6 +124,22 @@ public class FatFile extends FatEntry implements FSFile {
             setLastModified(System.currentTimeMillis());
 
         flush();
+    }
+
+    @Override
+    public byte[] getSlackSpace() throws IOException {
+        int clusterSize = ((FatFileSystem) getFileSystem()).getClusterSize();
+
+        int slackSpaceSize = clusterSize - (int) (getLength() % clusterSize);
+
+        if (slackSpaceSize == clusterSize) {
+            slackSpaceSize = 0;
+        }
+
+        byte[] slackSpace = new byte[slackSpaceSize];
+        read(getLength(), ByteBuffer.wrap(slackSpace));
+
+        return slackSpace;
     }
 
     public String toString() {

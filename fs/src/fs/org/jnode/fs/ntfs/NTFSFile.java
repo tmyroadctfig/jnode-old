@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.jnode.fs.FSFile;
+import org.jnode.fs.FSFileSlackSpace;
 import org.jnode.fs.FileSystem;
 import org.jnode.util.ByteBufferUtils;
 
@@ -31,18 +32,25 @@ import org.jnode.util.ByteBufferUtils;
  * @author vali
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-public class NTFSFile implements FSFile {
+public class NTFSFile implements FSFile, FSFileSlackSpace {
 
     private FileRecord fileRecord;
+
+    /**
+     * The file system that contains this file.
+     */
+    private NTFSFileSystem fs;
 
     private final IndexEntry indexEntry;
 
     /**
      * Initialize this instance.
-     * 
+     *
+     * @param fs the file system.
      * @param indexEntry
      */
-    public NTFSFile(IndexEntry indexEntry) {
+    public NTFSFile(NTFSFileSystem fs, IndexEntry indexEntry) {
+        this.fs = fs;
         this.indexEntry = indexEntry;
     }
 
@@ -100,8 +108,7 @@ public class NTFSFile implements FSFile {
      * @see org.jnode.fs.FSObject#getFileSystem()
      */
     public FileSystem<?> getFileSystem() {
-        // TODO Auto-generated method stub
-        return null;
+        return fs;
     }
 
     /**
@@ -125,6 +132,32 @@ public class NTFSFile implements FSFile {
      */
     public void setFileRecord(FileRecord fileRecord) {
         this.fileRecord = fileRecord;
+    }
+
+    @Override
+    public byte[] getSlackSpace() throws IOException {
+        FileRecord.AttributeIterator dataAttributes =
+            getFileRecord().findAttributesByTypeAndName(NTFSAttribute.Types.DATA, null);
+        NTFSAttribute attribute = dataAttributes.next();
+
+        if (attribute == null || attribute.isResident()) {
+            // If the data attribute is missing there is no slack space. If it is resident then another attribute might
+            // immediately follow the data. So for now we'll ignore that case
+            return new byte[0];
+        }
+
+        int clusterSize = ((NTFSFileSystem) getFileSystem()).getNTFSVolume().getClusterSize();
+
+        int slackSpaceSize = clusterSize - (int) (getLength() % clusterSize);
+
+        if (slackSpaceSize == clusterSize) {
+            slackSpaceSize = 0;
+        }
+
+        byte[] slackSpace = new byte[slackSpaceSize];
+        getFileRecord().readData(getLength(), slackSpace, 0, slackSpace.length);
+
+        return slackSpace;
     }
 
     /**
