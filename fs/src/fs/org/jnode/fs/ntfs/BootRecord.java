@@ -25,7 +25,7 @@ package org.jnode.fs.ntfs;
  * @author Chira
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class BootRecord extends NTFSStructure {
+public final class BootRecord extends NTFSStructure {
 
     private final String systemID;
 

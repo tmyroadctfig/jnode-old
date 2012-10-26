@@ -25,7 +25,7 @@ import java.io.IOException;
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-class NTFSRecord extends NTFSStructure {
+public class NTFSRecord extends NTFSStructure {
 
     /** Size of an NTFS record in bytes */
     public static final int SIZE = 0x08;

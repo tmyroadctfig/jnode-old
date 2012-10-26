@@ -180,7 +180,7 @@ public class NTFSNonResidentAttribute extends NTFSAttribute {
     /**
      * @return Returns the data runs.
      */
-    private List<DataRunInterface> getDataRuns() {
+    public List<DataRunInterface> getDataRuns() {
         return dataRuns;
     }
 

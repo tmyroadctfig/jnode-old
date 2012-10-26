@@ -25,7 +25,7 @@ import java.util.Iterator;
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class IndexRootAttribute extends NTFSResidentAttribute {
+public final class IndexRootAttribute extends NTFSResidentAttribute {
 
     private IndexRoot root;
 

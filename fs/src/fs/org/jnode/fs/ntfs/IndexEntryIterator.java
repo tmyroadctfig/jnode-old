@@ -30,7 +30,7 @@ import java.util.NoSuchElementException;
  * 
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class IndexEntryIterator implements Iterator<IndexEntry> { 
+public final class IndexEntryIterator implements Iterator<IndexEntry> {
     private int offset;
     private IndexEntry nextEntry;
     private final NTFSStructure parent;

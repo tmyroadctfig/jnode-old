@@ -181,7 +181,7 @@ abstract class NTFSStructure {
      * @param dstOffset
      * @param length
      */
-    final void getData(int offset, byte[] dst, int dstOffset, int length) {
+    public final void getData(int offset, byte[] dst, int dstOffset, int length) {
         System.arraycopy(buffer, this.offset + offset, dst, dstOffset, length);
     }
 
@@ -204,4 +204,12 @@ abstract class NTFSStructure {
         LittleEndian.setInt16(buffer, this.offset + offset, value);
     }
 
+    /**
+     * Gets the buffer.
+     *
+     * @return the buffer.
+     */
+    public byte[] getBuffer() {
+        return buffer;
+    }
 }
