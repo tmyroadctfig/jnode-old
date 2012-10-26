@@ -215,4 +215,22 @@ final class DataRun extends NTFSStructure implements DataRunInterface {
 
         return count;
     }
+
+    @Override
+    public long mapVcnToLcn(long vcn) {
+        long myLastVcn = getFirstVcn() + getLength() - 1;
+
+        if ((vcn > myLastVcn) || (getFirstVcn() > vcn)) {
+            throw new ArrayIndexOutOfBoundsException("Invalid VCN for this data run: " + vcn);
+        }
+
+        long cluster = getCluster();
+
+        if (cluster == 0 || isSparse()) {
+            // This is a sparse cluster, not actually stored on disk
+            return -1;
+        }
+
+        return cluster + vcn;
+    }
 }

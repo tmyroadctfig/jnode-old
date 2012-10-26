@@ -233,6 +233,11 @@ final class CompressedDataRun implements DataRunInterface {
         return len + 3;
     }
 
+    @Override
+    public long mapVcnToLcn(long vcn) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
     /**
      * Convenience class wrapping an array with its offset.  An alternative to pointer
      * arithmetic without going to the level of using an NIO buffer.

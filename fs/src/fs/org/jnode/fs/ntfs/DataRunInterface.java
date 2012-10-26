@@ -25,7 +25,7 @@ import java.io.IOException;
 /**
  * @author Daniel Noll (daniel@noll.id.au)
  */
-interface DataRunInterface {
+public interface DataRunInterface {
 
     /**
      * Gets the length of the data run in clusters.
@@ -48,4 +48,13 @@ interface DataRunInterface {
      */
     public int readClusters(long vcn, byte[] dst, int dstOffset,
                             int nrClusters, int clusterSize, NTFSVolume volume) throws IOException;
+
+    /**
+     * Maps a virtual cluster to a logical cluster.
+     *
+     * @param vcn the virtual cluster number to map.
+     * @return the logical cluster number or -1 if this cluster is not stored (e.g. for a sparse cluster).
+     * @throws ArrayIndexOutOfBoundsException if the VCN doesn't belong to this data run.
+     */
+    public long mapVcnToLcn(long vcn);
 }
