@@ -34,7 +34,7 @@ import org.jnode.util.NumberUtils;
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  * @author Daniel Noll (daniel@noll.id.au) (new attribute iteration support)
  */
-class FileRecord extends NTFSRecord {
+public class FileRecord extends NTFSRecord {
 
     /**
      * Sequence number of the file within the MFT.
@@ -71,25 +71,32 @@ class FileRecord extends NTFSRecord {
         // Linux NTFS docs say there can only be one of these, so I'll believe them.
         attributeListAttribute = (AttributeListAttribute)
             findStoredAttributeByType(NTFSAttribute.Types.ATTRIBUTE_LIST);
+    }
 
-        //  check for the magic numberb to see if we have a filerecord
-        if (getMagic() != Magic.FILE) {
-            log.debug("Invalid magic number found for FILE record: " + getMagic() + " -- dumping buffer");
-            for (int off = 0; off < buffer.length; off += 32) {
-                StringBuilder builder = new StringBuilder();
-                for (int i = off; i < off + 32 && i < buffer.length; i++) {
-                    String hex = Integer.toHexString(buffer[i]);
-                    while (hex.length() < 2) {
-                        hex = '0' + hex;
-                    }
+    /**
+     * Checks if the record appears to be valid.
+     *
+     * @throws IOException if an error occurs.
+     */
+    public void checkIfValid() throws IOException {
+       //  check for the magic number to see if we have a filerecord
+       if (getMagic() != Magic.FILE) {
+           log.debug("Invalid magic number found for FILE record: " + getMagic() + " -- dumping buffer");
+           for (int off = 0; off <  getBuffer().length; off += 32) {
+               StringBuilder builder = new StringBuilder();
+               for (int i = off; i < off + 32 && i < getBuffer().length; i++) {
+                   String hex = Integer.toHexString(getBuffer()[i]);
+                   while (hex.length() < 2) {
+                       hex = '0' + hex;
+                   }
 
-                    builder.append(' ').append(hex);
-                }
-                log.debug(builder.toString());
-            }
+                   builder.append(' ').append(hex);
+               }
+               log.debug(builder.toString());
+           }
 
-            throw new IOException("Invalid magic found: " + getMagic());
-        }
+           throw new IOException("Invalid magic found: " + getMagic());
+       }
 
         // This additional sanity check is possible if the record also contains the MFT number.
         // Helps catch bugs where a record is being read from the wrong offset.
@@ -257,7 +264,7 @@ class FileRecord extends NTFSRecord {
     /**
      * Gets the attributes stored in this file record.
      *
-     * @return an iteratover over attributes stored in this file record.
+     * @return an iterator over attributes stored in this file record.
      */
     public AttributeIterator getAllStoredAttributes() {
         return new StoredAttributeIterator();
@@ -481,7 +488,7 @@ class FileRecord extends NTFSRecord {
         }
 
         @Override
-        protected NTFSAttribute next() {
+        public NTFSAttribute next() {
             while (entryIterator.hasNext()) {
                 AttributeListEntry entry = entryIterator.next();
                 try {
@@ -517,7 +524,7 @@ class FileRecord extends NTFSRecord {
         private int nextOffset = getFirstAttributeOffset();
 
         @Override
-        protected NTFSAttribute next() {
+        public NTFSAttribute next() {
             final int offset = nextOffset;
             final int type = getUInt32AsInt(offset + 0x00);
             if (type == 0xFFFFFFFF) {
@@ -548,7 +555,7 @@ class FileRecord extends NTFSRecord {
         }
 
         @Override
-        protected NTFSAttribute next() {
+        public NTFSAttribute next() {
             NTFSAttribute attr;
             while ((attr = inner.next()) != null) {
                 if (matches(attr)) {
@@ -576,6 +583,6 @@ class FileRecord extends NTFSRecord {
          *
          * @return the next element from the iterator.  Returns {@code null} at the end.
          */
-        protected abstract NTFSAttribute next();
+        public abstract NTFSAttribute next();
     }
 }

@@ -25,7 +25,7 @@ import java.io.IOException;
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class MasterFileTable extends FileRecord {
+public final class MasterFileTable extends FileRecord {
 
     /** MFT indexes of system files */
     public static class SystemFiles {
@@ -126,12 +126,12 @@ final class MasterFileTable extends FileRecord {
     }
 
     /**
-     * Gets an MFT record with a given index.
-     * 
-     * @param index
-     * @return
+     * Gets an MFT record with a given index but does not check if it is a valid file record.
+     *
+     * @param index the index to get.
+     * @return the file record.
      */
-    public FileRecord getRecord(long index) throws IOException {
+    public FileRecord getRecordUnchecked(long index) throws IOException {
         log.debug("getRecord(" + index + ")");
 
         final NTFSVolume volume = getVolume();
@@ -142,6 +142,19 @@ final class MasterFileTable extends FileRecord {
         final byte[] buffer = new byte[bytesPerFileRecord];
         readData(offset, buffer, 0, bytesPerFileRecord);
         return new FileRecord(volume, index, buffer, 0);
+    }
+
+    /**
+     * Gets an MFT record with a given index.
+     * 
+     * @param index the index to get.
+     * @return the file record.
+     * @throws IOException if the record at the index is not valid or there is an error reading in the data.
+     */
+    public FileRecord getRecord(long index) throws IOException {
+        FileRecord fileRecord = getRecordUnchecked(index);
+        fileRecord.checkIfValid();
+        return fileRecord;
     }
 
     public FileRecord getIndexedFileRecord(IndexEntry indexEntry) throws IOException {

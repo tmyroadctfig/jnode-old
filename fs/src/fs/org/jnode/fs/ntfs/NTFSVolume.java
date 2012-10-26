@@ -22,7 +22,6 @@ package org.jnode.fs.ntfs;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
 import org.apache.log4j.Logger;
 import org.jnode.driver.block.BlockDeviceAPI;
 
@@ -67,7 +66,7 @@ public class NTFSVolume {
     /**
      * @return Returns the bootRecord.
      */
-    final BootRecord getBootRecord() {
+    public final BootRecord getBootRecord() {
         return bootRecord;
     }
 
@@ -132,6 +131,7 @@ public class NTFSVolume {
             final byte[] data = new byte[nrClusters * clusterSize];
             readClusters(bootRecord.getMftLcn(), data, 0, nrClusters);
             mftFileRecord = new MasterFileTable(this, data, 0);
+            mftFileRecord.checkIfValid();
         }
         return mftFileRecord;
 

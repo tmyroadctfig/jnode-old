@@ -23,7 +23,7 @@ package org.jnode.fs.ntfs;
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class FileNameAttribute extends NTFSResidentAttribute {
+public final class FileNameAttribute extends NTFSResidentAttribute {
 
     public static class NameSpace {
 
@@ -87,6 +87,22 @@ final class FileNameAttribute extends NTFSResidentAttribute {
     public boolean isCompressed() {
         final int flags = getFlags();
         return ((flags & 0x0800) != 0);
+    }
+
+    /**
+     * Gets the allocated file size.
+     */
+    public long getAllocatedFileSize() {
+        final int attrOffset = getAttributeOffset();
+        return getInt64(attrOffset + 0x28);
+    }
+
+    /**
+     * Gets the real file size.
+     */
+    public long getRealSize() {
+        final int attrOffset = getAttributeOffset();
+        return getInt64(attrOffset + 0x30);
     }
 
     /**
