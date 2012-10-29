@@ -27,6 +27,8 @@ import java.io.IOException;
  *
  * <p>For example if a filesystem has a block size of 512 bytes and a file is only using 500 bytes then there will be
  * 12 bytes of unallocated space at the end of the block that may contain data from a previous file.</p>
+ *
+ * @author Luke Quinane
  */
 public interface FSFileSlackSpace {
     /**
