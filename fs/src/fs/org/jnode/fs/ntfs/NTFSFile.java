@@ -22,9 +22,11 @@ package org.jnode.fs.ntfs;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
+import java.util.HashMap;
+import java.util.Map;
 import org.jnode.fs.FSFile;
 import org.jnode.fs.FSFileSlackSpace;
+import org.jnode.fs.FSFileStreams;
 import org.jnode.fs.FileSystem;
 import org.jnode.util.ByteBufferUtils;
 
@@ -32,8 +34,11 @@ import org.jnode.util.ByteBufferUtils;
  * @author vali
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-public class NTFSFile implements FSFile, FSFileSlackSpace {
+public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
+    /**
+     * The associated file record.
+     */
     private FileRecord fileRecord;
 
     /**
@@ -167,5 +172,96 @@ public class NTFSFile implements FSFile, FSFileSlackSpace {
      */
     public void flush() throws IOException {
         // TODO implement me
+    }
+
+    @Override
+    public Map<String, FSFile> getStreams() {
+        Map<String, FSFile> streams = new HashMap<String, FSFile>();
+
+        FileRecord.AttributeIterator dataAttributes = fileRecord.findAttributesByType(NTFSAttribute.Types.DATA);
+        NTFSAttribute attribute = dataAttributes.next();
+
+        while (attribute != null) {
+            String attributeName = attribute.getAttributeName();
+
+            if (attributeName == null) {
+                // The unnamed data attribute is the main file data, so ignore it
+                continue;
+            }
+
+            streams.put(attributeName, new StreamFile(attributeName, attribute));
+        }
+
+        return streams;
+    }
+
+    /**
+     * A file for reading data out of alternate streams.
+     */
+    private class StreamFile implements FSFile {
+        /**
+         * The name of the alternate data stream.
+         */
+        private String attributeName;
+
+        /**
+         * The attribute for the alternate data stream.
+         */
+        private NTFSAttribute attribute;
+
+        /**
+         * Creates a new stream file.
+         *
+         * @param attributeName the name of the alternate data stream.
+         * @param attribute the attribute for the alternate data stream.
+         */
+        public StreamFile(String attributeName, NTFSAttribute attribute) {
+            this.attributeName = attributeName;
+            this.attribute = attribute;
+        }
+
+        @Override
+        public long getLength() {
+            if (attribute.isResident()) {
+                NTFSResidentAttribute dataAttribute = (NTFSResidentAttribute) attribute;
+                return dataAttribute.getAttributeLength();
+            }
+            else {
+                NTFSNonResidentAttribute dataAttribute = (NTFSNonResidentAttribute) attribute;
+                return dataAttribute.getAttributeActualSize();
+            }
+        }
+
+        @Override
+        public void setLength(long length) throws IOException {
+            throw new UnsupportedOperationException("Not implemented yet");
+        }
+
+        @Override
+        public void read(long fileOffset, ByteBuffer dest) throws IOException {
+            ByteBufferUtils.ByteArray destByteArray = ByteBufferUtils.toByteArray(dest);
+            byte[] destBuffer = destByteArray.toArray();
+            getFileRecord().readData(attributeName, fileOffset, destBuffer, 0, destBuffer.length);
+            destByteArray.refreshByteBuffer();
+        }
+
+        @Override
+        public void write(long fileOffset, ByteBuffer src) throws IOException {
+            throw new UnsupportedOperationException("Not implemented yet");
+        }
+
+        @Override
+        public void flush() throws IOException {
+        }
+
+        @Override
+        public boolean isValid() {
+            return true;
+        }
+
+        @Override
+        public FileSystem<?> getFileSystem() {
+            return NTFSFile.this.getFileSystem();
+        }
     }
 }

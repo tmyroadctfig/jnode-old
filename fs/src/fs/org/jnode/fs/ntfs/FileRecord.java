@@ -342,6 +342,23 @@ public class FileRecord extends NTFSRecord {
     }
 
     /**
+     * Gets attributes in this filerecord with a given type.
+     *
+     * @param attrTypeID the type ID of the attribute we're looking for.
+     * @return the attributes, will be empty if not found, never {@code null}.
+     */
+    public AttributeIterator findAttributesByType(final int attrTypeID) {
+        log.debug("findAttributesByType(0x" + NumberUtils.hex(attrTypeID, 4) + ")");
+
+        return new FilteredAttributeIterator(getAllAttributes()) {
+            @Override
+            protected boolean matches(NTFSAttribute attr) {
+                return attr.getAttributeType() == attrTypeID;
+            }
+        };
+    }
+
+    /**
      * Gets attributes in this filerecord with a given type and name.
      *
      * @param attrTypeID the type ID of the attribute we're looking for.
@@ -377,17 +394,31 @@ public class FileRecord extends NTFSRecord {
      * @throws IOException if an error occurs reading from the filesystem.
      */
     public void readData(long fileOffset, byte[] dest, int off, int len) throws IOException {
+        // Explicitly look for the attribute with no name, to avoid getting alternate streams.
+        readData(null, fileOffset, dest, off, len);
+    }
+
+    /**
+     * Reads data from the file.
+     *
+     * @param fileOffset the offset into the file.
+     * @param dest the destination byte array into which to copy the file data.
+     * @param off the offset into the destination byte array.
+     * @param len the number of bytes of data to read.
+     * @throws IOException if an error occurs reading from the filesystem.
+     */
+    public void readData(String streamName, long fileOffset, byte[] dest, int off, int len) throws IOException {
         if (log.isDebugEnabled()) {
-            log.debug("readData: offset " + fileOffset + " length " + len + ", file record = " + this);
+            log.debug("readData: offset " + fileOffset + " stream: " + streamName + " length " + len +
+                ", file record = " + this);
         }
 
         if (len == 0) {
             return;
         }
 
-        // Explicitly look for the attribute with no name, to avoid getting alternate streams.
         // XXX: Add API for getting length and content from alternate streams.
-        final AttributeIterator dataAttrs = findAttributesByTypeAndName(NTFSAttribute.Types.DATA, null);
+        final AttributeIterator dataAttrs = findAttributesByTypeAndName(NTFSAttribute.Types.DATA, streamName);
         NTFSAttribute attr = dataAttrs.next();
         if (attr == null) {
             throw new IOException("Data attribute not found, file record = " + this);
@@ -455,6 +486,7 @@ public class FileRecord extends NTFSRecord {
         System.arraycopy(tmp, (int) fileOffset % clusterSize, dest, off, len);
     }
 
+    @Override
     public String toString() {
         if (isInUse()) {
             return super.toString() + "[fileName=" + getFileName() + "]";

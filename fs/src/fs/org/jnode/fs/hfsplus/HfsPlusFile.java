@@ -22,12 +22,15 @@ package org.jnode.fs.hfsplus;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import org.jnode.fs.FSFile;
 import org.jnode.fs.FSFileSlackSpace;
+import org.jnode.fs.FSFileStreams;
 import org.jnode.fs.FileSystem;
 import org.jnode.fs.hfsplus.catalog.CatalogFile;
 
-public class HfsPlusFile implements FSFile, FSFileSlackSpace {
+public class HfsPlusFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
     private HfsPlusEntry entry;
 
@@ -90,5 +93,49 @@ public class HfsPlusFile implements FSFile, FSFileSlackSpace {
         read(getLength(), ByteBuffer.wrap(slackSpace));
 
         return slackSpace;
+    }
+
+    @Override
+    public Map<String, FSFile> getStreams() {
+        Map<String, FSFile> streams = new HashMap<String, FSFile>();
+
+        streams.put("rsrc", new FSFile() {
+            @Override
+            public long getLength() {
+                return file.getResources().getTotalSize();
+            }
+
+            @Override
+            public void setLength(long length) throws IOException {
+                throw new UnsupportedOperationException("Not implemented yet");
+            }
+
+            @Override
+            public void read(long fileOffset, ByteBuffer dest) throws IOException {
+                HfsPlusFileSystem fs = (HfsPlusFileSystem) getFileSystem();
+                file.getResources().read(fs, fileOffset, dest);
+            }
+
+            @Override
+            public void write(long fileOffset, ByteBuffer src) throws IOException {
+                throw new UnsupportedOperationException("Not implemented yet");
+            }
+
+            @Override
+            public void flush() throws IOException {
+            }
+
+            @Override
+            public boolean isValid() {
+                return entry.isValid();
+            }
+
+            @Override
+            public FileSystem<?> getFileSystem() {
+                return HfsPlusFile.this.getFileSystem();
+            }
+        });
+
+        return streams;
     }
 }
