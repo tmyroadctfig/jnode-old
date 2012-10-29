@@ -178,18 +178,18 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
     public Map<String, FSFile> getStreams() {
         Map<String, FSFile> streams = new HashMap<String, FSFile>();
 
-        FileRecord.AttributeIterator dataAttributes = fileRecord.findAttributesByType(NTFSAttribute.Types.DATA);
+        FileRecord.AttributeIterator dataAttributes = getFileRecord().findAttributesByType(NTFSAttribute.Types.DATA);
         NTFSAttribute attribute = dataAttributes.next();
 
         while (attribute != null) {
             String attributeName = attribute.getAttributeName();
 
-            if (attributeName == null) {
-                // The unnamed data attribute is the main file data, so ignore it
-                continue;
+            // The unnamed data attribute is the main file data, so ignore it
+            if (attributeName != null) {
+                streams.put(attributeName, new StreamFile(attributeName, attribute));
             }
 
-            streams.put(attributeName, new StreamFile(attributeName, attribute));
+            attribute = dataAttributes.next();
         }
 
         return streams;
