@@ -99,43 +99,48 @@ public class HfsPlusFile implements FSFile, FSFileSlackSpace, FSFileStreams {
     public Map<String, FSFile> getStreams() {
         Map<String, FSFile> streams = new HashMap<String, FSFile>();
 
-        streams.put("rsrc", new FSFile() {
-            @Override
-            public long getLength() {
-                return file.getResources().getTotalSize();
-            }
-
-            @Override
-            public void setLength(long length) throws IOException {
-                throw new UnsupportedOperationException("Not implemented yet");
-            }
-
-            @Override
-            public void read(long fileOffset, ByteBuffer dest) throws IOException {
-                HfsPlusFileSystem fs = (HfsPlusFileSystem) getFileSystem();
-                file.getResources().read(fs, fileOffset, dest);
-            }
-
-            @Override
-            public void write(long fileOffset, ByteBuffer src) throws IOException {
-                throw new UnsupportedOperationException("Not implemented yet");
-            }
-
-            @Override
-            public void flush() throws IOException {
-            }
-
-            @Override
-            public boolean isValid() {
-                return entry.isValid();
-            }
-
-            @Override
-            public FileSystem<?> getFileSystem() {
-                return HfsPlusFile.this.getFileSystem();
-            }
-        });
+        streams.put("rsrc", new ResourceForkFile());
 
         return streams;
+    }
+
+    /**
+     * A file for the resource fork stream.
+     */
+    public class ResourceForkFile implements FSFile {
+        @Override
+        public long getLength() {
+            return file.getResources().getTotalSize();
+        }
+
+        @Override
+        public void setLength(long length) throws IOException {
+            throw new UnsupportedOperationException("Not implemented yet");
+        }
+
+        @Override
+        public void read(long fileOffset, ByteBuffer dest) throws IOException {
+            HfsPlusFileSystem fs = (HfsPlusFileSystem) getFileSystem();
+            file.getResources().read(fs, fileOffset, dest);
+        }
+
+        @Override
+        public void write(long fileOffset, ByteBuffer src) throws IOException {
+            throw new UnsupportedOperationException("Not implemented yet");
+        }
+
+        @Override
+        public void flush() throws IOException {
+        }
+
+        @Override
+        public boolean isValid() {
+            return entry.isValid();
+        }
+
+        @Override
+        public FileSystem<?> getFileSystem() {
+            return HfsPlusFile.this.getFileSystem();
+        }
     }
 }
