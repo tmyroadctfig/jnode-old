@@ -202,12 +202,12 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
         /**
          * The name of the alternate data stream.
          */
-        private String attributeName;
+        private final String attributeName;
 
         /**
          * The attribute for the alternate data stream.
          */
-        private NTFSAttribute attribute;
+        private final NTFSAttribute attribute;
 
         /**
          * Creates a new stream file.
