@@ -21,7 +21,6 @@
 package org.jnode.fs.hfsplus;
 
 import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.jnode.driver.Device;
 import org.jnode.fs.FSDirectory;
@@ -29,6 +28,7 @@ import org.jnode.fs.FSEntry;
 import org.jnode.fs.FSFile;
 import org.jnode.fs.FileSystemException;
 import org.jnode.fs.hfsplus.catalog.Catalog;
+import org.jnode.fs.hfsplus.catalog.CatalogKey;
 import org.jnode.fs.hfsplus.catalog.CatalogNodeId;
 import org.jnode.fs.hfsplus.tree.LeafRecord;
 import org.jnode.fs.spi.AbstractFileSystem;
@@ -114,6 +114,12 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
 
     public final long getUsableSpace() {
         return -1;
+    }
+
+    @Override
+    public String getVolumeName() throws IOException {
+        LeafRecord record = catalog.getRecord(CatalogNodeId.HFSPLUS_POR_CNID);
+        return ((CatalogKey) record.getKey()).getNodeName().getUnicodeString();
     }
 
     public final Catalog getCatalog() {

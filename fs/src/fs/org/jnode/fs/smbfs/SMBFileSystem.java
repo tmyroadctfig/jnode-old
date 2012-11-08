@@ -108,4 +108,9 @@ public class SMBFileSystem extends NtlmAuthenticator implements FileSystem<SMBFS
     public long getUsableSpace() throws IOException {
         return root.smbFile.getDiskFreeSpace();
     }
+
+    @Override
+    public String getVolumeName() throws IOException {
+        return "smb://" + device.getHost() + "/" + device.getPath() + "/";
+    }
 }

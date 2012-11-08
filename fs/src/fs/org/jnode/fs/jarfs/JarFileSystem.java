@@ -20,6 +20,7 @@
  
 package org.jnode.fs.jarfs;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -82,5 +83,10 @@ public class JarFileSystem extends AbstractFileSystem<JarFSEntry> {
     public long getUsableSpace() {
         // TODO implement me
         return -1;
+    }
+
+    @Override
+    public String getVolumeName() throws IOException {
+        return jarFile.getName();
     }
 }

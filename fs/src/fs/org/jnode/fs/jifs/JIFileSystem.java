@@ -20,6 +20,7 @@
  
 package org.jnode.fs.jifs;
 
+import java.io.IOException;
 import org.jnode.driver.Device;
 import org.jnode.fs.FileSystem;
 import org.jnode.fs.FileSystemException;
@@ -91,5 +92,10 @@ public class JIFileSystem implements FileSystem<JIFSDirectory> {
 
     public long getUsableSpace() {
         return -1;
+    }
+
+    @Override
+    public String getVolumeName() throws IOException {
+        return device.getShortDescription();
     }
 }

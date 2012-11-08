@@ -181,6 +181,11 @@ public class FTPFileSystem implements FileSystem<FTPFSDirectory> {
         return -1;
     }
 
+    @Override
+    public String getVolumeName() throws IOException {
+        return "ftp://" + device.getHost();
+    }
+
     FTPFile[] dirDetails(String path) throws IOException, FTPException, ParseException {
         return client.dirDetails(path);
     }

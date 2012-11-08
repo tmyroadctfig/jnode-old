@@ -975,4 +975,9 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
         // TODO implement me
         return -1;
     }
+
+    @Override
+    public String getVolumeName() throws IOException {
+        return superblock.getVolumeName();
+    }
 }

@@ -73,16 +73,11 @@ public class NTFSFileSystem extends AbstractFileSystem<FSEntry> {
         return this.volume;
     }
 
-    /**
-     * Gets the NTFS volume name.
-     *
-     * @return Returns the volume name.
-     * @throws IOException if an error occurs reading the volume name.
-     */
-    public String getNTFSVolumeName() throws IOException {
+    @Override
+    public String getVolumeName() throws IOException {
         NTFSEntry entry = (NTFSEntry) getRootEntry().getDirectory().getEntry("$Volume");
         if (entry == null) {
-            return null;
+            return "";
         }
 
         NTFSAttribute attribute = entry.getFileRecord().findAttributeByType(NTFSAttribute.Types.VOLUME_NAME);
@@ -101,7 +96,7 @@ public class NTFSFileSystem extends AbstractFileSystem<FSEntry> {
             }
         }
 
-        return null;
+        return "";
     }
 
     /**

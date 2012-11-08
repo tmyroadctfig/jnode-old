@@ -118,4 +118,9 @@ public class FatFileSystem extends AbstractFileSystem<FatRootDirectory> {
         // TODO implement me
         return -1;
     }
+
+    @Override
+    public String getVolumeName() throws IOException {
+        return getRootEntry().getLabel();
+    }
 }

@@ -189,6 +189,11 @@ public class NFS2FileSystem implements FileSystem<NFS2RootEntry> {
         return fileSystemAttribute.getBlockSize() * fileSystemAttribute.getFreeBlockCount();
     }
 
+    @Override
+    public String getVolumeName() throws IOException {
+        return device.getHost() + ":" + device.getRemoteDirectory();
+    }
+
     private FileSystemAttribute getFileSystemAttribute() {
         try {
             return nfsClient.getFileSystemAttribute(root.getFileHandle());

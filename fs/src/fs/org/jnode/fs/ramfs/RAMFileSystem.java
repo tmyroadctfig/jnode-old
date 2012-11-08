@@ -142,6 +142,11 @@ public class RAMFileSystem implements FileSystem<RAMDirectory> {
         return maxSize - summedFileSize;
     }
 
+    @Override
+    public String getVolumeName() throws IOException {
+        return "";
+    }
+
     synchronized void addSummmedBufferSize(long toAdd) {
         summedBufferSize += toAdd;
     }

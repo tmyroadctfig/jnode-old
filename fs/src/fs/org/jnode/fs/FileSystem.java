@@ -69,8 +69,6 @@ public interface FileSystem<T extends FSEntry> {
      * file system or objects created by this file system will throw an
      * IOException.
      * 
-     * 
-     * 
      * @throws IOException if an I/O error occurs
      */
     public void close() throws IOException;
@@ -108,4 +106,12 @@ public interface FileSystem<T extends FSEntry> {
      * @throws IOException if an I/O error occurs
      */
     public long getUsableSpace() throws IOException;
+
+    /**
+     * Gets the volume name for this file system.
+     *
+     * @return the volume name.
+     * @throws IOException if an error occurs reading the volume name.
+     */
+    public String getVolumeName() throws IOException;
 }

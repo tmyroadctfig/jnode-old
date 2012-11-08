@@ -118,4 +118,9 @@ public class ISO9660FileSystem extends AbstractFileSystem<ISO9660Entry> {
     public long getUsableSpace() {
         return volume.getSize();
     }
+
+    @Override
+    public String getVolumeName() throws IOException {
+        return getVolume().getPrimaryVolumeDescriptor().getVolumeIdentifier();
+    }
 }
