@@ -338,6 +338,15 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
     }
 
     /**
+     * Gets the group descriptors for the file system.
+     *
+     * @return the group descriptors.
+     */
+    public GroupDescriptor[] getGroupDescriptors() {
+        return groupDescriptors;
+    }
+
+    /**
      * Read a data block and put it in the cache if it is not yet cached,
      * otherwise get it from the cache.
      * 
