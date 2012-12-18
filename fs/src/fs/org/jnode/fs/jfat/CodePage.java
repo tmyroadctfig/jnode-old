@@ -37,6 +37,10 @@ public class CodePage {
         return new CodePage(Charset.forName(codePageName));
     }
 
+    public Charset getCharset() {
+        return charset;
+    }
+
     public CodePageEncoder newEncoder() {
         return new Encoder();
     }
