@@ -130,14 +130,34 @@ public class NTFSFileSystem extends AbstractFileSystem<FSEntry> {
         return null;
     }
 
-    public long getFreeSpace() {
-        // TODO implement me
-        return -1;
+    public long getFreeSpace() throws IOException {
+        FileRecord bitmapRecord = volume.getMFT().getRecord(MasterFileTable.SystemFiles.BITMAP);
+
+        int bitmapSize = (int) bitmapRecord.getFileNameAttribute().getRealSize();
+        byte[] buffer = new byte[bitmapSize];
+        bitmapRecord.readData(0, buffer, 0, buffer.length);
+
+        int usedBlocks = 0;
+
+        for (byte b : buffer) {
+            for (int i = 0; i < 8; i++) {
+                if ((b & 0x1) != 0) {
+                    usedBlocks++;
+                }
+
+                b >>= 1;
+            }
+        }
+
+        long usedSpace = (long) usedBlocks * volume.getClusterSize();
+
+        return getTotalSpace() - usedSpace;
     }
 
-    public long getTotalSpace() {
-        // TODO implement me
-        return -1;
+    public long getTotalSpace() throws IOException {
+        FileRecord bitmapRecord = volume.getMFT().getRecord(MasterFileTable.SystemFiles.BITMAP);
+        long bitmapSize = bitmapRecord.getFileNameAttribute().getRealSize();
+        return bitmapSize * 8 * volume.getClusterSize();
     }
 
     public long getUsableSpace() {
