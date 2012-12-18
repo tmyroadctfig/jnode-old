@@ -53,14 +53,19 @@ public class HfsPlusFileSystemType implements BlockDeviceFileSystemType<HfsPlusF
             }
         } */
         // need to check the magic
-        ByteBuffer magic = ByteBuffer.allocate(2);
+        ByteBuffer magic = ByteBuffer.allocate(4);
         try {
             devApi.read(1024, magic);
         } catch (IOException e) {
             return false;
         }
+
         int magicNumber = BigEndian.getInt16(magic.array(), 0);
-        return (magicNumber == SuperBlock.HFSPLUS_SUPER_MAGIC || magicNumber == SuperBlock.HFSX_SUPER_MAGIC);
+        int version = BigEndian.getInt16(magic.array(), 2);
+
+        return
+            (magicNumber == SuperBlock.HFSPLUS_SUPER_MAGIC && version == 4) ||
+            (magicNumber == SuperBlock.HFSX_SUPER_MAGIC && version == 5);
     }
 
 }
