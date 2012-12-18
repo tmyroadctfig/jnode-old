@@ -178,11 +178,13 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
         if (!isReadOnly()) {
             log.info(getDevice().getId() + " mounting fs r/w");
             superblock.setState(Ext2Constants.EXT2_ERROR_FS);
+
+            // Mount successfull, update some superblock informations.
+            superblock.setMntCount(superblock.getMntCount() + 1);
+            superblock.setMTime(Ext2Utils.encodeDate(new Date()));
+            superblock.setWTime(Ext2Utils.encodeDate(new Date()));
         }
-        // Mount successfull, update some superblock informations.
-        superblock.setMntCount(superblock.getMntCount() + 1);
-        superblock.setMTime(Ext2Utils.encodeDate(new Date()));
-        superblock.setWTime(Ext2Utils.encodeDate(new Date()));
+
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy");
         log.debug(" superblock: " + "\n" + 
                 "  #Mount: " + superblock.getMntCount() + "\n" + 
