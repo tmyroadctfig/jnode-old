@@ -18,7 +18,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.attribute;
+
+import org.jnode.fs.ntfs.FileRecord;
 
 /**
  * An NTFS file attribute that has its data stored inside the attribute.

@@ -18,8 +18,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.attribute;
 
+import org.jnode.fs.ntfs.FileNameAttribute;
+import org.jnode.fs.ntfs.FileRecord;
+import org.jnode.fs.ntfs.NTFSStructure;
+import org.jnode.fs.ntfs.StandardInformationAttribute;
 import org.jnode.fs.ntfs.index.IndexAllocationAttribute;
 import org.jnode.fs.ntfs.index.IndexRootAttribute;
 
