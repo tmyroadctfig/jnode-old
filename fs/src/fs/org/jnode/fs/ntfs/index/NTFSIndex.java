@@ -18,20 +18,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.index;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.apache.log4j.Logger;
+import org.jnode.fs.ntfs.FileRecord;
+import org.jnode.fs.ntfs.NTFSAttribute;
 import org.jnode.util.Queue;
 
 /**
  * @author Chira
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class NTFSIndex {
+public final class NTFSIndex {
 
     private final FileRecord fileRecord;
 

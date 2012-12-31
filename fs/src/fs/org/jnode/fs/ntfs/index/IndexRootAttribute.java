@@ -18,9 +18,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.index;
 
 import java.util.Iterator;
+import org.jnode.fs.ntfs.FileRecord;
+import org.jnode.fs.ntfs.NTFSResidentAttribute;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
