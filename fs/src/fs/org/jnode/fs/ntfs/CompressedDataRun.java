@@ -235,7 +235,7 @@ final class CompressedDataRun implements DataRunInterface {
 
     @Override
     public long mapVcnToLcn(long vcn) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return compressedRun.mapVcnToLcn(vcn);
     }
 
     /**
