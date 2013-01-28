@@ -60,7 +60,18 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
     }
 
     public long getLength() {
-        return indexEntry.getRealFileSize();
+        FileRecord.AttributeIterator attributes = getFileRecord().findAttributesByTypeAndName(NTFSAttribute.Types.DATA, null);
+        NTFSAttribute attribute = attributes.next();
+
+        if (attribute == null) {
+            return indexEntry.getRealFileSize();
+        }
+
+        if (attribute.isResident()) {
+            return ((NTFSResidentAttribute) attribute).getAttributeLength();
+        } else {
+            return ((NTFSNonResidentAttribute) attribute).getAttributeActualSize();
+        }
     }
 
     /*
