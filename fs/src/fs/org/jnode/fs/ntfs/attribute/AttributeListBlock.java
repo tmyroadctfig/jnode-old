@@ -18,10 +18,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.attribute;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.jnode.fs.ntfs.NTFSStructure;
 
 /**
  * Data structure containing a list of {@link AttributeListEntry} entries.

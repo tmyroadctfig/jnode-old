@@ -18,13 +18,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.attribute;
 
+
+import org.jnode.fs.ntfs.NTFSStructure;
 
 /**
  * @author Daniel Noll (daniel@noll.id.au)
  */
-final class AttributeListEntry extends NTFSStructure {
+public final class AttributeListEntry extends NTFSStructure {
 
     /**
      * Creates the entry.

@@ -30,6 +30,7 @@ import org.jnode.fs.FSEntryLastChanged;
 import org.jnode.fs.FSFile;
 import org.jnode.fs.FSObject;
 import org.jnode.fs.FileSystem;
+import org.jnode.fs.ntfs.index.IndexEntry;
 
 /**
  * @author vali
