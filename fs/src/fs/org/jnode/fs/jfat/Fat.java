@@ -75,11 +75,12 @@ public abstract class Fat {
 
         if (bs.isFat32()) {
             return new Fat32(bs, api);
+        } else if (bs.isFat16()) {
+            return new Fat16(bs, api);
+        } else if (bs.isFat12()) {
+//            return new Fat12(bs, api);
         }
-        /*
-         * else if ( bs.isFat16() ) return new Fat16 ( bs, api ); else if (
-         * bs.isFat12() ) return new Fat12 ( bs, api );
-         */
+
         throw new FileSystemException("FAT not recognized");
     }
 
@@ -193,9 +194,7 @@ public abstract class Fat {
                 getBootSector().getFirstDataSector();
     }
 
-    public final long getClusterPosition(int index) {
-        return getClusterSector(index) * (long) bs.getBytesPerSector();
-    }
+    public abstract long getClusterPosition(int index);
 
     public final int size() {
         return (int) (bs.getCountOfClusters() + firstCluster());
