@@ -18,60 +18,43 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.attribute;
 
-import java.util.Iterator;
+import org.jnode.fs.ntfs.FileRecord;
 
 /**
+ * An NTFS file attribute that has its data stored inside the attribute.
+ * 
+ * @author Chira
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-public final class IndexRootAttribute extends NTFSResidentAttribute {
-
-    private IndexRoot root;
-
-    private IndexHeader header;
+public class NTFSResidentAttribute extends NTFSAttribute {
 
     /**
      * @param fileRecord
      * @param offset
      */
-    public IndexRootAttribute(FileRecord fileRecord, int offset) {
+    public NTFSResidentAttribute(FileRecord fileRecord, int offset) {
         super(fileRecord, offset);
     }
 
     /**
-     * Gets the index root structure.
+     * Gets the offset to the actual attribute.
      * 
-     * @return
+     * @return Returns the attributeOffset.
      */
-    public IndexRoot getRoot() {
-        if (root == null) {
-            root = new IndexRoot(this);
-        }
-        return root;
+    public int getAttributeOffset() {
+        return getUInt16(0x14);
     }
 
     /**
-     * Gets the index header structure.
-     * 
-     * @return
+     * @return Returns the indexedFlag.
      */
-    public IndexHeader getHeader() {
-        if (header == null) {
-            header = new IndexHeader(this);
-        }
-        return header;
+    public int getIndexedFlag() {
+        return getUInt8(0x16);
     }
 
-    /**
-     * Gets an iterator to iterate over all IndexEntry's in this index_root
-     * attribute.
-     * 
-     * @return
-     */
-    public Iterator<IndexEntry> iterator() {
-        final int headerOffset = getAttributeOffset() + IndexRoot.SIZE;
-        return new IndexEntryIterator(getFileRecord(), this, headerOffset +
-                getHeader().getFirstEntryOffset());
+    public int getAttributeLength() {
+        return (int) getUInt32(0x10);
     }
 }

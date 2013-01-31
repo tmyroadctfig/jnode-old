@@ -18,11 +18,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.attribute;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.jnode.fs.ntfs.CompressedDataRun;
+import org.jnode.fs.ntfs.DataRun;
+import org.jnode.fs.ntfs.DataRunInterface;
+import org.jnode.fs.ntfs.FileRecord;
+import org.jnode.fs.ntfs.NTFSVolume;
 
 /**
  * An NTFS file attribute that has its data stored outside the attribute.
@@ -55,7 +60,7 @@ public class NTFSNonResidentAttribute extends NTFSAttribute {
     }
 
     /**
-     * @see org.jnode.fs.ntfs.NTFSAttribute#processAttributeData(byte[])
+     * @see NTFSAttribute#processAttributeData(byte[])
      */
     /*
      * public void processAttributeData(byte[] buffer) { // TODO Auto-generated

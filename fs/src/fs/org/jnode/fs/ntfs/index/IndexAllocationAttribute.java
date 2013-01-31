@@ -18,14 +18,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.index;
 
 import java.io.IOException;
+import org.jnode.fs.ntfs.FileRecord;
+import org.jnode.fs.ntfs.attribute.NTFSNonResidentAttribute;
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-final class IndexAllocationAttribute extends NTFSNonResidentAttribute {
+public final class IndexAllocationAttribute extends NTFSNonResidentAttribute {
 
     /**
      * Creates the index allocation attribute.

@@ -18,7 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.attribute;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -29,7 +29,7 @@ import java.util.Iterator;
  *
  * @author Daniel Noll (daniel@noll.id.au)
  */
-interface AttributeListAttribute {
+public interface AttributeListAttribute {
 
     /**
      * Gets an iterator over all the entries in the attribute list.

@@ -18,10 +18,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.ntfs;
+package org.jnode.fs.ntfs.attribute;
 
 import java.io.IOException;
 import java.util.Iterator;
+import org.jnode.fs.ntfs.FileRecord;
 
 /**
  * $ATTRIBUTE_LIST attribute, non-resident version.
