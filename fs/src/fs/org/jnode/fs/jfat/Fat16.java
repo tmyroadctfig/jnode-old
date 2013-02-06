@@ -18,13 +18,13 @@ public class Fat16 extends Fat {
     }
 
     public int get(int index) throws IOException {
-        return (int) (getUInt32(index) & 0xFFFF);
+        return (int) getUInt16(index);
     }
 
     public int set(int index, int element) throws IOException {
-        long old = getUInt32(index);
+        long old = getUInt16(index);
 
-        setInt32(index, (int) ((element & 0xFFFF) | (old & 0xFFFF0000)));
+        setInt16(index, element & 0xFFFF);
 
         return (int) (old & 0x0000FFFF);
     }

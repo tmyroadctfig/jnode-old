@@ -224,8 +224,16 @@ public abstract class Fat {
         return (entry == freeEntry());
     }
 
+    public long getUInt16(int index) throws IOException {
+        return cache.getUInt16(index);
+    }
+
     public long getUInt32(int index) throws IOException {
         return cache.getUInt32(index);
+    }
+
+    public void setInt16(int index, int element) throws IOException {
+        cache.setInt16(index, element);
     }
 
     public void setInt32(int index, int element) throws IOException {
