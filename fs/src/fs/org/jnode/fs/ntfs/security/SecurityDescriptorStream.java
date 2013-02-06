@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import org.jnode.fs.ntfs.FileRecord;
 import org.jnode.fs.ntfs.NTFSFile;
-import org.jnode.fs.ntfs.NTFSRecord;
-import org.jnode.fs.ntfs.NTFSStructure;
-import org.jnode.fs.ntfs.NTFSVolume;
 import org.jnode.util.LittleEndian;
 
 /**
@@ -21,7 +17,7 @@ public class SecurityDescriptorStream {
     /**
      * The stream that holds the security descriptors.
      */
-    private NTFSFile.StreamFile sdsFile;
+    private final NTFSFile.StreamFile sdsFile;
 
     /**
      * The list of entries in the stream.

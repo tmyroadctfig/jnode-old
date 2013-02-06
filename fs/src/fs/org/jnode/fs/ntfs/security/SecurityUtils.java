@@ -11,6 +11,11 @@ import org.jnode.util.BigEndian;
  * @author Luke Quinane
  */
 public class SecurityUtils {
+
+    private SecurityUtils() {
+        // Prevent instantiation
+    }
+
     /**
      * Reads in a SID.
      *

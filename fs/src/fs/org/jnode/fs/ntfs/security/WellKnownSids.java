@@ -69,6 +69,10 @@ public class WellKnownSids {
     public static final SecurityIdentifier LOCAL_RAS_SERVERS_ALIAS = register("Local RAS Servers", "S-1-5-32-553");
     public static final SecurityIdentifier LOCAL_PRE_W2K_ALIAS = register("Local Pre-W2K Comp Access", "S-1-5-32-554");
 
+    private WellKnownSids() {
+        // Prevent instantiation
+    }
+
     /**
      * Registers a SID with the set of known SIDs.
      *

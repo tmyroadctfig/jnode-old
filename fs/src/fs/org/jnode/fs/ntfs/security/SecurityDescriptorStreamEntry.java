@@ -1,6 +1,5 @@
 package org.jnode.fs.ntfs.security;
 
-import java.util.List;
 import org.jnode.fs.ntfs.NTFSStructure;
 
 /**
@@ -70,7 +69,11 @@ public class SecurityDescriptorStreamEntry extends NTFSStructure {
      */
     public int getLength() {
         int length = getInt32(0x10);
-        length += length % 16; // Round up to a 16-byte boundary
+
+        // Round up to a 16-byte boundary
+        long rounding = length % 16 == 0 ? 0 : 16 - length % 16;
+        length += rounding;
+
         return length;
     }
 }

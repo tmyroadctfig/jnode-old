@@ -32,8 +32,10 @@ public class SecurityIdentifier {
 
     @Override
     public String toString() {
-        if (WellKnownSids.containsSid(this)) {
-            return WellKnownSids.getName(this);
+        String wellKnownName = WellKnownSids.getName(this);
+
+        if (wellKnownName != null) {
+            return wellKnownName;
         }
 
         StringBuilder subAuthorityBuilder = new StringBuilder();
