@@ -16,8 +16,6 @@ import org.jnode.fs.service.def.FileSystemPlugin;
 import org.jnode.util.FileUtils;
 import org.junit.Assert;
 
-import static org.junit.Assert.assertTrue;
-
 /**
  * File system test utilities.
  */
@@ -74,7 +72,7 @@ public class FileSystemTestUtils {
                 in.close();
             }
 
-            assertTrue(
+            Assert.assertTrue(
                 String.format("Temp data file couldn't be renamed.\nOld name: %s\nNew name: %s", tempFile, outputFile),
                 tempFile.renameTo(outputFile));
         }
