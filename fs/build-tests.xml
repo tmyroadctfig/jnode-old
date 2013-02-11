@@ -16,7 +16,10 @@ help         Output these messages
 		<mkdir dir="${basedir}/reports/junit"/>
 		<junit showoutput="on" printsummary="on" fork="on">
 			<classpath refid="cp-test"/>
-			<test name="org.jnode.test.fs.filesystem.FSTestSuite" todir="${basedir}/reports/junit"/>
+			<test name="org.jnode.fs.ext4.Ext4FileSystemTest" todir="${basedir}/reports/junit"/>
+			<test name="org.jnode.fs.jfat.FatFileSystemTest" todir="${basedir}/reports/junit"/>
+			<test name="org.jnode.fs.ntfs.NTFSFileSystemTest" todir="${basedir}/reports/junit"/>
+			<!-- <test name="org.jnode.test.fs.filesystem.FSTestSuite" todir="${basedir}/reports/junit"/> -->
 		</junit>
 	</target>
 
