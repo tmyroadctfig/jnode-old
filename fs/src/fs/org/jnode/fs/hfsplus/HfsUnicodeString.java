@@ -23,6 +23,9 @@ package org.jnode.fs.hfsplus;
 import org.jnode.util.BigEndian;
 
 public class HfsUnicodeString {
+	
+	public final static HfsUnicodeString EMPTY = new HfsUnicodeString(""); 
+	
     /** Length of string in characters. */
     private int length;
 
@@ -37,10 +40,7 @@ public class HfsUnicodeString {
      */
     public HfsUnicodeString(final byte[] src, final int offset) {
         length = BigEndian.getInt16(src, offset);
-        byte[] data = new byte[2 + (length * 2)];
-        System.arraycopy(src, offset, data, 0, 2);
-        length = BigEndian.getInt16(data, 0);
-        data = new byte[length * 2];
+        byte[]data = new byte[length * 2];
         System.arraycopy(src, offset + 2, data, 0, length * 2);
         char[] result = new char[length];
         for (int i = 0; i < length; ++i) {

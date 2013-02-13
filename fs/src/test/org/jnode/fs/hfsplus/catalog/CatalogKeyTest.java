@@ -21,24 +21,36 @@
 package org.jnode.fs.hfsplus.catalog;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.nio.ByteBuffer;
 
 import org.jnode.fs.hfsplus.HfsUnicodeString;
 import org.junit.Test;
 
 public class CatalogKeyTest {
-	byte[] KEY_AS_BYTES_ARRAY = new byte[]{0,24,0,0,0,7,0, 8, 0, 116, 0, 101, 0, 115, 0, 116, 0, 46, 0, 116, 0, 120, 0, 116};
+	byte[] EMPTY_KEY_AS_BYTES_ARRAY = ByteBuffer.allocate(6).putShort((short) 6).putInt(17).array();
 	String NODE_NAME_AS_STRING = "test.txt";
 
 	@Test
-	public void testKeyFromBytesArray(){
-		CatalogKey key = new CatalogKey(KEY_AS_BYTES_ARRAY,0);
-		assertEquals(NODE_NAME_AS_STRING,key.getNodeName().getUnicodeString());
-		assertEquals(26,key.getKeyLength());
-		assertEquals(7,key.getParentId().getId());
+	public void fromBytesArrayWithEmptyName(){
+		CatalogKey key = new CatalogKey(EMPTY_KEY_AS_BYTES_ARRAY,0);
+		assertNotNull(key.getNodeName());
+		assertEquals("",key.getNodeName().getUnicodeString());
+		assertEquals(6,key.getKeyLength());
+		assertEquals(17,key.getParentId().getId());
 	}
 	
 	@Test
-	public void testConstructFromCNIDAndString() {
+	public void fromBytesArray(){
+		CatalogKey key = new CatalogKey(getKeyDatas(),0);
+		assertEquals(NODE_NAME_AS_STRING,key.getNodeName().getUnicodeString());
+		assertEquals(24,key.getKeyLength());
+		assertEquals(17,key.getParentId().getId());
+	}
+	
+	@Test
+	public void fromCNIDAndString() {
 		CatalogNodeId id = CatalogNodeId.HFSPLUS_START_CNID;
 		HfsUnicodeString string = new HfsUnicodeString(NODE_NAME_AS_STRING);
 		CatalogKey key = new CatalogKey(id,string);
@@ -49,7 +61,7 @@ public class CatalogKeyTest {
 	}
 
 	@Test
-	public void testConstructFromCNIDAndEmptyString() {
+	public void fromCNIDAndEmptyString() {
 		CatalogNodeId id = CatalogNodeId.HFSPLUS_START_CNID;
 		HfsUnicodeString string = new HfsUnicodeString("");
 		CatalogKey key = new CatalogKey(id,string);
@@ -59,4 +71,14 @@ public class CatalogKeyTest {
 		
 	}
 	
+	//
+	
+	private byte[] getKeyDatas() {
+		char[] chars = NODE_NAME_AS_STRING.toCharArray();
+		ByteBuffer buffer = ByteBuffer.allocate(24).putShort((short)24).putInt(17).putShort((short)8);
+		for(char c : chars) {
+			buffer.putChar(c);
+		}
+		return buffer.array();
+	}
 }
