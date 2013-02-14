@@ -148,12 +148,23 @@ public final class DataRun extends NTFSStructure implements DataRunInterface {
     }
 
     /**
-     * Gets the first VCN of this datarun.
+     * Gets the first VCN of this data run.
      * 
      * @return Returns the vcn.
      */
+    @Override
     public long getFirstVcn() {
         return this.vcn;
+    }
+
+    /**
+     * Gets the last VCN of this data run.
+     *
+     * @return Returns the vcn.
+     */
+    @Override
+    public long getLastVcn() {
+        return getFirstVcn() + getLength() - 1;
     }
 
     /**
@@ -173,7 +184,7 @@ public final class DataRun extends NTFSStructure implements DataRunInterface {
 
         final long myFirstVcn = getFirstVcn();
         final int myLength = getLength();
-        final long myLastVcn = myFirstVcn + myLength - 1;
+        final long myLastVcn = getLastVcn();
 
         final long reqLastVcn = vcn + nrClusters - 1;
 

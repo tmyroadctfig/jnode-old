@@ -89,8 +89,7 @@ public final class CompressedDataRun implements DataRunInterface {
         // Logic to determine whether we own the VCN which has been requested.
         // XXX: Lifted from DataRun.  Consider moving to some good common location.
         final long myFirstVcn = compressedRun.getFirstVcn();
-        final int myLength = getLength();
-        final long myLastVcn = myFirstVcn + myLength - 1;
+        final long myLastVcn = getLastVcn();
         final long reqLastVcn = vcn + nrClusters - 1;
         log.debug("me:" + myFirstVcn + "-" + myLastVcn + ", req:" + vcn + "-" + reqLastVcn);
         if ((vcn > myLastVcn) || (myFirstVcn > reqLastVcn)) {
@@ -231,6 +230,16 @@ public final class CompressedDataRun implements DataRunInterface {
         }
 
         return len + 3;
+    }
+
+    @Override
+    public long getFirstVcn() {
+        return compressedRun.getFirstVcn();
+    }
+
+    @Override
+    public long getLastVcn() {
+        return getFirstVcn() + getLength() - 1;
     }
 
     @Override

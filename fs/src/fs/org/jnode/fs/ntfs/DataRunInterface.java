@@ -35,7 +35,7 @@ public interface DataRunInterface {
     int getLength();
 
     /**
-     * Reads clusters from this datarun.
+     * Reads clusters from this data run.
      *
      * @param vcn the VCN to read, offset from the start of the entire file.
      * @param dst destination buffer.
@@ -48,6 +48,20 @@ public interface DataRunInterface {
      */
     public int readClusters(long vcn, byte[] dst, int dstOffset,
                             int nrClusters, int clusterSize, NTFSVolume volume) throws IOException;
+
+    /**
+     * Gets the first virtual cluster in this data run.
+     *
+     * @return the first VCN.
+     */
+    public long getFirstVcn();
+
+    /**
+     * Gets the last virtual cluster in this data run.
+     *
+     * @return the last VCN.
+     */
+    public long getLastVcn();
 
     /**
      * Maps a virtual cluster to a logical cluster.
