@@ -21,7 +21,7 @@
 package org.jnode.fs.hfsplus.tree;
 
 
-public abstract class AbstractKey implements Key {
+public abstract class AbstractKey implements Key, Comparable<Key> {
     
     protected int keyLength;
     
@@ -31,5 +31,5 @@ public abstract class AbstractKey implements Key {
     
     public abstract byte[] getBytes();
 
-    public abstract int compareTo(Key key);
+
 }

@@ -20,6 +20,7 @@
  
 package org.jnode.fs.hfsplus.tree;
 
+import org.jnode.fs.hfsplus.catalog.CatalogKey;
 import org.jnode.util.BigEndian;
 
 public class IndexRecord extends AbstractNodeRecord {
@@ -27,6 +28,7 @@ public class IndexRecord extends AbstractNodeRecord {
     private int index;
 
     public IndexRecord(final byte[] nodeData, final int offset) {
+    	this.key = new CatalogKey(nodeData, offset);
         this.recordData = new byte[4];
         System.arraycopy(nodeData, offset + key.getKeyLength(), recordData, 0, 4);
         index = BigEndian.getInt32(recordData, 0);

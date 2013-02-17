@@ -60,8 +60,7 @@ public class CatalogKey extends AbstractKey {
         int currentOffset = offset;
         byte[] ck = new byte[2];
         System.arraycopy(src, currentOffset, ck, 0, 2);
-        //TODO Understand why the +2 is necessary
-        keyLength = BigEndian.getInt16(ck, 0) + 2;
+        keyLength = BigEndian.getInt16(ck, 0);
         currentOffset += 2;
         ck = new byte[4];
         System.arraycopy(src, currentOffset, ck, 0, 4);
@@ -69,6 +68,8 @@ public class CatalogKey extends AbstractKey {
         currentOffset += 4;
         if (keyLength > MINIMUM_KEY_LENGTH) {
             nodeName = new HfsUnicodeString(src, currentOffset);
+        } else {
+        	nodeName = HfsUnicodeString.EMPTY;
         }
     }
 
