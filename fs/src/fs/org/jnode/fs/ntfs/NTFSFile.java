@@ -71,11 +71,19 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
             return indexEntry.getRealFileSize();
         }
 
-        if (attribute.isResident()) {
-            return ((NTFSResidentAttribute) attribute).getAttributeLength();
-        } else {
-            return ((NTFSNonResidentAttribute) attribute).getAttributeActualSize();
+        long totalSize = 0;
+
+        while (attribute != null) {
+            if (attribute.isResident()) {
+                totalSize += ((NTFSResidentAttribute) attribute).getAttributeLength();
+            } else {
+                totalSize += ((NTFSNonResidentAttribute) attribute).getAttributeActualSize();
+            }
+
+            attribute = attributes.next();
         }
+
+        return totalSize;
     }
 
     /*
