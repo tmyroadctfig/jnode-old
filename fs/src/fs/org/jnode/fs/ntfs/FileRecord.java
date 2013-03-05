@@ -122,6 +122,16 @@ public class FileRecord extends NTFSRecord {
     }
 
     /**
+     * Gets the reference number of the base record. For continuation MFT entries this will reference the main record.
+     * For main records this should match {@link #referenceNumber}.
+     *
+     * @return Returns the base reference number.
+     */
+    public long getBaseReferenceNumber() {
+        return getUInt48(0x20);
+    }
+
+    /**
      * Gets the real size of the FILE record in bytes.
      * 
      * @return Returns the realSize.
