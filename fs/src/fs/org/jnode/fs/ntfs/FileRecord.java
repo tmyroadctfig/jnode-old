@@ -495,7 +495,7 @@ public class FileRecord extends NTFSRecord {
 
         if (readClusters != nrClusters) {
             throw new IOException("Requested " + nrClusters + " clusters but only read " + readClusters +
-                                  ", file record = " + this);
+                                  ", offset = " + off + ", file record = " + this);
         }
 
         System.arraycopy(tmp, (int) fileOffset % clusterSize, dest, off, len);
