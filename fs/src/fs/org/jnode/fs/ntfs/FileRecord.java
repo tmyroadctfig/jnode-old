@@ -21,10 +21,10 @@
 package org.jnode.fs.ntfs;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.jnode.fs.ntfs.attribute.AttributeListAttribute;
 import org.jnode.fs.ntfs.attribute.AttributeListEntry;
 import org.jnode.fs.ntfs.attribute.NTFSAttribute;
@@ -50,6 +50,11 @@ public class FileRecord extends NTFSRecord {
      * Cached attribute list attribute.
      */
     private AttributeListAttribute attributeListAttribute;
+
+    /**
+     * A cached copy of the attributes.
+     */
+    private List<NTFSAttribute> attributeList;
 
     /**
      * Cached standard information attribute.
@@ -321,17 +326,29 @@ public class FileRecord extends NTFSRecord {
     }
 
     /**
-     * Gets an iterator over all attributes in this file record, including any attributes
+     * Gets a collection of all attributes in this file record, including any attributes
      * which are stored in other file records referenced from an $ATTRIBUTE_LIST attribute.
      *
-     * @return an iterator over all attributes.
+     * @return a collection of all attributes.
      */
-    private AttributeIterator getAllAttributes() {
-        if (attributeListAttribute == null) {
-            return getAllStoredAttributes();
-        } else {
-            return new AttributeListAttributeIterator();
+    private List<NTFSAttribute> getAllAttributes() {
+        if (attributeList == null) {
+            attributeList = new ArrayList<NTFSAttribute>();
+
+            AttributeIterator iter;
+            if (attributeListAttribute == null) {
+                iter = getAllStoredAttributes();
+            } else {
+                iter = new AttributeListAttributeIterator();
+            }
+
+            NTFSAttribute attr;
+            while ((attr = iter.next()) != null) {
+                attributeList.add(attr);
+            }
         }
+
+        return attributeList;
     }
 
     /**
@@ -343,9 +360,7 @@ public class FileRecord extends NTFSRecord {
     public NTFSAttribute findAttributeByType(int attrTypeID) {
         log.debug("findAttributeByType(0x" + NumberUtils.hex(attrTypeID, 4) + ")");
 
-        AttributeIterator iter = getAllAttributes();
-        NTFSAttribute attr;
-        while ((attr = iter.next()) != null) {
+        for (NTFSAttribute attr : getAllAttributes()) {
             if (attr.getAttributeType() == attrTypeID) {
                 log.debug("findAttributeByType(0x" + NumberUtils.hex(attrTypeID, 4) + ") found");
                 return attr;
@@ -365,7 +380,7 @@ public class FileRecord extends NTFSRecord {
     public AttributeIterator findAttributesByType(final int attrTypeID) {
         log.debug("findAttributesByType(0x" + NumberUtils.hex(attrTypeID, 4) + ")");
 
-        return new FilteredAttributeIterator(getAllAttributes()) {
+        return new FilteredAttributeIterator(getAllAttributes().iterator()) {
             @Override
             protected boolean matches(NTFSAttribute attr) {
                 return attr.getAttributeType() == attrTypeID;
@@ -383,7 +398,7 @@ public class FileRecord extends NTFSRecord {
     public AttributeIterator findAttributesByTypeAndName(final int attrTypeID, final String name) {
         log.debug("findAttributesByTypeAndName(0x" + NumberUtils.hex(attrTypeID, 4) +
                   "," + name + ")");
-        return new FilteredAttributeIterator(getAllAttributes()) {
+        return new FilteredAttributeIterator(getAllAttributes().iterator()) {
             @Override
             protected boolean matches(NTFSAttribute attr) {
                 if (attr.getAttributeType() == attrTypeID) {
@@ -596,15 +611,15 @@ public class FileRecord extends NTFSRecord {
      * An iterator for filtering another iterator.
      */
     private abstract class FilteredAttributeIterator extends AttributeIterator {
-        private AttributeIterator inner;
-        private FilteredAttributeIterator(AttributeIterator inner) {
-            this.inner = inner;
+        private Iterator<NTFSAttribute> attributes;
+        private FilteredAttributeIterator(Iterator<NTFSAttribute> attributes) {
+            this.attributes = attributes;
         }
 
         @Override
         public NTFSAttribute next() {
-            NTFSAttribute attr;
-            while ((attr = inner.next()) != null) {
+            while (attributes.hasNext()) {
+                NTFSAttribute attr = attributes.next();
                 if (matches(attr)) {
                     return attr;
                 }
