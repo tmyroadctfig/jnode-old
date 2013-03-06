@@ -233,4 +233,10 @@ public class NTFSNonResidentAttribute extends NTFSAttribute {
     public int getNumberOfVCNs() {
         return numberOfVCNs;
     }
+
+    @Override
+    public String toString() {
+        return String.format("[attribute (non-res) type=x%x name'%s' size=%d runs=%d]", getAttributeType(),
+            getAttributeName(), getAttributeActualSize(), getDataRuns().size());
+    }
 }

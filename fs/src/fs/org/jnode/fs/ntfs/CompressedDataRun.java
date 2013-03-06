@@ -357,4 +357,9 @@ public final class CompressedDataRun implements DataRunInterface {
             Arrays.fill(array, this.offset + offset, this.offset + offset + length, (byte) 0);
         }
     }
+
+    @Override
+    public String toString() {
+        return String.format("[compressed-run vcn:%d-%d]", getFirstVcn(), getLastVcn());
+    }
 }

@@ -245,4 +245,9 @@ public final class DataRun extends NTFSStructure implements DataRunInterface {
 
         return cluster + vcn;
     }
+
+    @Override
+    public String toString() {
+        return String.format("[data-run vcn:%d-%d sparse=%b]", getFirstVcn(), getLastVcn(), isSparse());
+    }
 }

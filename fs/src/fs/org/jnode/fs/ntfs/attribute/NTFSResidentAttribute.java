@@ -57,4 +57,10 @@ public class NTFSResidentAttribute extends NTFSAttribute {
     public int getAttributeLength() {
         return (int) getUInt32(0x10);
     }
+
+    @Override
+    public String toString() {
+        return String.format("[attribute (res) type=x%x name'%s' size=%d]", getAttributeType(), getAttributeName(),
+            getAttributeLength());
+    }
 }
