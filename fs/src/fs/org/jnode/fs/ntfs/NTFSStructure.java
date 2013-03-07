@@ -27,7 +27,7 @@ import org.jnode.util.LittleEndian;
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
-public abstract class NTFSStructure {
+public class NTFSStructure {
 
     /** My logger */
     protected static final Logger log = Logger.getLogger(NTFSStructure.class);
