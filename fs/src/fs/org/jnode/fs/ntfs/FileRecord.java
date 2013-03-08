@@ -335,16 +335,20 @@ public class FileRecord extends NTFSRecord {
         if (attributeList == null) {
             attributeList = new ArrayList<NTFSAttribute>();
 
-            AttributeIterator iter;
-            if (attributeListAttribute == null) {
-                iter = getAllStoredAttributes();
-            } else {
-                iter = new AttributeListAttributeIterator();
-            }
+            try {
+                AttributeIterator iter;
+                if (attributeListAttribute == null) {
+                    iter = getAllStoredAttributes();
+                } else {
+                    iter = new AttributeListAttributeIterator();
+                }
 
-            NTFSAttribute attr;
-            while ((attr = iter.next()) != null) {
-                attributeList.add(attr);
+                NTFSAttribute attr;
+                while ((attr = iter.next()) != null) {
+                    attributeList.add(attr);
+                }
+            } catch (Exception e) {
+                log.error("Error getting attributes for entry: " + this, e);
             }
         }
 
@@ -595,10 +599,8 @@ public class FileRecord extends NTFSRecord {
 
                     return holdingRecord.findStoredAttributeByID(entry.getAttributeID());
                 } catch (IOException e) {
-                    // XXX: I wish the iterator could just throw this error out.  Should we
-                    //      just create a different kind of iterator class instead?
-                    log.error("Error getting MFT or FileRecord for attribute in list, ref = 0x" +
-                              Long.toHexString(entry.getFileReferenceNumber()), e);
+                    throw new IllegalStateException("Error getting MFT or FileRecord for attribute in list, ref = 0x" +
+                                                    Long.toHexString(entry.getFileReferenceNumber()), e);
                 }
             }
 
