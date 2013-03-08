@@ -21,6 +21,7 @@
 package org.jnode.fs.ntfs;
 
 import java.io.IOException;
+import org.jnode.fs.ntfs.attribute.NTFSAttribute;
 import org.jnode.fs.ntfs.index.IndexEntry;
 
 /**
@@ -118,12 +119,19 @@ public final class MasterFileTable extends FileRecord {
     }
 
     /**
+     * The cached length of the MFT.
+     */
+    private final long mftLength;
+
+    /**
      * @param volume
      * @param buffer
      * @throws IOException
      */
     public MasterFileTable(NTFSVolume volume, byte[] buffer, int offset) throws IOException {
         super(volume, SystemFiles.MFT, buffer, offset);
+
+        mftLength = getAttributeTotalSize(NTFSAttribute.Types.DATA, null);
     }
 
     /**
@@ -138,6 +146,10 @@ public final class MasterFileTable extends FileRecord {
         final NTFSVolume volume = getVolume();
         final int bytesPerFileRecord = volume.getBootRecord().getFileRecordSize();
         final long offset = bytesPerFileRecord * index;
+
+        if (offset + bytesPerFileRecord > mftLength) {
+            throw new IOException("Attempt to read past the end of the MFT, offset: " + offset);
+        }
 
         // read the buffer
         final byte[] buffer = new byte[bytesPerFileRecord];

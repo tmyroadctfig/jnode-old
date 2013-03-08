@@ -415,6 +415,37 @@ public class FileRecord extends NTFSRecord {
     }
 
     /**
+     * Gets the total size used for the given attribute.
+     *
+     * @param attrTypeID the type of attribute to get the size for, e.g. {@link NTFSAttribute.Types#DATA}.
+     * @param name the name of the attribute or {@code null} for no name.
+     * @return the total size of the attribute.
+     */
+    public long getAttributeTotalSize(int attrTypeID, String name) {
+        FileRecord.AttributeIterator attributes = findAttributesByTypeAndName(attrTypeID, name);
+        NTFSAttribute attribute = attributes.next();
+
+        if (attribute == null) {
+            throw new IllegalStateException("Failed to find an attribute with type: " + attrTypeID + " and name: '" +
+                name + "'");
+        }
+
+        long totalSize = 0;
+
+        while (attribute != null) {
+            if (attribute.isResident()) {
+                totalSize += ((NTFSResidentAttribute) attribute).getAttributeLength();
+            } else {
+                totalSize += ((NTFSNonResidentAttribute) attribute).getAttributeActualSize();
+            }
+
+            attribute = attributes.next();
+        }
+
+        return totalSize;
+    }
+
+    /**
      * Reads data from the file.
      *
      * @param fileOffset the offset into the file.
@@ -447,7 +478,6 @@ public class FileRecord extends NTFSRecord {
             return;
         }
 
-        // XXX: Add API for getting length and content from alternate streams.
         final AttributeIterator dataAttrs = findAttributesByTypeAndName(NTFSAttribute.Types.DATA, streamName);
         NTFSAttribute attr = dataAttrs.next();
         if (attr == null) {
