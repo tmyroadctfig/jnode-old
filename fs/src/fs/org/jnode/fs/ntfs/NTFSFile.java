@@ -23,14 +23,14 @@ package org.jnode.fs.ntfs;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import org.jnode.fs.FSFile;
 import org.jnode.fs.FSFileSlackSpace;
 import org.jnode.fs.FSFileStreams;
 import org.jnode.fs.FileSystem;
 import org.jnode.fs.ntfs.attribute.NTFSAttribute;
-import org.jnode.fs.ntfs.attribute.NTFSNonResidentAttribute;
-import org.jnode.fs.ntfs.attribute.NTFSResidentAttribute;
 import org.jnode.fs.ntfs.index.IndexEntry;
 import org.jnode.util.ByteBufferUtils;
 
@@ -181,7 +181,7 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
     @Override
     public Map<String, FSFile> getStreams() {
-        Map<String, FSFile> streams = new HashMap<String, FSFile>();
+        Set<String> streamNames = new LinkedHashSet<String>();
 
         FileRecord.AttributeIterator dataAttributes = getFileRecord().findAttributesByType(NTFSAttribute.Types.DATA);
         NTFSAttribute attribute = dataAttributes.next();
@@ -191,10 +191,15 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
             // The unnamed data attribute is the main file data, so ignore it
             if (attributeName != null) {
-                streams.put(attributeName, new StreamFile(attributeName, attribute));
+                streamNames.add(attributeName);
             }
 
             attribute = dataAttributes.next();
+        }
+
+        Map<String, FSFile> streams = new HashMap<String, FSFile>();
+        for (String streamName : streamNames) {
+            streams.put(streamName, new StreamFile(streamName));
         }
 
         return streams;
@@ -210,19 +215,12 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
         private final String attributeName;
 
         /**
-         * The attribute for the alternate data stream.
-         */
-        private final NTFSAttribute attribute;
-
-        /**
          * Creates a new stream file.
          *
          * @param attributeName the name of the alternate data stream.
-         * @param attribute the attribute for the alternate data stream.
          */
-        public StreamFile(String attributeName, NTFSAttribute attribute) {
+        public StreamFile(String attributeName) {
             this.attributeName = attributeName;
-            this.attribute = attribute;
         }
 
         /**
@@ -245,14 +243,7 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
         @Override
         public long getLength() {
-            if (attribute.isResident()) {
-                NTFSResidentAttribute dataAttribute = (NTFSResidentAttribute) attribute;
-                return dataAttribute.getAttributeLength();
-            }
-            else {
-                NTFSNonResidentAttribute dataAttribute = (NTFSNonResidentAttribute) attribute;
-                return dataAttribute.getAttributeActualSize();
-            }
+            return NTFSFile.this.getFileRecord().getAttributeTotalSize(NTFSAttribute.Types.DATA, attributeName);
         }
 
         @Override
@@ -264,6 +255,11 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
         public void read(long fileOffset, ByteBuffer dest) throws IOException {
             ByteBufferUtils.ByteArray destByteArray = ByteBufferUtils.toByteArray(dest);
             byte[] destBuffer = destByteArray.toArray();
+
+            if (fileOffset + destBuffer.length > getLength()) {
+                throw new IOException("Attempt to read past the end of stream, offset: " + fileOffset);
+            }
+
             getFileRecord().readData(attributeName, fileOffset, destBuffer, 0, destBuffer.length);
             destByteArray.refreshByteBuffer();
         }
