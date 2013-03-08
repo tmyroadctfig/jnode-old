@@ -65,6 +65,13 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
     @Override
     public long getLength() {
+        FileRecord.AttributeIterator attributes = getFileRecord().findAttributesByTypeAndName(NTFSAttribute.Types.DATA, null);
+        NTFSAttribute attribute = attributes.next();
+
+        if (attribute == null) {
+            return indexEntry.getRealFileSize();
+        }
+
         return getFileRecord().getAttributeTotalSize(NTFSAttribute.Types.DATA, null);
     }
 
