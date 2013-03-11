@@ -22,10 +22,12 @@ package org.jnode.partitions.ibm;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.Set;
 import org.apache.log4j.Logger;
 import org.jnode.driver.ApiNotFoundException;
 import org.jnode.driver.Device;
@@ -40,6 +42,23 @@ import org.jnode.util.LittleEndian;
  */
 public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry> {
     private static final int TABLE_SIZE = 4;
+
+    /** The set of known filesystem markers. */
+    private static final Set<String> FILESYSTEM_OEM_NAMES = new HashSet<String>();
+
+    static
+    {
+        // FAT OEM names
+        FILESYSTEM_OEM_NAMES.add("MSDOS5.0");
+        FILESYSTEM_OEM_NAMES.add("MSWIN4.1");
+        FILESYSTEM_OEM_NAMES.add("IBM  3.3");
+        FILESYSTEM_OEM_NAMES.add("IBM  7.1");
+        FILESYSTEM_OEM_NAMES.add("mkdosfs\u0000");
+        FILESYSTEM_OEM_NAMES.add("FreeDOS ");
+
+        // NTFS
+        FILESYSTEM_OEM_NAMES.add("NTFS    ");
+    }
 
     /** The type of partition table */
     private final IBMPartitionTableType tableType;
@@ -154,6 +173,13 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
         if (LittleEndian.getUInt32(bootSector, 2) == 0x4c57454e) {
             // Matches the NEWLDR MBR extra signature, probably an valid partition table
             return true;
+        }
+
+        // Check if this looks like a filesystem instead of a partition table
+        String oemName = new String(bootSector, 3, 8, Charset.forName("US-ASCII"));
+        if (FILESYSTEM_OEM_NAMES.contains(oemName))
+        {
+            return false;
         }
 
         // Nothing matched, fall back to validating any specified partition entries
