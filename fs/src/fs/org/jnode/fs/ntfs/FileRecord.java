@@ -276,7 +276,18 @@ public class FileRecord extends NTFSRecord {
      */
     public FileNameAttribute getFileNameAttribute() {
         if (fileNameAttribute == null) {
-            fileNameAttribute = (FileNameAttribute) findAttributeByType(NTFSAttribute.Types.FILE_NAME);
+            AttributeIterator iterator = findAttributesByType(NTFSAttribute.Types.FILE_NAME);
+            NTFSAttribute attribute = iterator.next();
+
+            // Search for a Win32 file name if possible
+            while (attribute != null) {
+                if (fileNameAttribute == null ||
+                    fileNameAttribute.getNameSpace() != FileNameAttribute.NameSpace.WIN32) {
+                    fileNameAttribute = (FileNameAttribute) attribute;
+                }
+
+                attribute = iterator.next();
+            }
         }
         return fileNameAttribute;
     }
