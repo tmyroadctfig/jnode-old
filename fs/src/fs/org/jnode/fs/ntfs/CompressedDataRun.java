@@ -112,9 +112,8 @@ public final class CompressedDataRun implements DataRunInterface {
 
         // Now we know the data is compressed.  Read in the compressed block...
         final int vcnOffsetWithinUnit = (int) (actFirstVcn % compressionUnitSize);
-        final long compFirstVcn = actFirstVcn - vcnOffsetWithinUnit;
-        final byte[] tempCompressed = new byte[compClusters * clusterSize];
-        final int read = compressedRun.readClusters(compFirstVcn, tempCompressed, 0,
+        final byte[] tempCompressed = new byte[compressionUnitSize * clusterSize];
+        final int read = compressedRun.readClusters(myFirstVcn, tempCompressed, 0,
                                                     compClusters, clusterSize, volume);
         if (read != compClusters) {
             throw new IOException("Needed " + compClusters + " clusters but could " +
@@ -127,9 +126,21 @@ public final class CompressedDataRun implements DataRunInterface {
         //      routine such that it's capable of skipping chunks that aren't needed.
         unCompressUnit(tempCompressed, tempUncompressed);
 
-        System.arraycopy(tempUncompressed, vcnOffsetWithinUnit * clusterSize,
-                         dst, dstOffset + (int) (actFirstVcn - vcn) * clusterSize,
-                         actLength * clusterSize);
+        int copySource = vcnOffsetWithinUnit * clusterSize;
+        int copyDest = dstOffset + (int) (actFirstVcn - vcn) * clusterSize;
+        int copyLength = actLength * clusterSize;
+
+        if (copyDest + copyLength > dst.length) {
+            throw new ArrayIndexOutOfBoundsException(
+                String.format("Copy dest %d length %d is too big for destination %d", copyDest, copyLength, dst.length));
+        }
+
+        if (copySource + copyLength > tempUncompressed.length) {
+            throw new ArrayIndexOutOfBoundsException(
+                String.format("Copy source %d length %d is too big for source %d", copySource, copyLength, tempUncompressed.length));
+        }
+
+        System.arraycopy(tempUncompressed, copySource, dst, copyDest, copyLength);
 
         return actLength;
     }
@@ -199,9 +210,9 @@ public final class CompressedDataRun implements DataRunInterface {
             // Copies the entire compression block as-is, need to skip the compression flag,
             // no idea why they even stored it given that it isn't used.
             // Darwin's version I was referring to doesn't skip this, which seems be a bug.
-            cpos++;
             uncompressed.copyFrom(compressed, cpos, 0, len + 1);
             uncompressed.zero(len + 1, BLOCK_SIZE - 1 - len);
+            cpos++;
             return len + 3;
         }
 

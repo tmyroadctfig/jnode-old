@@ -276,7 +276,18 @@ public class FileRecord extends NTFSRecord {
      */
     public FileNameAttribute getFileNameAttribute() {
         if (fileNameAttribute == null) {
-            fileNameAttribute = (FileNameAttribute) findAttributeByType(NTFSAttribute.Types.FILE_NAME);
+            AttributeIterator iterator = findAttributesByType(NTFSAttribute.Types.FILE_NAME);
+            NTFSAttribute attribute = iterator.next();
+
+            // Search for a Win32 file name if possible
+            while (attribute != null) {
+                if (fileNameAttribute == null ||
+                    fileNameAttribute.getNameSpace() != FileNameAttribute.NameSpace.WIN32) {
+                    fileNameAttribute = (FileNameAttribute) attribute;
+                }
+
+                attribute = iterator.next();
+            }
         }
         return fileNameAttribute;
     }
@@ -335,16 +346,20 @@ public class FileRecord extends NTFSRecord {
         if (attributeList == null) {
             attributeList = new ArrayList<NTFSAttribute>();
 
-            AttributeIterator iter;
-            if (attributeListAttribute == null) {
-                iter = getAllStoredAttributes();
-            } else {
-                iter = new AttributeListAttributeIterator();
-            }
+            try {
+                AttributeIterator iter;
+                if (attributeListAttribute == null) {
+                    iter = getAllStoredAttributes();
+                } else {
+                    iter = new AttributeListAttributeIterator();
+                }
 
-            NTFSAttribute attr;
-            while ((attr = iter.next()) != null) {
-                attributeList.add(attr);
+                NTFSAttribute attr;
+                while ((attr = iter.next()) != null) {
+                    attributeList.add(attr);
+                }
+            } catch (Exception e) {
+                log.error("Error getting attributes for entry: " + this, e);
             }
         }
 
@@ -415,6 +430,37 @@ public class FileRecord extends NTFSRecord {
     }
 
     /**
+     * Gets the total size used for the given attribute.
+     *
+     * @param attrTypeID the type of attribute to get the size for, e.g. {@link NTFSAttribute.Types#DATA}.
+     * @param name the name of the attribute or {@code null} for no name.
+     * @return the total size of the attribute.
+     */
+    public long getAttributeTotalSize(int attrTypeID, String name) {
+        FileRecord.AttributeIterator attributes = findAttributesByTypeAndName(attrTypeID, name);
+        NTFSAttribute attribute = attributes.next();
+
+        if (attribute == null) {
+            throw new IllegalStateException("Failed to find an attribute with type: " + attrTypeID + " and name: '" +
+                name + "'");
+        }
+
+        long totalSize = 0;
+
+        while (attribute != null) {
+            if (attribute.isResident()) {
+                totalSize += ((NTFSResidentAttribute) attribute).getAttributeLength();
+            } else {
+                totalSize += ((NTFSNonResidentAttribute) attribute).getAttributeActualSize();
+            }
+
+            attribute = attributes.next();
+        }
+
+        return totalSize;
+    }
+
+    /**
      * Reads data from the file.
      *
      * @param fileOffset the offset into the file.
@@ -447,7 +493,6 @@ public class FileRecord extends NTFSRecord {
             return;
         }
 
-        // XXX: Add API for getting length and content from alternate streams.
         final AttributeIterator dataAttrs = findAttributesByTypeAndName(NTFSAttribute.Types.DATA, streamName);
         NTFSAttribute attr = dataAttrs.next();
         if (attr == null) {
@@ -565,10 +610,8 @@ public class FileRecord extends NTFSRecord {
 
                     return holdingRecord.findStoredAttributeByID(entry.getAttributeID());
                 } catch (IOException e) {
-                    // XXX: I wish the iterator could just throw this error out.  Should we
-                    //      just create a different kind of iterator class instead?
-                    log.error("Error getting MFT or FileRecord for attribute in list, ref = 0x" +
-                              Long.toHexString(entry.getFileReferenceNumber()), e);
+                    throw new IllegalStateException("Error getting MFT or FileRecord for attribute in list, ref = 0x" +
+                                                    Long.toHexString(entry.getFileReferenceNumber()), e);
                 }
             }
 
