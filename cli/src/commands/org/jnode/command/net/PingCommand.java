@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -110,7 +110,7 @@ public class PingCommand extends AbstractCommand implements ICMPListener {
 
                 SocketBuffer packet = new SocketBuffer();
                 packet.insert(this.size);
-                ICMPEchoHeader transportHeader = new ICMPEchoHeader(8, id_count, seq_count);
+                ICMPEchoHeader transportHeader = new ICMPEchoHeader(id_count, seq_count);
                 transportHeader.prefixTo(packet);
 
                 Request r =

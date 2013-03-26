@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -21,6 +21,7 @@
 package org.jnode.fs.ntfs;
 
 import java.io.IOException;
+
 import org.jnode.fs.FSAccessRights;
 import org.jnode.fs.FSDirectory;
 import org.jnode.fs.FSEntry;
@@ -54,12 +55,10 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
 
     /**
      * Gets the name of this entry.
-     * 
      * @see org.jnode.fs.FSEntry#getName()
      */
     public String getName() {
-        if (indexEntry != null)
-            return indexEntry.getFileName();
+		if (indexEntry != null) return indexEntry.getFileName();
         return null;
     }
 
@@ -72,23 +71,19 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
     }
 
     public long getCreated() throws IOException {
-        return NTFSUTIL.filetimeToMillis(
-            getFileRecord().getStandardInformationAttribute().getCreationTime());
+		return NTFSUTIL.filetimeToMillis(getFileRecord().getStandardInformationAttribute().getCreationTime());
     }
 
     public long getLastModified() throws IOException {
-        return NTFSUTIL.filetimeToMillis(
-            getFileRecord().getStandardInformationAttribute().getModificationTime());
+		return NTFSUTIL.filetimeToMillis(getFileRecord().getStandardInformationAttribute().getModificationTime());
     }
 
     public long getLastChanged() throws IOException {
-        return NTFSUTIL.filetimeToMillis(
-            getFileRecord().getStandardInformationAttribute().getMftChangeTime());
+		return NTFSUTIL.filetimeToMillis(getFileRecord().getStandardInformationAttribute().getMftChangeTime());
     }
 
     public long getLastAccessed() throws IOException {
-        return NTFSUTIL.filetimeToMillis(
-            getFileRecord().getStandardInformationAttribute().getAccessTime());
+		return NTFSUTIL.filetimeToMillis(getFileRecord().getStandardInformationAttribute().getAccessTime());
     }
 
     /**
@@ -131,7 +126,7 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
     public FSFile getFile() {
         if (this.isFile()) {
             if (cachedFSObject == null) {
-                cachedFSObject = new NTFSFile(fs, indexEntry);
+				cachedFSObject = new NTFSFile(fs, indexEntry);
             }
             return (FSFile) cachedFSObject;
         } else {
@@ -146,13 +141,11 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
         if (this.isDirectory()) {
             if (cachedFSObject == null) {
                 // XXX: Why can't this just use getFileRecord()?
-                cachedFSObject =
-                        new NTFSDirectory(fs, getFileRecord().getVolume().getMFT()
-                                .getIndexedFileRecord(indexEntry));
+				cachedFSObject = new NTFSDirectory(fs, getFileRecord().getVolume().getMFT().getIndexedFileRecord(
+						indexEntry));
             }
             return (FSDirectory) cachedFSObject;
-        } else
-            return null;
+		} else return null;
     }
 
     /**
@@ -182,8 +175,7 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
      * @return Returns the fileRecord.
      */
     public FileRecord getFileRecord() throws IOException {
-        return indexEntry.getParentFileRecord().getVolume().getMFT().getIndexedFileRecord(
-                indexEntry);
+		return indexEntry.getParentFileRecord().getVolume().getMFT().getIndexedFileRecord(indexEntry);
     }
 
     /**
@@ -195,7 +187,6 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
 
     /**
      * Indicate if the entry has been modified in memory (ie need to be saved)
-     * 
      * @return true if the entry need to be saved
      * @throws IOException
      */

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -74,10 +74,8 @@ public class FatDirEntry {
             case FREE:
             case EOD:
                 return new FatDirEntry(fs, entry, index, flag);
-
             case INVALID:
-                throw new IOException("Invalid entry for index: " + index);
-
+            	throw new IOException("Invalid entry for index: " + index);
             default:
                 if (attr.isLong())
                     return new FatLongDirEntry(fs, entry, index);

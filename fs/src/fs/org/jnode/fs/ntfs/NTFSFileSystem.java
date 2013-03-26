@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,7 +34,6 @@ import org.jnode.fs.spi.AbstractFileSystem;
 
 /**
  * NTFS filesystem implementation.
- * 
  * @author Chira
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
@@ -46,8 +45,7 @@ public class NTFSFileSystem extends AbstractFileSystem<FSEntry> {
     /**
      * @see org.jnode.fs.FileSystem#getDevice()
      */
-    public NTFSFileSystem(Device device, boolean readOnly, NTFSFileSystemType type)
-        throws FileSystemException {
+	public NTFSFileSystem(Device device, boolean readOnly, NTFSFileSystemType type) throws FileSystemException {
         super(device, readOnly, type);
 
         try {
@@ -75,31 +73,31 @@ public class NTFSFileSystem extends AbstractFileSystem<FSEntry> {
         return this.volume;
     }
 
-    @Override
-    public String getVolumeName() throws IOException {
-        NTFSEntry entry = (NTFSEntry) getRootEntry().getDirectory().getEntry("$Volume");
-        if (entry == null) {
-            return "";
-        }
+	@Override
+	public String getVolumeName() throws IOException {
+		NTFSEntry entry = (NTFSEntry) getRootEntry().getDirectory().getEntry("$Volume");
+		if (entry == null) {
+			return "";
+		}
 
-        NTFSAttribute attribute = entry.getFileRecord().findAttributeByType(NTFSAttribute.Types.VOLUME_NAME);
+		NTFSAttribute attribute = entry.getFileRecord().findAttributeByType(NTFSAttribute.Types.VOLUME_NAME);
 
-        if (attribute instanceof NTFSResidentAttribute) {
-            NTFSResidentAttribute residentAttribute = (NTFSResidentAttribute) attribute;
-            byte[] nameBuffer = new byte[residentAttribute.getAttributeLength()];
+		if (attribute instanceof NTFSResidentAttribute) {
+			NTFSResidentAttribute residentAttribute = (NTFSResidentAttribute) attribute;
+			byte[] nameBuffer = new byte[residentAttribute.getAttributeLength()];
 
-            residentAttribute.getData(residentAttribute.getAttributeOffset(), nameBuffer, 0, nameBuffer.length);
+			residentAttribute.getData(residentAttribute.getAttributeOffset(), nameBuffer, 0, nameBuffer.length);
 
-            try {
-                //XXX: For Java 6, should use the version that accepts a Charset.
-                return new String(nameBuffer, "UTF-16LE");
-            } catch (UnsupportedEncodingException e) {
-                throw new IllegalStateException("UTF-16LE charset missing from JRE", e);
-            }
-        }
+			try {
+				// XXX: For Java 6, should use the version that accepts a Charset.
+				return new String(nameBuffer, "UTF-16LE");
+			} catch (UnsupportedEncodingException e) {
+				throw new IllegalStateException("UTF-16LE charset missing from JRE", e);
+			}
+		}
 
-        return "";
-    }
+		return "";
+	}
 
     /**
      * Flush all data.
@@ -109,7 +107,7 @@ public class NTFSFileSystem extends AbstractFileSystem<FSEntry> {
     }
 
     /**
-     * 
+     *
      */
     protected FSFile createFile(FSEntry entry) throws IOException {
         // TODO Auto-generated method stub
@@ -117,7 +115,7 @@ public class NTFSFileSystem extends AbstractFileSystem<FSEntry> {
     }
 
     /**
-     * 
+     *
      */
     protected FSDirectory createDirectory(FSEntry entry) throws IOException {
         // TODO Auto-generated method stub
@@ -125,42 +123,42 @@ public class NTFSFileSystem extends AbstractFileSystem<FSEntry> {
     }
 
     /**
-     * 
+     *
      */
     protected NTFSEntry createRootEntry() throws IOException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public long getFreeSpace() throws IOException {
-        FileRecord bitmapRecord = volume.getMFT().getRecord(MasterFileTable.SystemFiles.BITMAP);
+	public long getFreeSpace() throws IOException {
+		FileRecord bitmapRecord = volume.getMFT().getRecord(MasterFileTable.SystemFiles.BITMAP);
 
-        int bitmapSize = (int) bitmapRecord.getAttributeTotalSize(NTFSAttribute.Types.DATA, null);
-        byte[] buffer = new byte[bitmapSize];
-        bitmapRecord.readData(0, buffer, 0, buffer.length);
+		int bitmapSize = (int) bitmapRecord.getAttributeTotalSize(NTFSAttribute.Types.DATA, null);
+		byte[] buffer = new byte[bitmapSize];
+		bitmapRecord.readData(0, buffer, 0, buffer.length);
 
-        int usedBlocks = 0;
+		int usedBlocks = 0;
 
-        for (byte b : buffer) {
-            for (int i = 0; i < 8; i++) {
-                if ((b & 0x1) != 0) {
-                    usedBlocks++;
-                }
+		for(byte b : buffer) {
+			for(int i = 0; i < 8; i++) {
+				if ((b & 0x1) != 0) {
+					usedBlocks++;
+				}
 
-                b >>= 1;
-            }
-        }
+				b >>= 1;
+			}
+		}
 
-        long usedSpace = (long) usedBlocks * volume.getClusterSize();
+		long usedSpace = (long) usedBlocks * volume.getClusterSize();
 
-        return getTotalSpace() - usedSpace;
-    }
+		return getTotalSpace() - usedSpace;
+	}
 
-    public long getTotalSpace() throws IOException {
-        FileRecord bitmapRecord = volume.getMFT().getRecord(MasterFileTable.SystemFiles.BITMAP);
-        long bitmapSize = bitmapRecord.getFileNameAttribute().getRealSize();
-        return bitmapSize * 8 * volume.getClusterSize();
-    }
+	public long getTotalSpace() throws IOException {
+		FileRecord bitmapRecord = volume.getMFT().getRecord(MasterFileTable.SystemFiles.BITMAP);
+		long bitmapSize = bitmapRecord.getFileNameAttribute().getRealSize();
+		return bitmapSize * 8 * volume.getClusterSize();
+	}
 
     public long getUsableSpace() {
         // TODO implement me

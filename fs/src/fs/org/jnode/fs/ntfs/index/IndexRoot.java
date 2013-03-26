@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,8 +20,9 @@
  
 package org.jnode.fs.ntfs.index;
 
-
 import org.jnode.fs.ntfs.NTFSStructure;
+
+
 
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)

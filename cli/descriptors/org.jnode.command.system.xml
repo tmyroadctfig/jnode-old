@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    $Id$
+
+    Copyright (C) 2003-2013 JNode.org
+
+    This library is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as published
+    by the Free Software Foundation; either version 2.1 of the License, or
+    (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+    License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this library; If not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+-->
 <!DOCTYPE plugin SYSTEM "jnode.dtd">
 
 <plugin id="org.jnode.command.system"
@@ -15,13 +34,13 @@
     <import plugin="org.jnode.shell.syntax"/>
     <import plugin="org.jnode.util"/>
   </requires>
-  
+
   <runtime>
     <library name="jnode-cli.jar">
       <export name="org.jnode.command.system.*"/>
     </library>
   </runtime>
-  
+
   <extension point="org.jnode.shell.aliases">
     <alias name="alias"     class="org.jnode.command.system.AliasCommand"/>
     <alias name="bindkeys"  class="org.jnode.command.system.BindKeysCommand"/>
@@ -50,9 +69,10 @@
     <alias name="syntax"    class="org.jnode.command.system.SyntaxCommand"/>
     <alias name="terminate" class="org.jnode.command.system.TerminateCommand"/>
     <alias name="thread"    class="org.jnode.command.system.ThreadCommand"/>
+    <alias name="uname"     class="org.jnode.command.system.UnameCommand"/>
     <alias name="vminfo"    class="org.jnode.command.system.VmInfoCommand"/>
   </extension>
-  
+
   <extension point="org.jnode.shell.syntaxes">
     <syntax alias="alias">
       <empty description="List all aliases"/>
@@ -222,7 +242,7 @@
         <option argLabel="minTotalSize" longName="minTotalSize"/>
         <option argLabel="className"    longName="className"/>
       </optionSet>
-    </syntax> 
+    </syntax>
     <syntax alias="page">
       <empty description="Filter standard input a page (screen) at a time"/>
       <argument argLabel="file" description="Output the file a page (screen) at a time"/>
@@ -294,13 +314,25 @@
       </optional>
       <argument argLabel="threadName" description="Display the named Thread"/>
     </syntax>
+    <syntax alias="uname" description="Print operating system informations.">
+      <empty description="Print the hardware type on witch system is running; same like argument -m"/>
+      <optionSet>
+          <option argLabel="a" shortName="a"/>
+          <option argLabel="m" shortName="m"/>
+          <option argLabel="n" shortName="n"/>
+          <option argLabel="r" shortName="r"/>
+          <option argLabel="s" shortName="s"/>
+          <option argLabel="v" shortName="v"/>
+      </optionSet>
+    </syntax>
+
     <syntax alias="vminfo">
       <optional description="dump IRQ handler information">
         <option argLabel="reset" longName="reset"/>
       </optional>
     </syntax>
   </extension>
-  
+
   <extension point="org.jnode.security.permissions">
     <permission class="java.util.PropertyPermission"        name="*" actions="read,write"/>
     <permission class="java.lang.RuntimePermission"         name="getProtectionDomain"/>
@@ -317,5 +349,5 @@
     <permission class="org.jnode.permission.JNodePermission"  name="getVmClass"/>
     <permission class="java.lang.reflect.ReflectPermission" name="suppressAccessChecks"/>
   </extension>
-  
+
 </plugin>

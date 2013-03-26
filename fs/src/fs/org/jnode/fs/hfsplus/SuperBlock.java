@@ -1,5 +1,5 @@
 /*
- * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
+ * $Id$
  *
  * Copyright (C) 2003-2013 JNode.org
  *

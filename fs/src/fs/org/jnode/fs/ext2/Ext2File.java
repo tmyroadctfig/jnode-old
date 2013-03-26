@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,339 +35,328 @@ import org.jnode.util.ByteBufferUtils;
  */
 public class Ext2File extends AbstractFSFile implements FSFileSlackSpace {
 
-    Ext2Entry entry;
-    INode iNode;
+	Ext2Entry entry;
+	INode iNode;
 
-    private final Logger log = Logger.getLogger(getClass());
+	private final Logger log = Logger.getLogger(getClass());
 
-    public Ext2File(Ext2Entry entry) {
-        super(entry.getINode().getExt2FileSystem());
-        this.iNode = entry.getINode();
-        this.entry = entry;
-        log.setLevel(Level.DEBUG);
-    }
+	public Ext2File(Ext2Entry entry) {
+		super(entry.getINode().getExt2FileSystem());
+		this.iNode = entry.getINode();
+		this.entry = entry;
+		log.setLevel(Level.DEBUG);
+	}
 
-    @Override
-    public long getLength() {
-        //log.debug("getLength(): "+iNode.getSize());
-        return iNode.getSize();
-    }
+	@Override
+	public long getLength() {
+		// log.debug("getLength(): "+iNode.getSize());
+		return iNode.getSize();
+	}
 
-    @Override
-    public void setLength(long length) throws IOException {
-        if (!canWrite())
-            throw new ReadOnlyFileSystemException("FileSystem or File is readonly");
+	@Override
+	public void setLength(long length) throws IOException {
+		if (!canWrite()) throw new ReadOnlyFileSystemException("FileSystem or File is readonly");
 
-        long blockSize = iNode.getExt2FileSystem().getBlockSize();
+		long blockSize = iNode.getExt2FileSystem().getBlockSize();
 
-        //synchronize to the inode cache to make sure that the inode does not
-        // get
-        //flushed between reading it and locking it
-        synchronized (((Ext2FileSystem) getFileSystem()).getInodeCache()) {
-            //reread the inode before synchronizing to it to make sure
-            //all threads use the same instance
-            rereadInode();
+		// synchronize to the inode cache to make sure that the inode does not
+		// get
+		// flushed between reading it and locking it
+		synchronized (((Ext2FileSystem) getFileSystem()).getInodeCache()) {
+			// reread the inode before synchronizing to it to make sure
+			// all threads use the same instance
+			rereadInode();
 
-            //lock the inode into the cache so it is not flushed before
-            // synchronizing to it
-            //(otherwise a new instance of INode referring to the same inode
-            // could be put
-            //in the cache resulting in the possibility of two threads
-            // manipulating the same
-            //inode at the same time because they would synchronize to
-            // different INode instances)
-            iNode.incLocked();
-        }
-        //a single inode may be represented by more than one Ext2Directory
-        // instances,
-        //but each will use the same instance of the underlying inode (see
-        // Ext2FileSystem.getINode()),
-        //so synchronize to the inode
-        synchronized (iNode) {
-            try {
-                //if length<getLength(), then the file is truncated
-                if (length < getLength()) {
-                    long blockNr = length / blockSize;
-                    long blockOffset = length % blockSize;
-                    long nextBlock;
-                    if (blockOffset == 0)
-                        nextBlock = blockNr;
-                    else
-                        nextBlock = blockNr + 1;
+			// lock the inode into the cache so it is not flushed before
+			// synchronizing to it
+			// (otherwise a new instance of INode referring to the same inode
+			// could be put
+			// in the cache resulting in the possibility of two threads
+			// manipulating the same
+			// inode at the same time because they would synchronize to
+			// different INode instances)
+			iNode.incLocked();
+		}
+		// a single inode may be represented by more than one Ext2Directory
+		// instances,
+		// but each will use the same instance of the underlying inode (see
+		// Ext2FileSystem.getINode()),
+		// so synchronize to the inode
+		synchronized (iNode) {
+			try {
+				// if length<getLength(), then the file is truncated
+				if (length < getLength()) {
+					long blockNr = length / blockSize;
+					long blockOffset = length % blockSize;
+					long nextBlock;
+					if (blockOffset == 0) nextBlock = blockNr;
+					else nextBlock = blockNr + 1;
 
-                    for (long i = iNode.getAllocatedBlockCount() - 1; i >= nextBlock; i--) {
-                        log.debug("setLength(): freeing up block " + i + " of inode");
-                        iNode.freeDataBlock(i);
-                    }
-                    iNode.setSize(length);
+					for(long i = iNode.getAllocatedBlockCount() - 1; i >= nextBlock; i--) {
+						log.debug("setLength(): freeing up block " + i + " of inode");
+						iNode.freeDataBlock(i);
+					}
+					iNode.setSize(length);
 
-                    iNode.setMtime(System.currentTimeMillis() / 1000);
+					iNode.setMtime(System.currentTimeMillis() / 1000);
 
-                    return;
-                }
+					return;
+				}
 
-                //if length>getLength(), then new blocks are allocated for the
-                // file
-                //The content of the new blocks is undefined (see the
-                // setLength(long i)
-                //method of java.io.RandomAccessFile
-                if (length > getLength()) {
-                    long len = length - getLength();
-                    long blocksAllocated = getLengthInBlocks();
-                    long bytesAllocated = getLength();
-                    long bytesCovered = 0;
-                    while (bytesCovered < len) {
-                        long blockIndex = (bytesAllocated + bytesCovered) / blockSize;
-                        long blockOffset = (bytesAllocated + bytesCovered) % blockSize;
-                        long newSection = Math.min(len - bytesCovered, blockSize - blockOffset);
+				// if length>getLength(), then new blocks are allocated for the
+				// file
+				// The content of the new blocks is undefined (see the
+				// setLength(long i)
+				// method of java.io.RandomAccessFile
+				if (length > getLength()) {
+					long len = length - getLength();
+					long blocksAllocated = getLengthInBlocks();
+					long bytesAllocated = getLength();
+					long bytesCovered = 0;
+					while (bytesCovered < len) {
+						long blockIndex = (bytesAllocated + bytesCovered) / blockSize;
+						long blockOffset = (bytesAllocated + bytesCovered) % blockSize;
+						long newSection = Math.min(len - bytesCovered, blockSize - blockOffset);
 
-                        //allocate a new block if needed
-                        if (blockIndex >= blocksAllocated) {
-                            iNode.allocateDataBlock(blockIndex);
-                            blocksAllocated++;
-                        }
+						// allocate a new block if needed
+						if (blockIndex >= blocksAllocated) {
+							iNode.allocateDataBlock(blockIndex);
+							blocksAllocated++;
+						}
 
-                        bytesCovered += newSection;
-                    }
-                    iNode.setSize(length);
+						bytesCovered += newSection;
+					}
+					iNode.setSize(length);
 
-                    iNode.setMtime(System.currentTimeMillis() / 1000);
+					iNode.setMtime(System.currentTimeMillis() / 1000);
 
-                    return;
-                }
-            } catch (Throwable ex) {
-                final IOException ioe = new IOException();
-                ioe.initCause(ex);
-                throw ioe;
-            } finally {
-                //setLength done, unlock the inode from the cache
-                iNode.decLocked();
-            }
-        } // synchronized(inode)
-    }
+					return;
+				}
+			} catch (Throwable ex) {
+				final IOException ioe = new IOException();
+				ioe.initCause(ex);
+				throw ioe;
+			} finally {
+				// setLength done, unlock the inode from the cache
+				iNode.decLocked();
+			}
+		} // synchronized(inode)
+	}
 
+	@Override
+	public void read(long fileOffset, ByteBuffer destBuf) throws IOException {
+		if (fileOffset + destBuf.remaining() > getLength()) throw new IOException("Can't read past the file!");
 
+		readImpl(fileOffset, destBuf);
+	}
 
-    @Override
-    public void read(long fileOffset, ByteBuffer destBuf) throws IOException {
-        if (fileOffset + destBuf.remaining() > getLength())
-            throw new IOException("Can't read past the file!");
+	/**
+	 * A read implementation that doesn't check the file length.
+	 * @param fileOffset the offset to read from.
+	 * @param destBuf the destination buffer.
+	 * @throws IOException if an error occurs reading.
+	 */
+	public void readImpl(long fileOffset, ByteBuffer destBuf) throws IOException {
+		final int len = destBuf.remaining();
+		final int off = 0;
+		// TODO optimize it also to use ByteBuffer at lower level
+		final ByteBufferUtils.ByteArray destBA = ByteBufferUtils.toByteArray(destBuf);
+		final byte[] dest = destBA.toArray();
 
-        readImpl(fileOffset, destBuf);
-    }
+		// synchronize to the inode cache to make sure that the inode does not
+		// get flushed between reading it and locking it
+		synchronized (((Ext2FileSystem) getFileSystem()).getInodeCache()) {
+			// reread the inode before synchronizing to it to make sure
+			// all threads use the same instance
+			rereadInode();
 
-    /**
-     * A read implementation that doesn't check the file length.
-     *
-     * @param fileOffset the offset to read from.
-     * @param destBuf the destination buffer.
-     * @throws IOException if an error occurs reading.
-     */
-    public void readImpl(long fileOffset, ByteBuffer destBuf) throws IOException {
-        final int len = destBuf.remaining();
-        final int off = 0;
-        //TODO optimize it also to use ByteBuffer at lower level 
-        final ByteBufferUtils.ByteArray destBA = ByteBufferUtils.toByteArray(destBuf);
-        final byte[] dest = destBA.toArray();
+			// lock the inode into the cache so it is not flushed before
+			// synchronizing to it
+			// (otherwise a new instance of INode referring to the same inode
+			// could be put
+			// in the cache resulting in the possibility of two threads
+			// manipulating the same
+			// inode at the same time because they would synchronize to
+			// different INode instances)
+			iNode.incLocked();
+		}
 
-        //synchronize to the inode cache to make sure that the inode does not
-        // get flushed between reading it and locking it
-        synchronized (((Ext2FileSystem) getFileSystem()).getInodeCache()) {
-            //reread the inode before synchronizing to it to make sure
-            //all threads use the same instance
-            rereadInode();
+		if (log.isDebugEnabled()) {
+			log.debug("File:" + entry.getName() + " size:" + getLength() + " read offset: " + fileOffset + " len: "
+					+ dest.length);
+		}
 
-            //lock the inode into the cache so it is not flushed before
-            // synchronizing to it
-            //(otherwise a new instance of INode referring to the same inode
-            // could be put
-            //in the cache resulting in the possibility of two threads
-            // manipulating the same
-            //inode at the same time because they would synchronize to
-            // different INode instances)
-            iNode.incLocked();
-        }
+		// a single inode may be represented by more than one Ext2Directory
+		// instances,
+		// but each will use the same instance of the underlying inode (see
+		// Ext2FileSystem.getINode()),
+		// so synchronize to the inode
+		synchronized (iNode) {
+			try {
+				if ((iNode.getMode() & Ext2Constants.EXT2_S_IFLNK) == Ext2Constants.EXT2_S_IFLNK) {
+					// Sym-links are a special case: the data seems to be stored inline in the iNode
+					System.arraycopy(iNode.getINodeBlockData(), 0, dest, 0, Math.min(64, dest.length));
+				} else {
+					long blockSize = iNode.getExt2FileSystem().getBlockSize();
+					long bytesRead = 0;
+					while (bytesRead < len) {
+						long blockNr = (fileOffset + bytesRead) / blockSize;
+						long blockOffset = (fileOffset + bytesRead) % blockSize;
+						long copyLength = Math.min(len - bytesRead, blockSize - blockOffset);
 
-        if (log.isDebugEnabled()) {
-            log.debug("File:"  + entry.getName() + " size:" + getLength() + " read offset: " + fileOffset + " len: " +
-                dest.length);
-        }
+						log.debug("blockNr: " + blockNr + ", blockOffset: " + blockOffset + ", copyLength: "
+								+ copyLength + ", bytesRead: " + bytesRead);
 
-        //a single inode may be represented by more than one Ext2Directory
-        // instances,
-        //but each will use the same instance of the underlying inode (see
-        // Ext2FileSystem.getINode()),
-        //so synchronize to the inode
-        synchronized (iNode) {
-            try {
-                if ((iNode.getMode() & Ext2Constants.EXT2_S_IFLNK) == Ext2Constants.EXT2_S_IFLNK) {
-                    // Sym-links are a special case: the data seems to be stored inline in the iNode
-                    System.arraycopy(iNode.getINodeBlockData(), 0, dest, 0, Math.min(64, dest.length));
-                }
-                else {
-                    long blockSize = iNode.getExt2FileSystem().getBlockSize();
-                    long bytesRead = 0;
-                    while (bytesRead < len) {
-                        long blockNr = (fileOffset + bytesRead) / blockSize;
-                        long blockOffset = (fileOffset + bytesRead) % blockSize;
-                        long copyLength = Math.min(len - bytesRead, blockSize - blockOffset);
+						System.arraycopy(iNode.getDataBlock(blockNr), (int) blockOffset, dest, off + (int) bytesRead,
+								(int) copyLength);
 
-                        log.debug("blockNr: " + blockNr + ", blockOffset: " + blockOffset + ", copyLength: " + copyLength +
-                                ", bytesRead: " + bytesRead);
+						bytesRead += copyLength;
+					}
+				}
+			} catch (Throwable ex) {
+				final IOException ioe = new IOException();
+				ioe.initCause(ex);
+				throw ioe;
+			} finally {
+				// read done, unlock the inode from the cache
+				iNode.decLocked();
+			}
+		}
 
-                        System.arraycopy(iNode.getDataBlock(blockNr), (int) blockOffset, dest, off + (int) bytesRead,
-                                (int) copyLength);
+		destBA.refreshByteBuffer();
+	}
 
-                        bytesRead += copyLength;
-                    }
-                }
-            } catch (Throwable ex) {
-                final IOException ioe = new IOException();
-                ioe.initCause(ex);
-                throw ioe;
-            } finally {
-                //read done, unlock the inode from the cache
-                iNode.decLocked();
-            }
-        }
+	@Override
+	public void write(long fileOffset, ByteBuffer srcBuf) throws IOException {
+		final int len = srcBuf.remaining();
+		final int off = 0;
+		// TODO optimize it also to use ByteBuffer at lower level
+		final byte[] src = ByteBufferUtils.toArray(srcBuf);
 
-        destBA.refreshByteBuffer();
-    }
+		if (getFileSystem().isReadOnly()) {
+			throw new ReadOnlyFileSystemException("write in readonly filesystem");
+		}
 
-    @Override
-    public void write(long fileOffset, ByteBuffer srcBuf) throws IOException {
-        final int len = srcBuf.remaining();
-        final int off = 0;
-        //TODO optimize it also to use ByteBuffer at lower level                 
-        final byte[] src = ByteBufferUtils.toArray(srcBuf);
+		// synchronize to the inode cache to make sure that the inode does not
+		// get
+		// flushed between reading it and locking it
+		synchronized (((Ext2FileSystem) getFileSystem()).getInodeCache()) {
+			// reread the inode before synchronizing to it to make sure
+			// all threads use the same instance
+			rereadInode();
 
-        if (getFileSystem().isReadOnly()) {
-            throw new ReadOnlyFileSystemException("write in readonly filesystem");
-        }
+			// lock the inode into the cache so it is not flushed before
+			// synchronizing to it
+			// (otherwise a new instance of INode referring to the same inode
+			// could be put
+			// in the cache resulting in the possibility of two threads
+			// manipulating the same
+			// inode at the same time because they would synchronize to
+			// different INode instances)
+			iNode.incLocked();
+		}
+		try {
+			// a single inode may be represented by more than one Ext2File
+			// instances,
+			// but each will use the same instance of the underlying inode (see
+			// Ext2FileSystem.getINode()),
+			// so synchronize to the inode
+			synchronized (iNode) {
+				if (fileOffset > getLength()) throw new IOException(
+						"Can't write beyond the end of the file! (fileOffset: " + fileOffset + ", getLength()"
+								+ getLength());
+				if (off + len > src.length) throw new IOException("src is shorter than what you want to write");
 
-        //synchronize to the inode cache to make sure that the inode does not
-        // get
-        //flushed between reading it and locking it
-        synchronized (((Ext2FileSystem) getFileSystem()).getInodeCache()) {
-            //reread the inode before synchronizing to it to make sure
-            //all threads use the same instance
-            rereadInode();
+				log.debug("write(fileOffset=" + fileOffset + ", src, off, len=" + len + ")");
 
-            //lock the inode into the cache so it is not flushed before
-            // synchronizing to it
-            //(otherwise a new instance of INode referring to the same inode
-            // could be put
-            //in the cache resulting in the possibility of two threads
-            // manipulating the same
-            //inode at the same time because they would synchronize to
-            // different INode instances)
-            iNode.incLocked();
-        }
-        try {
-            //a single inode may be represented by more than one Ext2File
-            // instances,
-            //but each will use the same instance of the underlying inode (see
-            // Ext2FileSystem.getINode()),
-            //so synchronize to the inode
-            synchronized (iNode) {
-                if (fileOffset > getLength())
-                    throw new IOException("Can't write beyond the end of the file! (fileOffset: " + fileOffset +
-                            ", getLength()" + getLength());
-                if (off + len > src.length)
-                    throw new IOException("src is shorter than what you want to write");
+				final long blockSize = iNode.getExt2FileSystem().getBlockSize();
+				long blocksAllocated = iNode.getAllocatedBlockCount();
+				long bytesWritten = 0;
+				while (bytesWritten < len) {
+					long blockIndex = (fileOffset + bytesWritten) / blockSize;
+					long blockOffset = (fileOffset + bytesWritten) % blockSize;
+					long copyLength = Math.min(len - bytesWritten, blockSize - blockOffset);
 
-                log.debug("write(fileOffset=" + fileOffset + ", src, off, len=" + len + ")");
+					// If only a part of the block is written, then read the
+					// block and update its contents with the data in src. If the
+					// whole block is overwritten, then skip reading it.
+					byte[] dest;
+					if (!((blockOffset == 0) && (copyLength == blockSize)) && (blockIndex < blocksAllocated)) dest = iNode.getDataBlock(blockIndex);
+					else dest = new byte[(int) blockSize];
 
-                final long blockSize = iNode.getExt2FileSystem().getBlockSize();
-                long blocksAllocated = iNode.getAllocatedBlockCount();
-                long bytesWritten = 0;
-                while (bytesWritten < len) {
-                    long blockIndex = (fileOffset + bytesWritten) / blockSize;
-                    long blockOffset = (fileOffset + bytesWritten) % blockSize;
-                    long copyLength = Math.min(len - bytesWritten, blockSize - blockOffset);
+					System.arraycopy(src, (int) (off + bytesWritten), dest, (int) blockOffset, (int) copyLength);
 
-                    //If only a part of the block is written, then read the
-                    //block and update its contents with the data in src. If the
-                    //whole block is overwritten, then skip reading it.
-                    byte[] dest;
-                    if (!((blockOffset == 0) && (copyLength == blockSize)) && (blockIndex < blocksAllocated))
-                        dest = iNode.getDataBlock(blockIndex);
-                    else
-                        dest = new byte[(int) blockSize];
+					// allocate a new block if needed
+					if (blockIndex >= blocksAllocated) {
+						try {
+							iNode.allocateDataBlock(blockIndex);
+						} catch (FileSystemException ex) {
+							final IOException ioe = new IOException("Internal filesystem exception");
+							ioe.initCause(ex);
+							throw ioe;
+						}
+						blocksAllocated++;
+					}
 
-                    System.arraycopy(src, (int) (off + bytesWritten), dest, (int) blockOffset, (int) copyLength);
+					// write the block
+					iNode.writeDataBlock(blockIndex, dest);
 
-                    //allocate a new block if needed
-                    if (blockIndex >= blocksAllocated) {
-                        try {
-                            iNode.allocateDataBlock(blockIndex);
-                        } catch (FileSystemException ex) {
-                            final IOException ioe = new IOException("Internal filesystem exception");
-                            ioe.initCause(ex);
-                            throw ioe;
-                        }
-                        blocksAllocated++;
-                    }
+					bytesWritten += copyLength;
+				}
+				iNode.setSize(fileOffset + len);
 
-                    //write the block
-                    iNode.writeDataBlock(blockIndex, dest);
+				iNode.setMtime(System.currentTimeMillis() / 1000);
+			}
+		} catch (IOException ex) {
+			// ... this avoids wrapping an IOException inside another one.
+			throw ex;
+		} catch (Throwable ex) {
+			final IOException ioe = new IOException();
+			ioe.initCause(ex);
+			throw ioe;
+		} finally {
+			// write done, unlock the inode from the cache
+			iNode.decLocked();
+		}
+	}
 
-                    bytesWritten += copyLength;
-                }
-                iNode.setSize(fileOffset + len);
+	@Override
+	public void flush() throws IOException {
+		log.debug("Ext2File.flush()");
+		iNode.update();
+		// update the group descriptors and superblock: needed if blocks have
+		// been allocated or deallocated
+		iNode.getExt2FileSystem().updateFS();
+	}
 
-                iNode.setMtime(System.currentTimeMillis() / 1000);
-            }
-        } catch (IOException ex) {
-            // ... this avoids wrapping an IOException inside another one.
-            throw ex;
-        } catch (Throwable ex) {
-            final IOException ioe = new IOException();
-            ioe.initCause(ex);
-            throw ioe;
-        } finally {
-            //write done, unlock the inode from the cache
-            iNode.decLocked();
-        }
-    }
+	private long getLengthInBlocks() {
+		return iNode.getSizeInBlocks();
+	}
 
-    @Override
-    public void flush() throws IOException {
-        log.debug("Ext2File.flush()");
-        iNode.update();
-        //update the group descriptors and superblock: needed if blocks have
-        //been allocated or deallocated
-        iNode.getExt2FileSystem().updateFS();
-    }
+	private void rereadInode() throws IOException {
+		int iNodeNr = iNode.getINodeNr();
+		try {
+			iNode = ((Ext2FileSystem) getFileSystem()).getINode(iNodeNr);
+		} catch (FileSystemException ex) {
+			final IOException ioe = new IOException();
+			ioe.initCause(ex);
+			throw ioe;
+		}
+	}
 
-    private long getLengthInBlocks() {
-        return iNode.getSizeInBlocks();
-    }
+	@Override
+	public byte[] getSlackSpace() throws IOException {
+		int blockSize = ((Ext2FileSystem) getFileSystem()).getBlockSize();
 
-    private void rereadInode() throws IOException {
-        int iNodeNr = iNode.getINodeNr();
-        try {
-            iNode = ((Ext2FileSystem) getFileSystem()).getINode(iNodeNr);
-        } catch (FileSystemException ex) {
-            final IOException ioe = new IOException();
-            ioe.initCause(ex);
-            throw ioe;
-        }
-    }
+		int slackSpaceSize = blockSize - (int) (getLength() % blockSize);
 
-    @Override
-    public byte[] getSlackSpace() throws IOException {
-        int blockSize = ((Ext2FileSystem) getFileSystem()).getBlockSize();
+		if (slackSpaceSize == blockSize) {
+			slackSpaceSize = 0;
+		}
 
-        int slackSpaceSize = blockSize - (int) (getLength() % blockSize);
+		byte[] slackSpace = new byte[slackSpaceSize];
+		readImpl(getLength(), ByteBuffer.wrap(slackSpace));
 
-        if (slackSpaceSize == blockSize) {
-            slackSpaceSize = 0;
-        }
-
-        byte[] slackSpace = new byte[slackSpaceSize];
-        readImpl(getLength(), ByteBuffer.wrap(slackSpace));
-
-        return slackSpace;
-    }
+		return slackSpace;
+	}
 }

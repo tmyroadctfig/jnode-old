@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,8 +34,7 @@ public final class DataRun implements DataRunInterface {
     protected static final Logger log = Logger.getLogger(DataRun.class);
 
     /**
-     * Cluster number of first cluster of this run. If this is zero, the run
-     * isn't actually stored as it is all zero.
+	 * Cluster number of first cluster of this run. If this is zero, the run isn't actually stored as it is all zero.
      */
     private final long cluster;
 
@@ -131,10 +130,8 @@ public final class DataRun implements DataRunInterface {
     }
 
     /**
-     * Tests if this data run is a sparse run.  Sparse runs don't actually refer to
-     * stored data, and are effectively a way to store a run of zeroes without storage
-     * penalty.
-     *
+	 * Tests if this data run is a sparse run. Sparse runs don't actually refer to stored data, and are effectively a
+	 * way to store a run of zeroes without storage penalty.
      * @return {@code true} if the run is sparse, {@code false} if it is not.
      */
     public boolean isSparse() {
@@ -150,7 +147,6 @@ public final class DataRun implements DataRunInterface {
 
     /**
      * Gets the size of this datarun descriptor in bytes.
-     * 
      * @return Returns the size.
      */
     public int getSize() {
@@ -159,7 +155,6 @@ public final class DataRun implements DataRunInterface {
 
     /**
      * Gets the length of this datarun in clusters.
-     * 
      * @return Returns the length.
      */
     public int getLength() {
@@ -168,7 +163,6 @@ public final class DataRun implements DataRunInterface {
 
     /**
      * Gets the first VCN of this data run.
-     * 
      * @return Returns the vcn.
      */
     @Override
@@ -188,7 +182,6 @@ public final class DataRun implements DataRunInterface {
 
     /**
      * Read clusters from this datarun.
-     * 
      * @param vcn
      * @param dst
      * @param dstOffset
@@ -198,8 +191,8 @@ public final class DataRun implements DataRunInterface {
      * @return The number of clusters read.
      * @throws IOException
      */
-    public int readClusters(long vcn, byte[] dst, int dstOffset, int nrClusters, int clusterSize,
-            NTFSVolume volume) throws IOException {
+	public int readClusters(long vcn, byte[] dst, int dstOffset, int nrClusters, int clusterSize, NTFSVolume volume)
+			throws IOException {
 
         final long myFirstVcn = getFirstVcn();
         final int myLength = getLength();
