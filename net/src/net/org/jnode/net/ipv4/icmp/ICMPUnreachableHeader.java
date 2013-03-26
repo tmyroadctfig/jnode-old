@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -31,7 +31,7 @@ public class ICMPUnreachableHeader extends ICMPHeader {
      * @param code
      */
     public ICMPUnreachableHeader(int code) {
-        super(ICMP_DEST_UNREACH, code);
+        super(ICMPType.ICMP_DEST_UNREACH, code);
     }
 
     /**
@@ -39,8 +39,8 @@ public class ICMPUnreachableHeader extends ICMPHeader {
      */
     public ICMPUnreachableHeader(SocketBuffer skbuf) {
         super(skbuf);
-        final int type = getType();
-        if (type != ICMP_DEST_UNREACH) {
+        final ICMPType type = getType();
+        if (type != ICMPType.ICMP_DEST_UNREACH) {
             throw new IllegalArgumentException("Invalid type " + type);
         }
     }

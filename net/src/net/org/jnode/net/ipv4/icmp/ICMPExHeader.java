@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -35,7 +35,7 @@ public abstract class ICMPExHeader extends ICMPHeader {
     /**
      * @param type
      */
-    public ICMPExHeader(int type, int code, int identifier, int seqNumber) {
+    public ICMPExHeader(ICMPType type, int code, int identifier, int seqNumber) {
         super(type, code);
         this.identifier = identifier;
         this.seqNumber = seqNumber;

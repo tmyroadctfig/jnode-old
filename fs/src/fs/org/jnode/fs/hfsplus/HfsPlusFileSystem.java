@@ -1,7 +1,7 @@
 /*
- * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
+ * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -43,27 +43,24 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
     private Catalog catalog;
 
     /**
-     * 
      * @param device
      * @param readOnly
      * @param type
      * @throws FileSystemException
      */
-    public HfsPlusFileSystem(final Device device, final boolean readOnly,
-            final HfsPlusFileSystemType type) throws FileSystemException {
+	public HfsPlusFileSystem(final Device device, final boolean readOnly, final HfsPlusFileSystemType type)
+			throws FileSystemException {
         super(device, readOnly, type);
     }
 
     /**
-     *
      * @throws FileSystemException
      */
     public final void read() throws FileSystemException {
         volumeHeader = new SuperBlock(this, false);
         log.debug(volumeHeader.toString());
         if (!volumeHeader.isAttribute(SuperBlock.HFSPLUS_VOL_UNMNT_BIT)) {
-            log.info(getDevice().getId() +
-                    " Filesystem has not been cleanly unmounted, mounting it readonly");
+			log.info(getDevice().getId() + " Filesystem has not been cleanly unmounted, mounting it readonly");
             setReadOnly(true);
         }
         if (volumeHeader.isAttribute(SuperBlock.HFSPLUS_VOL_SOFTLOCK_BIT)) {
@@ -71,9 +68,8 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
             setReadOnly(true);
         }
         if (volumeHeader.isAttribute(SuperBlock.HFSPLUS_VOL_JOURNALED_BIT)) {
-            log
-                    .info(getDevice().getId() +
-                            " Filesystem is journaled, write access is not supported. Mounting it readonly");
+			log.info(getDevice().getId()
+					+ " Filesystem is journaled, write access is not supported. Mounting it readonly");
             setReadOnly(true);
         }
         try {
@@ -116,11 +112,11 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
         return -1;
     }
 
-    @Override
-    public String getVolumeName() throws IOException {
-        LeafRecord record = catalog.getRecord(CatalogNodeId.HFSPLUS_POR_CNID);
-        return ((CatalogKey) record.getKey()).getNodeName().getUnicodeString();
-    }
+	@Override
+	public String getVolumeName() throws IOException {
+		LeafRecord record = catalog.getRecord(CatalogNodeId.HFSPLUS_POR_CNID);
+		return ((CatalogKey) record.getKey()).getNodeName().getUnicodeString();
+	}
 
     public final Catalog getCatalog() {
         return catalog;
@@ -132,9 +128,7 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
 
     /**
      * Create a new HFS+ file system.
-     * 
      * @param params creation parameters
-     * 
      * @throws FileSystemException
      */
     public void create(HFSPlusParams params) throws FileSystemException {
@@ -143,9 +137,8 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
             params.initializeDefaultsValues(this);
             volumeHeader.create(params);
             log.debug("Volume header : \n" + volumeHeader.toString());
-            long volumeBlockUsed =
-                    volumeHeader.getTotalBlocks() - volumeHeader.getFreeBlocks() -
-                            ((volumeHeader.getBlockSize() == 512) ? 2 : 1);
+			long volumeBlockUsed = volumeHeader.getTotalBlocks() - volumeHeader.getFreeBlocks()
+					- ((volumeHeader.getBlockSize() == 512) ? 2 : 1);
             // ---
             log.debug("Write allocation bitmap bits to disk.");
             writeAllocationFile((int) volumeBlockUsed);

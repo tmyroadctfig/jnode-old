@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -73,7 +73,6 @@ public class NTFSRecord extends NTFSStructure {
 
     /**
      * Gets the magic value of this record.
-     * 
      * @return
      */
     public int getMagic() {
@@ -81,9 +80,7 @@ public class NTFSRecord extends NTFSStructure {
     }
 
     /**
-     * Offset to the Update Sequence Array (usa) from the start of the ntfs
-     * record.
-     * 
+	 * Offset to the Update Sequence Array (usa) from the start of the ntfs record.
      * @return
      */
     public int getUpdateSequenceArrayOffset() {
@@ -91,9 +88,8 @@ public class NTFSRecord extends NTFSStructure {
     }
 
     /**
-     * Number of u16 sized entries in the usa including the Update Sequence
-     * Number (usn), thus the number of fixups is the usa_count minus 1.
-     * 
+	 * Number of u16 sized entries in the usa including the Update Sequence Number (usn), thus the number of fixups is
+	 * the usa_count minus 1.
      * @return
      */
     public int getUpdateSequenceArrayCount() {
@@ -119,7 +115,7 @@ public class NTFSRecord extends NTFSStructure {
         // check each sector if the last 2 bytes are equal with the USN from
         // header
 
-        for (int i = 1/* intended */; i < usnCount; i++) {
+		for(int i = 1/* intended */; i < usnCount; i++) {
             final int bufOffset = (i * bytesPerSector) - 2;
             final int usnOffset = updateSequenceOffset + (i * 2);
             if (getUInt16(bufOffset) == usn) {

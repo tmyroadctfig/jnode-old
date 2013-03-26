@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -45,27 +45,26 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
      */
     private FileRecord fileRecord;
 
-    /**
-     * The file system that contains this file.
-     */
-    private NTFSFileSystem fs;
+	/**
+	 * The file system that contains this file.
+	 */
+	private NTFSFileSystem fs;
 
     private final IndexEntry indexEntry;
 
-    /**
-     * Initialize this instance.
-     *
-     * @param fs the file system.
-     * @param indexEntry
-     */
-    public NTFSFile(NTFSFileSystem fs, IndexEntry indexEntry) {
-        this.fs = fs;
-        this.indexEntry = indexEntry;
-    }
+	/**
+	 * Initialize this instance.
+	 * @param fs the file system.
+	 * @param indexEntry
+	 */
+	public NTFSFile(NTFSFileSystem fs, IndexEntry indexEntry) {
+		this.fs = fs;
+		this.indexEntry = indexEntry;
+	}
 
     @Override
     public long getLength() {
-        FileRecord.AttributeIterator attributes = getFileRecord().findAttributesByTypeAndName(NTFSAttribute.Types.DATA, null);
+		FileRecord.AttributeIterator attributes = getFileRecord().findAttributesByTypeAndName(NTFSAttribute.Types.DATA, null);
         NTFSAttribute attribute = attributes.next();
 
         if (attribute == null) {
@@ -77,7 +76,6 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.jnode.fs.FSFile#setLength(long)
      */
     public void setLength(long length) {
@@ -87,7 +85,6 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.jnode.fs.FSFile#read(long, byte[], int, int)
      */
     // public void read(long fileOffset, byte[] dest, int off, int len)
@@ -101,7 +98,6 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.jnode.fs.FSFile#write(long, byte[], int, int)
      */
     // public void write(long fileOffset, byte[] src, int off, int len) {
@@ -112,7 +108,6 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.jnode.fs.FSObject#isValid()
      */
     public boolean isValid() {
@@ -121,11 +116,10 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.jnode.fs.FSObject#getFileSystem()
      */
     public FileSystem<?> getFileSystem() {
-        return fs;
+		return fs;
     }
 
     /**
@@ -134,9 +128,7 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
     public FileRecord getFileRecord() {
         if (fileRecord == null) {
             try {
-                fileRecord =
-                        indexEntry.getParentFileRecord().getVolume().getMFT().getIndexedFileRecord(
-                                indexEntry);
+				fileRecord = indexEntry.getParentFileRecord().getVolume().getMFT().getIndexedFileRecord(indexEntry);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -151,35 +143,34 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
         this.fileRecord = fileRecord;
     }
 
-    @Override
-    public byte[] getSlackSpace() throws IOException {
-        FileRecord.AttributeIterator dataAttributes =
-            getFileRecord().findAttributesByTypeAndName(NTFSAttribute.Types.DATA, null);
-        NTFSAttribute attribute = dataAttributes.next();
+	@Override
+	public byte[] getSlackSpace() throws IOException {
+		FileRecord.AttributeIterator dataAttributes = getFileRecord().findAttributesByTypeAndName(
+				NTFSAttribute.Types.DATA, null);
+		NTFSAttribute attribute = dataAttributes.next();
 
-        if (attribute == null || attribute.isResident()) {
-            // If the data attribute is missing there is no slack space. If it is resident then another attribute might
-            // immediately follow the data. So for now we'll ignore that case
-            return new byte[0];
-        }
+		if (attribute == null || attribute.isResident()) {
+			// If the data attribute is missing there is no slack space. If it is resident then another attribute might
+			// immediately follow the data. So for now we'll ignore that case
+			return new byte[0];
+		}
 
-        int clusterSize = ((NTFSFileSystem) getFileSystem()).getNTFSVolume().getClusterSize();
+		int clusterSize = ((NTFSFileSystem) getFileSystem()).getNTFSVolume().getClusterSize();
 
-        int slackSpaceSize = clusterSize - (int) (getLength() % clusterSize);
+		int slackSpaceSize = clusterSize - (int) (getLength() % clusterSize);
 
-        if (slackSpaceSize == clusterSize) {
-            slackSpaceSize = 0;
-        }
+		if (slackSpaceSize == clusterSize) {
+			slackSpaceSize = 0;
+		}
 
-        byte[] slackSpace = new byte[slackSpaceSize];
-        getFileRecord().readData(getLength(), slackSpace, 0, slackSpace.length);
+		byte[] slackSpace = new byte[slackSpaceSize];
+		getFileRecord().readData(getLength(), slackSpace, 0, slackSpace.length);
 
-        return slackSpace;
-    }
+		return slackSpace;
+	}
 
     /**
      * Flush any cached data to the disk.
-     * 
      * @throws IOException
      */
     public void flush() throws IOException {

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,22 +30,21 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
     public static class NameSpace {
 
         /**
-         * This is the largest namespace. It is case sensitive and allows all
-         * Unicode characters except for: '\0' and '/'. Beware that in WinNT/2k
-         * files which eg have the same name except for their case will not be
-         * distinguished by the standard utilities and thus a "del filename"
-         * will delete both "filename" and "fileName" without warning.
+		 * This is the largest namespace. It is case sensitive and allows all Unicode characters except for: '\0' and
+		 * '/'. Beware that in WinNT/2k files which eg have the same name except for their case will not be
+		 * distinguished by the standard utilities and thus a "del filename" will delete both "filename" and "fileName"
+		 * without warning.
          */
         public static final int POSIX = 0x00;
 
-        /**
+/**
          * The standard WinNT/2k NTFS long filenames. Case insensitive. All
          * Unicode chars except: '\0', '"', '*', '/', ':', ' <', '>', '?', '\'
          * and '|'. Further, names cannot end with a '.' or a space.
          */
         public static final int WIN32 = 0x01;
 
-        /**
+/**
          * The standard DOS filenames (8.3 format). Uppercase only. All 8-bit
          * characters greater space, except: '"', '*', '+', ',', '/', ':', ';', '
          * <', '=', '>', '?' and '\'.
@@ -53,8 +52,8 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
         public static final int DOS = 0x02;
 
         /**
-         * 3 means that both the Win32 and the DOS filenames are identical and
-         * hence have been saved in this single filename record.
+		 * 3 means that both the Win32 and the DOS filenames are identical and hence have been saved in this single
+		 * filename record.
          */
         public static final int WIN32_AND_DOS = 0x03;
     }
@@ -71,7 +70,6 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
 
     /**
      * Gets the filename.
-     * 
      * @return
      */
     public String getFileName() {
@@ -83,15 +81,14 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
 
     /**
      * Is this a compressed file.
-     * 
      * @return
      */
     public boolean isCompressed() {
         final int flags = getFlags();
         return ((flags & 0x0800) != 0);
     }
-
-    /**
+	
+	/**
      * Gets the index of the parent MFT entry.
      *
      * @return the index of the parent MFT entry.
@@ -102,22 +99,22 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
     }
 
     /**
-     * Gets the allocated file size.
-     */
-    public long getAllocatedFileSize() {
-        final int attrOffset = getAttributeOffset();
-        return getInt64(attrOffset + 0x28);
-    }
+	 * Gets the allocated file size.
+	 */
+	public long getAllocatedFileSize() {
+		final int attrOffset = getAttributeOffset();
+		return getInt64(attrOffset + 0x28);
+	}
 
-    /**
-     * Gets the real file size.
-     */
-    public long getRealSize() {
-        final int attrOffset = getAttributeOffset();
-        return getInt64(attrOffset + 0x30);
-    }
+	/**
+	 * Gets the real file size.
+	 */
+	public long getRealSize() {
+		final int attrOffset = getAttributeOffset();
+		return getInt64(attrOffset + 0x30);
+	}
 
-    /**
+	/**
      * Gets the flags.
      */
     public int getFlags() {
@@ -127,7 +124,6 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
 
     /**
      * Gets the filename namespace.
-     * 
      * @see NameSpace
      * @return
      */
@@ -138,7 +134,6 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
 
     /**
      * Gets the creation time.
-     *
      * @return the creation time, as a 64-bit NTFS filetime value.
      */
     public long getCreationTime() {
@@ -147,7 +142,6 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
 
     /**
      * Gets the modification time.
-     *
      * @return the modification time, as a 64-bit NTFS filetime value.
      */
     public long getModificationTime() {
@@ -156,7 +150,6 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
 
     /**
      * Gets the time when the MFT record last changed.
-     *
      * @return the MFT change time, as a 64-bit NTFS filetime value.
      */
     public long getMftChangeTime() {
@@ -165,7 +158,6 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
 
     /**
      * Gets the access time.
-     *
      * @return the access time, as a 64-bit NTFS filetime value.
      */
     public long getAccessTime() {
@@ -174,7 +166,6 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
 
     /**
      * Gets the name of this file as character array.
-     * 
      * @return
      */
     private char[] getFileNameAsCharArray() {
@@ -183,7 +174,7 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
 
         final char[] name = new char[fileNameLength];
         int ofs = attrOffset + 0x42;
-        for (int i = 0; i < fileNameLength; i++) {
+		for(int i = 0; i < fileNameLength; i++) {
             name[i] = getChar16(ofs);
             ofs += 2;
         }

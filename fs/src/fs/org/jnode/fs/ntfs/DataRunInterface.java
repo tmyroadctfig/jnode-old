@@ -1,7 +1,7 @@
 /*
- * $Id: header.txt 5714 2010-01-03 13:33:07Z lsantha $
+ * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -29,14 +29,12 @@ public interface DataRunInterface {
 
     /**
      * Gets the length of the data run in clusters.
-     *
      * @return the length of the run in clusters.
      */
     int getLength();
 
     /**
      * Reads clusters from this data run.
-     *
      * @param vcn the VCN to read, offset from the start of the entire file.
      * @param dst destination buffer.
      * @param dstOffset offset into destination buffer.
@@ -46,8 +44,16 @@ public interface DataRunInterface {
      * @return the number of clusters read.
      * @throws IOException if an error occurs reading.
      */
-    public int readClusters(long vcn, byte[] dst, int dstOffset,
-                            int nrClusters, int clusterSize, NTFSVolume volume) throws IOException;
+	public int readClusters(long vcn, byte[] dst, int dstOffset, int nrClusters, int clusterSize, NTFSVolume volume)
+			throws IOException;
+
+	/**
+	 * Maps a virtual cluster to a logical cluster.
+	 * @param vcn the virtual cluster number to map.
+	 * @return the logical cluster number or -1 if this cluster is not stored (e.g. for a sparse cluster).
+	 * @throws ArrayIndexOutOfBoundsException if the VCN doesn't belong to this data run.
+	 */
+	public long mapVcnToLcn(long vcn);
 
     /**
      * Gets the first virtual cluster in this data run.
@@ -62,13 +68,4 @@ public interface DataRunInterface {
      * @return the last VCN.
      */
     public long getLastVcn();
-
-    /**
-     * Maps a virtual cluster to a logical cluster.
-     *
-     * @param vcn the virtual cluster number to map.
-     * @return the logical cluster number or -1 if this cluster is not stored (e.g. for a sparse cluster).
-     * @throws ArrayIndexOutOfBoundsException if the VCN doesn't belong to this data run.
-     */
-    public long mapVcnToLcn(long vcn);
 }

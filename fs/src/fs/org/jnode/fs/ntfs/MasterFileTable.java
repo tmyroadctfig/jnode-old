@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,6 +24,8 @@ import java.io.IOException;
 import org.jnode.fs.ntfs.attribute.NTFSAttribute;
 import org.jnode.fs.ntfs.index.IndexEntry;
 
+import org.jnode.fs.ntfs.index.IndexEntry;
+
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
@@ -33,15 +35,14 @@ public final class MasterFileTable extends FileRecord {
     public static class SystemFiles {
 
         /**
-         * Master file table (mft). Data attribute contains the entries and
-         * bitmap attribute records which ones are in use (bit==1).
+		 * Master file table (mft). Data attribute contains the entries and bitmap attribute records which ones are in
+		 * use (bit==1).
          */
         public static final int MFT = 0;
 
         /**
-         * Mft mirror: copy of first four mft records in data attribute. If
-         * cluster size > 4kiB, copy of first N mft records, with N =
-         * cluster_size / mft_record_size.
+		 * Mft mirror: copy of first four mft records in data attribute. If cluster size > 4kiB, copy of first N mft
+		 * records, with N = cluster_size / mft_record_size.
          */
         public static final int MFTMIRR = 1;
 
@@ -51,9 +52,8 @@ public final class MasterFileTable extends FileRecord {
         public static final int LOGFILE = 2;
 
         /**
-         * Volume name attribute and volume information attribute (flags and
-         * ntfs version). Windows refers to this file as volume DASD (Direct
-         * Access Storage Device).
+		 * Volume name attribute and volume information attribute (flags and ntfs version). Windows refers to this file
+		 * as volume DASD (Direct Access Storage Device).
          */
         public static final int VOLUME = 3;
 
@@ -81,21 +81,18 @@ public final class MasterFileTable extends FileRecord {
         public static final int BADCLUS = 8;
 
         /**
-         * Shared security descriptors in data attribute and two indexes into
-         * the descriptors. Appeared in Windows 2000. Before that, this file was
-         * named $Quota but was unused.
+		 * Shared security descriptors in data attribute and two indexes into the descriptors. Appeared in Windows 2000.
+		 * Before that, this file was named $Quota but was unused.
          */
         public static final int SECURE = 9;
 
         /**
-         * Uppercase equivalents of all 65536 Unicode characters in data
-         * attribute.
+		 * Uppercase equivalents of all 65536 Unicode characters in data attribute.
          */
         public static final int UPCASE = 10;
 
         /**
-         * Directory containing other system files (eg. $ObjId, $Quota, $Reparse
-         * and $UsnJrnl). This is new to NTFS3.0.
+		 * Directory containing other system files (eg. $ObjId, $Quota, $Reparse and $UsnJrnl). This is new to NTFS3.0.
          */
         public static final int EXTEND = 11;
 
@@ -112,8 +109,7 @@ public final class MasterFileTable extends FileRecord {
         public static final int RESERVED15 = 15;
 
         /**
-         * First user file, used as test limit for whether to allow opening a
-         * file or not.
+		 * First user file, used as test limit for whether to allow opening a file or not.
          */
         public static final int FIRST_USER = 16;
     }
@@ -135,12 +131,11 @@ public final class MasterFileTable extends FileRecord {
     }
 
     /**
-     * Gets an MFT record with a given index but does not check if it is a valid file record.
-     *
-     * @param index the index to get.
-     * @return the file record.
+	 * Gets an MFT record with a given index but does not check if it is a valid file record.
+	 * @param index the index to get.
+	 * @return the file record.
      */
-    public FileRecord getRecordUnchecked(long index) throws IOException {
+	public FileRecord getRecordUnchecked(long index) throws IOException {
         log.debug("getRecord(" + index + ")");
 
         final NTFSVolume volume = getVolume();
@@ -157,18 +152,17 @@ public final class MasterFileTable extends FileRecord {
         return new FileRecord(volume, index, buffer, 0);
     }
 
-    /**
-     * Gets an MFT record with a given index.
-     * 
-     * @param index the index to get.
-     * @return the file record.
-     * @throws IOException if the record at the index is not valid or there is an error reading in the data.
-     */
-    public FileRecord getRecord(long index) throws IOException {
-        FileRecord fileRecord = getRecordUnchecked(index);
-        fileRecord.checkIfValid();
-        return fileRecord;
-    }
+	/**
+	 * Gets an MFT record with a given index.
+	 * @param index the index to get.
+	 * @return the file record.
+	 * @throws IOException if the record at the index is not valid or there is an error reading in the data.
+	 */
+	public FileRecord getRecord(long index) throws IOException {
+		FileRecord fileRecord = getRecordUnchecked(index);
+		fileRecord.checkIfValid();
+		return fileRecord;
+	}
 
     public FileRecord getIndexedFileRecord(IndexEntry indexEntry) throws IOException {
         return getRecord(indexEntry.getFileReferenceNumber());

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2012 JNode.org
+ * Copyright (C) 2003-2013 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,7 +19,6 @@
  */
  
 package org.jnode.fs.ntfs;
-
 
 /**
  * @author Chira
@@ -52,7 +51,6 @@ public final class BootRecord extends NTFSStructure {
 
     /**
      * Initialize this instance.
-     * 
      * @param buffer
      */
     public BootRecord(byte[] buffer) {
@@ -92,7 +90,6 @@ public final class BootRecord extends NTFSStructure {
 
     /**
      * Gets the logical cluster number of the MFT.
-     * 
      * @return Returns the mFTPointer.
      */
     public long getMftLcn() {
