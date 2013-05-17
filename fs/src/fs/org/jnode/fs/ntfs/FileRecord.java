@@ -321,7 +321,7 @@ public class FileRecord extends NTFSRecord {
      *
      * @return a collection of all attributes.
      */
-    private List<NTFSAttribute> getAllAttributes() {
+    private synchronized List<NTFSAttribute> getAllAttributes() {
         if (attributeList == null) {
             attributeList = new ArrayList<NTFSAttribute>();
 
