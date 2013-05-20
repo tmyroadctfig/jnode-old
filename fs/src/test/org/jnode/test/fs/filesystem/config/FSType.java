@@ -49,6 +49,8 @@ public enum FSType {
         null),
     JFAT("jfat", org.jnode.fs.jfat.FatFileSystem.class, org.jnode.fs.jfat.FatFileSystemType.class,
             null),
+    EXFAT("exfat", org.jnode.fs.exfat.ExFatFileSystem.class, org.jnode.fs.exfat.ExFatFileSystemType.class,
+            null),
 
     ISO9660("iso9660", ISO9660FileSystem.class, ISO9660FileSystemType.class,
         new String[]{".", ".."}),
