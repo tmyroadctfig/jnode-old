@@ -10,7 +10,7 @@ import org.jnode.fs.spi.AbstractFSObject;
  *
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  */
-final class ExFatSuperBlock extends AbstractFSObject {
+public final class ExFatSuperBlock extends AbstractFSObject {
 
     /**
      * The size of the ExFAT super block in bytes.

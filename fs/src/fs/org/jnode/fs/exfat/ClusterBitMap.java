@@ -8,7 +8,7 @@ import java.io.IOException;
  *
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  */
-final class ClusterBitMap {
+public final class ClusterBitMap {
     
     public static ClusterBitMap read(ExFatSuperBlock sb,
             long startCluster, long size) throws IOException {
@@ -62,6 +62,24 @@ final class ClusterBitMap {
         final long offset = bitNum / 8;
         final int bits = this.da.getUint8(offset + this.devOffset);
         return (bits & (1 << (bitNum % 8))) == 0;
+    }
+
+    /**
+     * Gets the first cluster of the bitmap.
+     *
+     * @return the first cluster.
+     */
+    public long getStartCluster() {
+        return startCluster;
+    }
+
+    /**
+     * Gets the cluster count.
+     *
+     * @return the cluster count.
+     */
+    public long getClusterCount() {
+        return clusterCount;
     }
     
     public long getUsedClusterCount() throws IOException {

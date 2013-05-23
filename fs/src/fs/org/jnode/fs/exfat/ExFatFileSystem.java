@@ -92,6 +92,24 @@ public final class ExFatFileSystem extends AbstractFileSystem<NodeEntry> {
         return upcase;
     }
 
+    /**
+     * Gets the super block.
+     *
+     * @return the super block.
+     */
+    public ExFatSuperBlock getSuperBlock() {
+        return sb;
+    }
+
+    /**
+     * Gets the cluster bitmap.
+     *
+     * @return the bitmap.
+     */
+    public ClusterBitMap getClusterBitmap() {
+        return bitmap;
+    }
+
     private static class RootDirVisitor implements DirectoryParser.Visitor {
 
         private final ExFatSuperBlock sb;
