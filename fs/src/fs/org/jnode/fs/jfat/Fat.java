@@ -78,8 +78,7 @@ public abstract class Fat {
         } else if (bs.isFat16()) {
             return new Fat16(bs, api);
         } else if (bs.isFat12()) {
-//            return new Fat12(bs, api);
-            throw new FileSystemException("FAT-12 not supported yet");
+            return new Fat12(bs, api);
         }
 
         throw new FileSystemException("FAT not recognized");

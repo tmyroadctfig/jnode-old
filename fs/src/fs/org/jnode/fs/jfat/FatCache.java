@@ -362,7 +362,10 @@ public class FatCache {
         private CacheElement() {
             this.dirty = false;
             this.address = new CacheKey();
-            this.elem = ByteBuffer.wrap(new byte[elementSize]);
+
+            // FAT-12 reads in two byte chunks so add an extra element to prevent an array index out of bounds exception
+            // when reading in the last element
+            this.elem = ByteBuffer.wrap(new byte[elementSize + 1]);
         }
 
         private boolean isFree() {
