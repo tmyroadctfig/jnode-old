@@ -32,8 +32,6 @@ import org.jnode.fs.FSEntryCreated;
 import org.jnode.fs.FSEntryLastAccessed;
 import org.jnode.fs.FSFile;
 import org.jnode.util.NumberUtils;
-import org.jnode.fs.FSEntryCreated;
-import org.jnode.fs.FSEntryLastAccessed;
 
 
 public class FatEntry extends FatObject implements FSEntry, FSEntryCreated, FSEntryLastAccessed {
@@ -100,6 +98,10 @@ public class FatEntry extends FatObject implements FSEntry, FSEntryCreated, FSEn
 
     public void dumpChain(String fileName) throws FileNotFoundException, IOException {
         chain.dump(fileName);
+    }
+
+    public FatRecord getRecord() {
+        return record;
     }
 
     public String getName() {
