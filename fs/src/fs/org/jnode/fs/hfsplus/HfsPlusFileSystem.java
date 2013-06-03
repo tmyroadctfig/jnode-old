@@ -57,7 +57,7 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
      * @throws FileSystemException
      */
     public final void read() throws FileSystemException {
-        volumeHeader = new SuperBlock(this, false);
+        volumeHeader = new SuperBlock(this);
         log.debug(volumeHeader.toString());
         if (!volumeHeader.isAttribute(SuperBlock.HFSPLUS_VOL_UNMNT_BIT)) {
 			log.info(getDevice().getId() + " Filesystem has not been cleanly unmounted, mounting it readonly");
@@ -72,11 +72,9 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
 					+ " Filesystem is journaled, write access is not supported. Mounting it readonly");
             setReadOnly(true);
         }
-        try {
-            catalog = new Catalog(this);
-        } catch (IOException e) {
-            throw new FileSystemException(e);
-        }
+
+        catalog = new Catalog(this);
+
     }
 
     @Override
@@ -132,7 +130,7 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
      * @throws FileSystemException
      */
     public void create(HFSPlusParams params) throws FileSystemException {
-        volumeHeader = new SuperBlock(this, true);
+        volumeHeader = new SuperBlock(this);
         try {
             params.initializeDefaultsValues(this);
             volumeHeader.create(params);
@@ -143,7 +141,7 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
             log.debug("Write allocation bitmap bits to disk.");
             writeAllocationFile((int) volumeBlockUsed);
             log.debug("Write Catalog to disk.");
-            Catalog catalog = new Catalog(params, this);
+            catalog.create(params);
             catalog.update();
             log.debug("Write volume header to disk.");
             volumeHeader.update();
@@ -157,10 +155,6 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
         @SuppressWarnings("unused")
         int bytes = blockUsed >> 3;
         @SuppressWarnings("unused")
-        int bits = blockUsed & 0x0007;
-        // FIXME ... this should be completed
-    }
-}")
         int bits = blockUsed & 0x0007;
         // FIXME ... this should be completed
     }
