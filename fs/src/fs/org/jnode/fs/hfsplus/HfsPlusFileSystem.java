@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.hfsplus;
 
 import java.io.IOException;
@@ -160,4 +160,9 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
         int bits = blockUsed & 0x0007;
         // FIXME ... this should be completed
     }
+}")
+        int bits = blockUsed & 0x0007;
+        // FIXME ... this should be completed
+    }
+
 }
