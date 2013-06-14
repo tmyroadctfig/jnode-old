@@ -18,10 +18,10 @@ import org.jnode.partitions.PartitionTableEntry;
  * @author Luke Quinane
  */
 public class HfsWrapperFileSystemType implements BlockDeviceFileSystemType<HfsPlusFileSystem> {
-	public static final Class<HfsWrapperFileSystemType> ID = HfsWrapperFileSystemType.class;
+    public static final Class<HfsWrapperFileSystemType> ID = HfsWrapperFileSystemType.class;
 
     @Override
-	public final HfsPlusFileSystem create(final Device device, final boolean readOnly) throws FileSystemException {
+    public final HfsPlusFileSystem create(final Device device, final boolean readOnly) throws FileSystemException {
 
         ByteBuffer mdbData = ByteBuffer.allocate(MasterDirectoryBlock.LENGTH);
 
@@ -49,24 +49,24 @@ public class HfsWrapperFileSystemType implements BlockDeviceFileSystemType<HfsPl
         }
 
         HfsPlusFileSystem fs = new HfsPlusFileSystem(subDevice, readOnly, this);
-		fs.read();
-		return fs;
-	}
+        fs.read();
+        return fs;
+    }
 
     @Override
-	public final String getName() {
-		return "HFS Wrapper";
-	}
+    public final String getName() {
+        return "HFS Wrapper";
+    }
 
     @Override
-	public final boolean supports(final PartitionTableEntry pte, final byte[] firstSector, final FSBlockDeviceAPI devApi) {
+    public final boolean supports(final PartitionTableEntry pte, final byte[] firstSector, final FSBlockDeviceAPI devApi) {
         byte[] mdbData = new byte[MasterDirectoryBlock.LENGTH];
         System.arraycopy(firstSector, 0x400, mdbData, 0, mdbData.length);
-		MasterDirectoryBlock mdb = new MasterDirectoryBlock(mdbData);
+        MasterDirectoryBlock mdb = new MasterDirectoryBlock(mdbData);
 
         return
             mdb.getSignature() == MasterDirectoryBlock.HFS_MDB_SIGNATURE &&
             mdb.getEmbeddedSignature() == MasterDirectoryBlock.HFSPLUS_EMBEDDED_SIGNATURE;
-	}
+    }
 }
 
