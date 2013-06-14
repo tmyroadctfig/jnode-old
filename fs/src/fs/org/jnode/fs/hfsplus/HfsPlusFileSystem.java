@@ -26,7 +26,9 @@ import org.jnode.driver.Device;
 import org.jnode.fs.FSDirectory;
 import org.jnode.fs.FSEntry;
 import org.jnode.fs.FSFile;
+import org.jnode.fs.FileSystem;
 import org.jnode.fs.FileSystemException;
+import org.jnode.fs.FileSystemType;
 import org.jnode.fs.hfsplus.catalog.Catalog;
 import org.jnode.fs.hfsplus.catalog.CatalogKey;
 import org.jnode.fs.hfsplus.catalog.CatalogNodeId;
@@ -48,7 +50,7 @@ public class HfsPlusFileSystem extends AbstractFileSystem<HfsPlusEntry> {
      * @param type
      * @throws FileSystemException
      */
-	public HfsPlusFileSystem(final Device device, final boolean readOnly, final HfsPlusFileSystemType type)
+	public HfsPlusFileSystem(Device device, boolean readOnly, FileSystemType<? extends FileSystem<HfsPlusEntry>> type)
 			throws FileSystemException {
         super(device, readOnly, type);
     }
