@@ -41,12 +41,26 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
 
     private FSObject cachedFSObject;
 
-    private final IndexEntry indexEntry;
+    /**
+     * The index entry.
+     */
+    private IndexEntry indexEntry;
 
+    /**
+     * The associated file record.
+     */
+    private FileRecord fileRecord;
+
+    /**
+     * The containing file system.
+     */
     private final NTFSFileSystem fs;
 
     /**
      * Initialize this instance.
+     *
+	 * @param fs the file system.
+	 * @param indexEntry the index entry.
      */
     public NTFSEntry(NTFSFileSystem fs, IndexEntry indexEntry) {
         this.fs = fs;
@@ -54,11 +68,26 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
     }
 
     /**
+     * Initialize this instance.
+     *
+	 * @param fs the file system.
+	 * @param fileRecord the file record.
+     */
+    public NTFSEntry(NTFSFileSystem fs, FileRecord fileRecord) {
+        this.fs = fs;
+        this.fileRecord = fileRecord;
+    }
+
+    /**
      * Gets the name of this entry.
      * @see org.jnode.fs.FSEntry#getName()
      */
     public String getName() {
-		if (indexEntry != null) return indexEntry.getFileName();
+		if (indexEntry != null) {
+            return indexEntry.getFileName();
+        } else if (fileRecord != null) {
+            return fileRecord.getFileName();
+        }
         return null;
     }
 
@@ -90,14 +119,22 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
      * @see org.jnode.fs.FSEntry#isFile()
      */
     public boolean isFile() {
-        return !indexEntry.isDirectory();
+        if (indexEntry != null) {
+            return !indexEntry.isDirectory();
+        } else {
+            return !fileRecord.isDirectory();
+        }
     }
 
     /**
      * @see org.jnode.fs.FSEntry#isDirectory()
      */
     public boolean isDirectory() {
-        return indexEntry.isDirectory();
+        if (indexEntry != null) {
+            return indexEntry.isDirectory();
+        } else {
+            return fileRecord.isDirectory();
+        }
     }
 
     /**
@@ -126,7 +163,11 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
     public FSFile getFile() {
         if (this.isFile()) {
             if (cachedFSObject == null) {
-				cachedFSObject = new NTFSFile(fs, indexEntry);
+                if (indexEntry != null) {
+				    cachedFSObject = new NTFSFile(fs, indexEntry);
+                } else {
+                    cachedFSObject = new NTFSFile(fs, fileRecord);
+                }
             }
             return (FSFile) cachedFSObject;
         } else {
@@ -140,9 +181,13 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
     public FSDirectory getDirectory() throws IOException {
         if (this.isDirectory()) {
             if (cachedFSObject == null) {
-                // XXX: Why can't this just use getFileRecord()?
-				cachedFSObject = new NTFSDirectory(fs, getFileRecord().getVolume().getMFT().getIndexedFileRecord(
-						indexEntry));
+                if (fileRecord != null) {
+                    cachedFSObject = new NTFSDirectory(fs, fileRecord);
+                } else {
+                    // XXX: Why can't this just use getFileRecord()?
+                    cachedFSObject = new NTFSDirectory(fs, getFileRecord().getVolume().getMFT().getIndexedFileRecord(
+                            indexEntry));
+                }
             }
             return (FSDirectory) cachedFSObject;
 		} else return null;
@@ -175,6 +220,10 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
      * @return Returns the fileRecord.
      */
     public FileRecord getFileRecord() throws IOException {
+        if (fileRecord != null) {
+            return fileRecord;
+        }
+
 		return indexEntry.getParentFileRecord().getVolume().getMFT().getIndexedFileRecord(indexEntry);
     }
 
@@ -196,6 +245,7 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
 
     @Override
     public String toString() {
-        return super.toString() + '(' + indexEntry + ')';
+        Object obj = indexEntry == null ? fileRecord : indexEntry;
+        return super.toString() + '(' + obj + ')';
     }
 }

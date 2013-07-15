@@ -50,16 +50,28 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 	 */
 	private NTFSFileSystem fs;
 
-    private final IndexEntry indexEntry;
+    private IndexEntry indexEntry;
 
 	/**
 	 * Initialize this instance.
+     *
 	 * @param fs the file system.
-	 * @param indexEntry
+	 * @param indexEntry the index entry.
 	 */
 	public NTFSFile(NTFSFileSystem fs, IndexEntry indexEntry) {
 		this.fs = fs;
 		this.indexEntry = indexEntry;
+	}
+
+	/**
+	 * Initialize this instance.
+     *
+	 * @param fs the file system.
+	 * @param fileRecord the file record.
+	 */
+	public NTFSFile(NTFSFileSystem fs, FileRecord fileRecord) {
+		this.fs = fs;
+		this.fileRecord = fileRecord;
 	}
 
     @Override
@@ -67,7 +79,8 @@ public class NTFSFile implements FSFile, FSFileSlackSpace, FSFileStreams {
 		FileRecord.AttributeIterator attributes = getFileRecord().findAttributesByTypeAndName(NTFSAttribute.Types.DATA, null);
         NTFSAttribute attribute = attributes.next();
 
-        if (attribute == null) {
+        if (attribute == null && indexEntry != null) {
+            // Fall back to the size stored in the index entry if the data attribute is not present (even possible??)
             return indexEntry.getRealFileSize();
         }
 
