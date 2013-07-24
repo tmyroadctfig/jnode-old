@@ -52,6 +52,7 @@ public enum IBMPartitionTypes {
     PARTTYPE_WIN95_FAT32_LBA_HIDDEN(0x1C, "Hidden Win 95 Fat 32 Partition (LBA)"),
     PARTTYPE_WIN95_FAT16_LBA_HIDDEN(0x1E, "Hidden Win 95 Fat 16 Partition (LBA)"),
     PARTTYPE_NEC_MSDOS(0x24, "NEC MS-DOS 3.x"),
+    PARTTYPE_WINDOWS_RE_HIDDEN(0x27, "Windows Recovery Environment (RE) partition"),
     PARTTYPE_PLAN_9(0x39, "Plan 9"),
     PARTTYPE_POWERQUEST_RECOVERY(0x3C, "PowerQuest PartitionMagic recovery partition"),
     PARTTYPE_VENIX80286(0x40, "VENIX 80286"),
