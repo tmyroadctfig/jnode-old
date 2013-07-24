@@ -67,7 +67,7 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
     private final IBMPartitionTableEntry[] partitions;
 
     /** The device */
-    private final Device drivedDevice;
+    private final Device driveDevice;
 
     /** Extended partition */
     private final ArrayList<IBMPartitionTableEntry> extendedPartitions =
@@ -87,7 +87,7 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
     public IBMPartitionTable(IBMPartitionTableType tableType, byte[] bootSector, Device device) {
         // this.bootSector = bootSector;
         this.tableType = tableType;
-        this.drivedDevice = device;
+        this.driveDevice = device;
         if (containsPartitionTable(bootSector)) {
             this.partitions = new IBMPartitionTableEntry[TABLE_SIZE];
             for (int partNr = 0; partNr < partitions.length; partNr++) {
@@ -113,13 +113,13 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
         final ByteBuffer sector = ByteBuffer.allocate(IDEConstants.SECTOR_SIZE);
         try {
             log.debug("Try to read the Extended Partition Table");
-            BlockDeviceAPI api = drivedDevice.getAPI(BlockDeviceAPI.class);
+            BlockDeviceAPI api = driveDevice.getAPI(BlockDeviceAPI.class);
             api.read(startLBA * IDEConstants.SECTOR_SIZE, sector);
         } catch (ApiNotFoundException e) {
-            // I think we ca'nt get it
+            // I think we can't get it
             log.error("API Not Found Exception");
         } catch (IOException e) {
-            // I think we ca'nt get it
+            // I think we can't get it
             log.error("IOException");
         }
 
