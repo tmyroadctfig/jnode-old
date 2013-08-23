@@ -20,10 +20,8 @@
  
 package org.jnode.fs.ntfs;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import org.jnode.fs.ntfs.attribute.NTFSResidentAttribute;
 
 /**
@@ -152,36 +150,58 @@ public class StandardInformationAttribute extends NTFSResidentAttribute {
     /**
      * The file attribute flags.
      */
-    public static final class Flags {
+    public static enum Flags {
+
+        READ_ONLY("Read-only", 0x1),
+        HIDDEN("Hidden", 0x2),
+        SYSTEM("System", 0x4),
+        ARCHIVE("Archive", 0x20),
+        DEVICE("Archive", 0x40),
+        NORMAL("Normal", 0x80),
+        TEMPORARY("Temporary", 0x100),
+        SPARSE("Sparse", 0x200),
+        REPARSE_POINT("Reparse Point", 0x400),
+        COMPRESSED("Compressed", 0x800),
+        OFFLINE("Offline", 0x1000),
+        NOT_INDEXED("Not Indexed", 0x2000),
+        ENCRYPTED("Encrypted", 0x4000);
 
         /**
-         * The map of value to name.
+         * The name of the flag.
          */
-        private static final Map<Integer, String> flagNames = new LinkedHashMap<Integer, String>();
+        private final String name;
 
-        public static final int READ_ONLY = register("Read-only", 0x1);
-        public static final int HIDDEN = register("Hidden", 0x2);
-        public static final int SYSTEM = register("System", 0x4);
-        public static final int ARCHIVE = register("Archive", 0x20);
-        public static final int DEVICE = register("Archive", 0x40);
-        public static final int NORMAL = register("Normal", 0x80);
-        public static final int TEMPORARY = register("Temporary", 0x100);
-        public static final int SPARSE = register("Sparse", 0x200);
-        public static final int REPARSE_POINT = register("Reparse Point", 0x400);
-        public static final int COMPRESSED = register("Compressed", 0x800);
-        public static final int OFFLINE = register("Offline", 0x1000);
-        public static final int NOT_INDEXED = register("Not Indexed", 0x2000);
-        public static final int ENCRYPTED = register("Encrypted", 0x4000);
+        /**
+         * The value for the flag.
+         */
+        private final int value;
 
-        public static List<String> getNames(int value) {
-            List<String> names = new ArrayList<String>();
+        /**
+         * Creates a new instance.
+         *
+         * @param name the name of the flag.
+         * @param value the value for the flag.
+         */
+        Flags(String name, int value) {
+            this.name = name;
+            this.value = value;
+        }
 
-            for (Map.Entry<Integer, String> entry : flagNames.entrySet()) {
-                int flag = entry.getKey();
+        /**
+         * Gets a set of flag names that are set for the given value.
+         *
+         * @param value the value to decode.
+         * @return the set of names.
+         */
+        public static Set<String> getNames(int value) {
+            Set<String> names = new LinkedHashSet<String>();
 
-                if ((value & flag) != 0) {
-                    names.add(entry.getValue());
-                    value -= flag;
+            for (Flags flag : values()) {
+                int flagValue = flag.value;
+
+                if ((value & flagValue) != 0) {
+                    names.add(flag.name);
+                    value -= flagValue;
                 }
             }
 
@@ -190,18 +210,6 @@ public class StandardInformationAttribute extends NTFSResidentAttribute {
             }
 
             return names;
-        }
-
-        /**
-         * Registers a value with the name map.
-         *
-         * @param name the name to register.
-         * @param value the value.
-         * @return the value.
-         */
-        private static int register(String name, int value) {
-            flagNames.put(value, name);
-            return value;
         }
     }
 }
