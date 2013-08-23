@@ -188,6 +188,16 @@ public class StandardInformationAttribute extends NTFSResidentAttribute {
         }
 
         /**
+         * Checks if the given value has this flag set.
+         *
+         * @param value the value to check.
+         * @return {@code true} if the flag is set, {@code false} otherwise.
+         */
+        public boolean isSet(int value) {
+            return (value & this.value) != 0;
+        }
+
+        /**
          * Gets a set of flag names that are set for the given value.
          *
          * @param value the value to decode.
@@ -197,11 +207,9 @@ public class StandardInformationAttribute extends NTFSResidentAttribute {
             Set<String> names = new LinkedHashSet<String>();
 
             for (Flags flag : values()) {
-                int flagValue = flag.value;
-
-                if ((value & flagValue) != 0) {
+                if (flag.isSet(value)) {
                     names.add(flag.name);
-                    value -= flagValue;
+                    value -= flag.value;
                 }
             }
 
