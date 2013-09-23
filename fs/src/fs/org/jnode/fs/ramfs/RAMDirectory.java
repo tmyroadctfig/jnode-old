@@ -72,6 +72,11 @@ public class RAMDirectory implements FSEntry, FSDirectory {
         entries = new HashMap<String, FSEntry>();
     }
 
+    @Override
+    public String getId() {
+        return getName();
+    }
+
     /**
      * (non-Javadoc)
      * 

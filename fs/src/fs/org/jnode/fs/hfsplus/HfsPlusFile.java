@@ -105,6 +105,15 @@ public class HfsPlusFile implements FSFile, FSFileSlackSpace, FSFileStreams {
     }
 
     /**
+     * Gets the catalog file.
+     *
+     * @return the catalog file.
+     */
+    public CatalogFile getCatalogFile() {
+        return file;
+    }
+
+    /**
      * A file for the resource fork stream.
      */
     public class ResourceForkFile implements FSFile {

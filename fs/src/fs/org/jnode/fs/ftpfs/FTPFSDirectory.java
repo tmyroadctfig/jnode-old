@@ -139,4 +139,9 @@ public class FTPFSDirectory extends FTPFSEntry implements FSDirectory {
     public void remove(String name) throws IOException {
         throw new ReadOnlyFileSystemException();
     }
+
+    @Override
+    public String getId() {
+        return getName();
+    }
 }

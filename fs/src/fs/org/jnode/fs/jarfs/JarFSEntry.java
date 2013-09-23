@@ -55,6 +55,11 @@ public final class JarFSEntry implements FSEntry {
         return parent;
     }
 
+    @Override
+    public String getId() {
+        return getName();
+    }
+
     /**
      * @see org.jnode.fs.FSEntry#getName()
      */

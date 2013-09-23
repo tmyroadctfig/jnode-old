@@ -73,6 +73,11 @@ public class NFS2Entry extends NFS2Object implements FSEntry {
         return parent;
     }
 
+    @Override
+    public String getId() {
+        return getName();
+    }
+
     public String getName() {
         return name;
     }

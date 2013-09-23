@@ -30,4 +30,6 @@ public interface FatConstants {
     public static final int F_LABEL = 0x08;
     public static final int F_DIRECTORY = 0x10;
     public static final int F_ARCHIVE = 0x20;
+
+    public static final int DIR_ENTRY_SIZE = 32;
 }

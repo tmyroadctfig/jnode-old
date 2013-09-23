@@ -43,13 +43,24 @@ public class NTFSDirectory implements FSDirectory {
     private final NTFSFileSystem fs;
 
     /**
+     * The ID for this directory.
+     */
+    private final String id;
+
+    /**
      * Initialize this instance.
      * 
-     * @param record
+     * @param record the file record.
      */
     public NTFSDirectory(NTFSFileSystem fs, FileRecord record) throws IOException {
         this.fs = fs;
         this.index = new NTFSIndex(record);
+        id = Long.toString(record.getReferenceNumber());
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     /**

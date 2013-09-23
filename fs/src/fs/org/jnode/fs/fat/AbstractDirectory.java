@@ -54,7 +54,12 @@ public abstract class AbstractDirectory extends FatObject implements FSDirectory
     }
 
     protected AbstractDirectory(FatFileSystem fs, FatFile myFile) {
-        this(fs, (int) myFile.getLength() / 32, myFile);
+        this(fs, (int) myFile.getLength() / FatConstants.DIR_ENTRY_SIZE, myFile);
+    }
+
+    @Override
+    public String getId() {
+        return Long.toString(file.getStartCluster());
     }
 
     /**
@@ -92,7 +97,7 @@ public abstract class AbstractDirectory extends FatObject implements FSDirectory
                 return newEntry;
             }
         }
-        int newSize = size + 512 / 32;
+        int newSize = size + 512 / FatConstants.DIR_ENTRY_SIZE;
         if (canChangeSize(newSize)) {
             entries.ensureCapacity(newSize);
             setDirty();
@@ -383,7 +388,7 @@ public abstract class AbstractDirectory extends FatObject implements FSDirectory
     protected synchronized void read(byte[] src) {
         int size = entries.size();
         for (int i = 0; i < size; i++) {
-            int index = i * 32;
+            int index = i * FatConstants.DIR_ENTRY_SIZE;
             if (src[index] == 0) {
                 entries.set(i, null);
             } else {
@@ -401,13 +406,13 @@ public abstract class AbstractDirectory extends FatObject implements FSDirectory
      */
     protected synchronized void write(byte[] dest) {
         int size = entries.size();
-        byte[] empty = new byte[32];
+        byte[] empty = new byte[FatConstants.DIR_ENTRY_SIZE];
         for (int i = 0; i < size; i++) {
             FatBasicDirEntry entry = entries.get(i);
             if (entry != null) {
-                entry.write(dest, i * 32);
+                entry.write(dest, i * FatConstants.DIR_ENTRY_SIZE);
             } else {
-                System.arraycopy(empty, 0, dest, i * 32, 32);
+                System.arraycopy(empty, 0, dest, i * FatConstants.DIR_ENTRY_SIZE, empty.length);
             }
         }
     }

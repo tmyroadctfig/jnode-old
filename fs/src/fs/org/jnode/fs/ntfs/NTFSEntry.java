@@ -42,6 +42,11 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
     private FSObject cachedFSObject;
 
     /**
+     * The ID for this entry.
+     */
+    private final String id;
+
+    /**
      * The index entry.
      */
     private IndexEntry indexEntry;
@@ -65,6 +70,7 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
     public NTFSEntry(NTFSFileSystem fs, IndexEntry indexEntry) {
         this.fs = fs;
         this.indexEntry = indexEntry;
+        id = Long.toString(indexEntry.getFileReferenceNumber());
     }
 
     /**
@@ -76,6 +82,12 @@ public class NTFSEntry implements FSEntry, FSEntryCreated, FSEntryLastChanged, F
     public NTFSEntry(NTFSFileSystem fs, FileRecord fileRecord) {
         this.fs = fs;
         this.fileRecord = fileRecord;
+        id = Long.toString(fileRecord.getReferenceNumber());
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     /**

@@ -110,4 +110,9 @@ public class FTPFSFile extends FTPFSEntry implements FSFile {
     public void write(long fileOffset, ByteBuffer src) throws IOException {
         // TODO implement me
     }
+
+    @Override
+    public String getId() {
+        return getName();
+    }
 }

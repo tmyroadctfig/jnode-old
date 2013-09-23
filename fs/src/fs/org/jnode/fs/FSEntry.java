@@ -33,8 +33,16 @@ import java.io.IOException;
 public interface FSEntry extends FSObject {
 
     /**
-     * Gets the name of this entry.
+     * Gets a unique ID for this entry in the context of its parent. This value should be the same every time the
+     * entry is accessed.
      * 
+     * @return the unique ID for this entry.
+     */
+    public String getId();
+
+    /**
+     * Gets the name of this entry.
+     *
      * @return name of the entry.
      */
     public String getName();
@@ -50,23 +58,23 @@ public interface FSEntry extends FSObject {
      * Gets the last modification time of this entry.
      *
      * @return the last modification time of the entry as milliseconds since 1970, or {@code 0}
-     *         if this files ystem does not support getting the last modified time.
+     *         if this files system does not support getting the last modified time.
      *         
      * @throws IOException if an error occurs retrieving the timestamp.
      */
     public long getLastModified() throws IOException;
 
     /**
-     * Returns <tt>true</tt> if this entry refering to a file.
+     * Returns <tt>true</tt> if this entry referring to a file.
      * 
-     * @return <tt>true</tt> if this entry refering to a file.
+     * @return <tt>true</tt> if this entry referring to a file.
      */
     public boolean isFile();
 
     /**
-     * Returns <tt>true</tt> if this entry refering to a (sub-)directory.
+     * Returns <tt>true</tt> if this entry referring to a (sub-)directory.
      * 
-     * @return <tt>true</tt> if this entry refering to a (sub-)directory.
+     * @return <tt>true</tt> if this entry referring to a (sub-)directory.
      */
     public boolean isDirectory();
 

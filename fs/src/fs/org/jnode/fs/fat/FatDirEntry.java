@@ -28,8 +28,6 @@ import org.jnode.fs.FSEntry;
 import org.jnode.fs.FSEntryCreated;
 import org.jnode.fs.FSEntryLastAccessed;
 import org.jnode.fs.FSFile;
-import org.jnode.fs.FSEntryCreated;
-import org.jnode.fs.FSEntryLastAccessed;
 import org.jnode.fs.spi.UnixFSAccessRights;
 import org.jnode.fs.util.DosUtils;
 import org.jnode.util.LittleEndian;
@@ -39,6 +37,9 @@ import org.jnode.util.NumberUtils;
  * @author epr
  */
 public class FatDirEntry extends FatBasicDirEntry implements FSEntry, FSEntryCreated, FSEntryLastAccessed {
+
+    /** The ID for this entry. */
+    private final String id;
 
     /** Name of this entry */
     private String name;
@@ -120,6 +121,7 @@ public class FatDirEntry extends FatBasicDirEntry implements FSEntry, FSEntryCre
         this.created = this.lastModified = this.lastAccessed = System.currentTimeMillis();
         this._dirty = false;
         this.rights = new UnixFSAccessRights(getFileSystem());
+        id = name;
     }
 
     /**
@@ -133,6 +135,7 @@ public class FatDirEntry extends FatBasicDirEntry implements FSEntry, FSEntryCre
         super(dir, src, offset);
 
         this.parent = dir;
+        id = Integer.toString(offset / FatConstants.DIR_ENTRY_SIZE);
         unused = (src[offset] == 0);
         deleted = (LittleEndian.getUInt8(src, offset) == 0xe5);
 
@@ -203,6 +206,11 @@ public class FatDirEntry extends FatBasicDirEntry implements FSEntry, FSEntryCre
      */
     public String getExt() {
         return ext;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     public String getName() {
@@ -552,7 +560,7 @@ public class FatDirEntry extends FatBasicDirEntry implements FSEntry, FSEntryCre
     }
 
     /**
-     * Gets the accessrights for this entry.
+     * Gets the access rights for this entry.
      * 
      * @throws IOException
      */

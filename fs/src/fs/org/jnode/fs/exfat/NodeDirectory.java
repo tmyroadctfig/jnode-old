@@ -35,7 +35,12 @@ final class NodeDirectory extends AbstractFSObject implements FSDirectory {
                 parse(new VisitorImpl());
         
     }
-    
+
+    @Override
+    public String getId() {
+        return Long.toString(node.getStartCluster());
+    }
+
     @Override
     public Iterator<FSEntry> iterator() {
         return Collections.<FSEntry>unmodifiableCollection(
@@ -89,11 +94,11 @@ final class NodeDirectory extends AbstractFSObject implements FSDirectory {
         }
         
         @Override
-        public void foundNode(Node node) throws IOException {
+        public void foundNode(Node node, int index) throws IOException {
             final String upcaseName = upcase.toUpperCase(node.getName());
             
             nameToNode.put(upcaseName,
-                    new NodeEntry((ExFatFileSystem) getFileSystem(), node, NodeDirectory.this));
+                    new NodeEntry((ExFatFileSystem) getFileSystem(), node, NodeDirectory.this, index));
         }
         
     }

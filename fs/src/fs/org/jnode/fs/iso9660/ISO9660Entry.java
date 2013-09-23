@@ -41,6 +41,11 @@ public final class ISO9660Entry implements FSEntry {
         this.entryRecord = entry;
     }
 
+    @Override
+    public String getId() {
+        return getName();
+    }
+
     /**
      * @see org.jnode.fs.FSEntry#getName()
      */

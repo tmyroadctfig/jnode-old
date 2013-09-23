@@ -34,6 +34,12 @@ import org.jnode.fs.FileSystem;
  * @author gbin
  */
 class LfnEntry implements FSEntry, FSEntryCreated, FSEntryLastAccessed {
+
+    /**
+     * The ID for this entry.
+     */
+    private final String id;
+
     // decompacted LFN entry
     private String fileName;
     // TODO: Make them available
@@ -46,10 +52,13 @@ class LfnEntry implements FSEntry, FSEntryCreated, FSEntryLastAccessed {
         this.realEntry = realEntry;
         this.parent = parent;
         fileName = longName.trim();
+        id = realEntry.getId();
     }
 
     public LfnEntry(FatLfnDirectory parent, Vector<?> entries, int offset, int length) {
         this.parent = parent;
+        id = Integer.toString(offset);
+
         // this is just an old plain 8.3 entry, copy it;
         if (length == 1) {
             realEntry = (FatDirEntry) entries.get(offset);
@@ -107,6 +116,11 @@ class LfnEntry implements FSEntry, FSEntryCreated, FSEntryLastAccessed {
         }
 
         return (byte) (sum & 0xff);
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     public String getName() {

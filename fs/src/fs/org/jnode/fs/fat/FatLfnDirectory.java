@@ -231,7 +231,7 @@ public class FatLfnDirectory extends FatDirectory {
     /*
      * Its in the DOS manual!(DOS 5: page 72) Valid: A..Z 0..9 _ ^ $ ~ ! # % & - {} () @ ' `
      * 
-     * Unvalid: spaces/periods,
+     * Invalid: spaces/periods,
      */
 
     public String generateShortNameFor(String longFullName) {

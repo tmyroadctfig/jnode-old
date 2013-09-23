@@ -31,6 +31,14 @@ import java.util.Iterator;
 public interface FSDirectory extends FSObject {
 
     /**
+     * Gets a unique ID for this directory in the context of its parent. This value should be the same every time the
+     * directory is accessed.
+     *
+     * @return the unique ID for this entry.
+     */
+    public String getId();
+
+    /**
      * Gets an iterator used to iterate over all the entries of this directory.
      * All elements returned by the iterator must be instance of FSEntry.
      * 

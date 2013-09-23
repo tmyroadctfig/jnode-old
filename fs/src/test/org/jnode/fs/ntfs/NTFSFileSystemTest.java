@@ -1,11 +1,15 @@
 package org.jnode.fs.ntfs;
 
+import java.io.FileInputStream;
 import junit.framework.TestCase;
 import org.jnode.driver.Device;
 import org.jnode.driver.block.FileDevice;
 import org.jnode.fs.DataStructureAsserts;
+import org.jnode.fs.FSEntry;
 import org.jnode.fs.FileSystemTestUtils;
+import org.jnode.fs.ntfs.index.NTFSIndex;
 import org.jnode.fs.service.FileSystemService;
+import org.jnode.util.FileUtils;
 
 public class NTFSFileSystemTest extends TestCase {
 
@@ -51,6 +55,23 @@ public class NTFSFileSystemTest extends TestCase {
             "    test.txt; 18; fd99fcfc86ba71118bd64c2d9f4b54a4\n";
 
         DataStructureAsserts.assertStructure(fs, expectedStructure);
+    }
+
+    public void testBrokenIndex() throws Exception {
+
+        device = new FileDevice(FileSystemTestUtils.getTestFile("ntfs/test.ntfs"), "r");
+        NTFSFileSystemType type = fss.getFileSystemType(NTFSFileSystemType.ID);
+        NTFSFileSystem fs = type.create(device, true);
+
+        byte[] indexData = FileUtils.load(new FileInputStream("C:\\Users\\luke\\Desktop\\TestIngestionLogs\\ScreenCAptures and Encase Cluster\\MDFCorrespondingFolderIndexinTextEncaes.txt"), true);
+        NTFSIndex index = new NTFSIndex(new FileRecord(fs.getNTFSVolume(), 10, indexData, 0));
+        DirectoryEntryIterator iterator = new DirectoryEntryIterator(fs, index);
+
+        while (iterator.hasNext())
+        {
+            FSEntry entry = iterator.next();
+            System.out.println(entry);
+        }
     }
 
     public void testReadCompressedDisk() throws Exception {

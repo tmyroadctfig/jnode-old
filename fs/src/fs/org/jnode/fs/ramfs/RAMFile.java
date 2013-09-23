@@ -99,6 +99,11 @@ public class RAMFile implements FSEntry, FSFile {
         fileSystem.addSummmedBufferSize(newCapacity - oldCapacity);
     }
 
+    @Override
+    public String getId() {
+        return getName();
+    }
+
     /**
      * (non-Javadoc)
      * 

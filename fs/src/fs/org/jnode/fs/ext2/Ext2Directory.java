@@ -330,6 +330,11 @@ public class Ext2Directory extends AbstractFSDirectory {
         return iNode;
     }
 
+    @Override
+    public String getId() {
+        return Integer.toString(iNode.getINodeNr());
+    }
+
     class Ext2FSEntryIterator implements Iterator<FSEntry> {
         ByteBuffer data;
 

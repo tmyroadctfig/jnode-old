@@ -116,7 +116,7 @@ public class FatFileSystem extends AbstractFileSystem<FatRootEntry> {
 	}
 
 	/**
-	 * Gets the root entry of this filesystem. This is usually a director, but this is not required.
+	 * Gets the root entry of this filesystem. This is usually a directory, but this is not required.
 	 */
 	public FatRootEntry getRootEntry() {
 		return rootEntry;

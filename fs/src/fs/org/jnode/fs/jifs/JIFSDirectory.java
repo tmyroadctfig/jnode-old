@@ -148,6 +148,11 @@ public class JIFSDirectory implements ExtFSEntry, FSDirectory {
         this.parent = parent;
     }
 
+    @Override
+    public String getId() {
+        return getName();
+    }
+
     public String getName() {
         return label;
     }

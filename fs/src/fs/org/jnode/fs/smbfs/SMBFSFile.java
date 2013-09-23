@@ -106,4 +106,9 @@ public class SMBFSFile extends SMBFSEntry implements FSFile {
 
         raf.close();
     }
+
+    @Override
+    public String getId() {
+        return getName();
+    }
 }

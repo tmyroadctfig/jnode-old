@@ -128,6 +128,11 @@ public class HfsPlusDirectory implements FSDirectory {
     }
 
     @Override
+    public String getId() {
+        return Integer.toString(folder.getFolderId().getId());
+    }
+
+    @Override
     public Iterator<? extends FSEntry> iterator() throws IOException {
         checkEntriesLoaded();
         return entries.iterator();

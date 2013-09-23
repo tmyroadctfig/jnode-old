@@ -112,6 +112,11 @@ final class VirtualDirEntry implements FSEntry, FSDirectory {
         return lastAccessed;
     }
 
+    @Override
+    public String getId() {
+        return getName();
+    }
+
     /**
      * @see org.jnode.fs.FSEntry#getName()
      */

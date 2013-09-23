@@ -45,6 +45,7 @@ final class DirectoryParser {
     private final Node node;
     private long cluster;
     private UpcaseTable upcase;
+    private int index;
 
     private DirectoryParser(Node node) {
         this.node = node;
@@ -130,6 +131,8 @@ final class DirectoryParser {
             if (!advance()) {
                 return;
             }
+
+            index++;
         }
     }
 
@@ -253,7 +256,7 @@ final class DirectoryParser {
         
         v.foundNode(Node.create(
                 sb, startCluster, attrib, name,
-                (flag == FLAG_CONTIGUOUS), realSize, times));
+                (flag == FLAG_CONTIGUOUS), realSize, times), index);
     }
 
     private int hashName(String name) throws IOException {
@@ -325,7 +328,7 @@ final class DirectoryParser {
                 long checksum, long startCluster, long size) throws IOException;
                 
         public void foundNode(
-                Node node) throws IOException;
+                Node node, int index) throws IOException;
         
     }
 

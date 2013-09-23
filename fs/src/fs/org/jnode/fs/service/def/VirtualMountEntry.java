@@ -104,6 +104,11 @@ final class VirtualMountEntry implements FSEntry {
         return root.getLastModified();
     }
 
+    @Override
+    public String getId() {
+        return getName();
+    }
+
     /**
      * @see org.jnode.fs.FSEntry#getName()
      */

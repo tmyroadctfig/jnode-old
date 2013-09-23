@@ -171,4 +171,9 @@ public class SMBFSDirectory extends SMBFSEntry implements FSDirectory {
             dname += "/";
         return dname;
     }
+
+    @Override
+    public String getId() {
+        return getName();
+    }
 }

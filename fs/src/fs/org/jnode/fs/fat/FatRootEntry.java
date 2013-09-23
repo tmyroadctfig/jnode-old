@@ -40,6 +40,11 @@ public class FatRootEntry extends FatObject implements FSEntry {
         this.rootDir = rootDir;
     }
 
+    @Override
+    public String getId() {
+        return "2";
+    }
+
     /**
      * Gets the name of this entry.
      */
@@ -59,14 +64,14 @@ public class FatRootEntry extends FatObject implements FSEntry {
     }
 
     /**
-     * Is this entry refering to a file?
+     * Is this entry referring to a file?
      */
     public boolean isFile() {
         return false;
     }
 
     /**
-     * Is this entry refering to a (sub-)directory?
+     * Is this entry referring to a (sub-)directory?
      */
     public boolean isDirectory() {
         return true;
@@ -105,7 +110,7 @@ public class FatRootEntry extends FatObject implements FSEntry {
     }
 
     /**
-     * Gets the accessrights for this entry.
+     * Gets the access rights for this entry.
      * 
      * @throws IOException
      */

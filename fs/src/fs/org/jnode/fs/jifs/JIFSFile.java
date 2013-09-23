@@ -161,6 +161,11 @@ public class JIFSFile implements ExtFSEntry, FSFile {
         this.parent = parent;
     }
 
+    @Override
+    public String getId() {
+        return getName();
+    }
+
     public String getName() {
         return name;
     }
