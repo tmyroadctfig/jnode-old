@@ -58,6 +58,12 @@ public class FSEntryTable extends AbstractFSObject {
     private Map<String, FSEntry> entries; // must be a HashMap
 
     /**
+     * Map of entries (key=id, value=entry). As a value may be null (a free
+     * entry) we must use Hashtable and not Hashtable
+     */
+    private Map<String, FSEntry> entriesById; // must be a HashMap
+
+    /**
      * Names of the entries (list of String or null)
      */
     private List<String> entryNames;
@@ -67,6 +73,7 @@ public class FSEntryTable extends AbstractFSObject {
      */
     private FSEntryTable() {
         entries = Collections.emptyMap();
+        entriesById = Collections.emptyMap();
         entryNames = Collections.emptyList();
     }
 
@@ -81,6 +88,7 @@ public class FSEntryTable extends AbstractFSObject {
         // As a value may be null (a free entry)
         // we must use HashMap and not Hashtable
         this.entries = new HashMap<String, FSEntry>();
+        this.entriesById = new HashMap<String, FSEntry>();
         this.entryNames = new ArrayList<String>();
 
         for (FSEntry entry : entryList) {
@@ -91,6 +99,7 @@ public class FSEntryTable extends AbstractFSObject {
                 final String name = normalizeName(entry.getName());
                 log.debug("FSEntryTable: adding entry " + name + " (length=+" + name.length() + ")");
                 entries.put(name, entry);
+                entriesById.put(entry.getId(), entry);
                 entryNames.add(name);
             }
         }
@@ -154,6 +163,20 @@ public class FSEntryTable extends AbstractFSObject {
         name = normalizeName(name);
         log.debug("get(" + name + ")");
         return entries.get(name);
+    }
+
+    /**
+     * Get the entry given by its ID. The result can be null.
+     *
+     * @param id the ID to lookup.
+     * @return the FSEntry with given ID.
+     */
+    public FSEntry getById(String id) {
+        if (id == null) {
+            return null;
+        }
+
+        return entriesById.get(id);
     }
 
     /**
@@ -268,9 +291,15 @@ public class FSEntryTable extends AbstractFSObject {
         if (index < 0)
             return -1;
 
+        FSEntry entry = entries.get(name);
+        if (entry != null) {
+            entriesById.remove(entry.getId());
+        }
+
         // in entries and entryNames, a free (deleted) entry
         // is represented by null
         entries.put(name, null);
+
         entryNames.set(index, null);
 
         return index;
@@ -326,6 +355,7 @@ public class FSEntryTable extends AbstractFSObject {
 
         /* Object oldN = */entryNames.set(index, name);
         /* Object oldE = */entries.put(name, newEntry);
+        entriesById.put(newEntry.getId(), newEntry);
 
         // entry added, so need to be flushed later
         setDirty();

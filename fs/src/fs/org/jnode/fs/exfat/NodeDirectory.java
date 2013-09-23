@@ -37,7 +37,7 @@ final class NodeDirectory extends AbstractFSObject implements FSDirectory {
     }
 
     @Override
-    public String getId() {
+    public String getDirectoryId() {
         return Long.toString(node.getStartCluster());
     }
 
@@ -51,7 +51,18 @@ final class NodeDirectory extends AbstractFSObject implements FSDirectory {
     public FSEntry getEntry(String name) throws IOException {
         return this.nameToNode.get(upcase.toUpperCase(name));
     }
-    
+
+    @Override
+    public FSEntry getEntryById(String id) throws IOException {
+        for (NodeEntry nodeEntry : nameToNode.values()) {
+            if (nodeEntry.getId().equals(id)) {
+                return nodeEntry;
+            }
+        }
+
+        throw new IOException("Failed to find entry with ID:" + id);
+    }
+
     @Override
     public FSEntry addFile(String name) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");

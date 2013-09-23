@@ -48,7 +48,7 @@ public final class JarFSDirectory implements FSDirectory {
     }
 
     @Override
-    public String getId() {
+    public String getDirectoryId() {
         return entry.getId();
     }
 
@@ -64,6 +64,11 @@ public final class JarFSDirectory implements FSDirectory {
      */
     public FSEntry getEntry(String name) throws IOException {
         return jarEntries.get(name);
+    }
+
+    @Override
+    public FSEntry getEntryById(String id) throws IOException {
+        return getEntry(id);
     }
 
     /**

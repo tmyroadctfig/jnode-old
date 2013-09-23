@@ -20,6 +20,7 @@
  
 package org.jnode.fs.fat;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
@@ -105,6 +106,20 @@ public class FatDirectory extends AbstractDirectory {
         write(data.array());
         device.write(offset, data);
         resetDirty();
+    }
+
+    @Override
+    public FSEntry getEntryById(String id) throws IOException {
+        for (FatBasicDirEntry entry : entries) {
+            if (entry != null && entry instanceof FatDirEntry) {
+                FatDirEntry fatDirEntry = (FatDirEntry) entry;
+                if (fatDirEntry.getId().equals(id)) {
+                    return fatDirEntry;
+                }
+            }
+        }
+
+        throw new FileNotFoundException("Failed to find entry with ID: " + id);
     }
 
     /**
