@@ -154,11 +154,6 @@ public class JIFSDirectory implements ExtFSEntry, FSDirectory {
     }
 
     @Override
-    public String getDirectoryId() {
-        return getName();
-    }
-
-    @Override
     public String getId() {
         return getName();
     }
