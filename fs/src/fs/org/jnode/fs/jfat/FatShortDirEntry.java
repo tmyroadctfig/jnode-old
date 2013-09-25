@@ -498,7 +498,14 @@ public class FatShortDirEntry extends FatDirEntry {
         encodeLength();
     }
 
+    @Override
     public String toString() {
+        return String.format(
+            "Short Entry [%s] index:%d attr:%s size:%d",
+            getShortName(), getIndex(), NumberUtils.hex(lAttr, 2), lFileSize);
+    }
+
+    public String toDebugString() {
         StrWriter out = new StrWriter();
 
         out.println("*******************************************");

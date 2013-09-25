@@ -131,7 +131,12 @@ public class FatFile extends FatEntry implements FSFile, FSFileSlackSpace {
 		return slackSpace;
 	}
 
+    @Override
 	public String toString() {
+        return String.format("FatFile [%s] index:%d size:%d", getName(), getIndex(), getLength());
+	}
+
+	public String toDebugString() {
 		StrWriter out = new StrWriter();
 
 		out.println("*******************************************");

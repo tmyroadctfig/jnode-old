@@ -91,7 +91,12 @@ public class FatFileSystem extends AbstractFileSystem<FatRootDirectory> {
 		log.debug(getFat().getCacheStat());
 	}
 
+    @Override
 	public String toString() {
+		return String.format("FAT File System: %s", getFat());
+	}
+
+    public String toDebugString() {
 		StrWriter out = new StrWriter();
 
 		out.println("********************** FatFileSystem ************************");

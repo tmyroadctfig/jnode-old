@@ -301,7 +301,14 @@ public class FatLongDirEntry extends FatDirEntry {
         damaged = value;
     }
 
+    @Override
     public String toString() {
+        return String.format(
+            "Long Entry [%s] index:%d attr:%s type:%d ckhsum:%s last:%b",
+            component, getIndex(), NumberUtils.hex(lAttr, 2), lType, NumberUtils.hex(lChksum, 2), isLast());
+    }
+
+    public String toDebugString() {
         StrWriter out = new StrWriter();
 
         out.println("*******************************************");

@@ -22,8 +22,8 @@ package org.jnode.fs.jfat;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-
 import org.jnode.util.LittleEndian;
+import org.jnode.util.NumberUtils;
 
 
 /**
@@ -196,7 +196,12 @@ public class FatMarshal {
         setDirty();
     }
 
+    @Override
     public String toString() {
+        return String.format("FatMarshal %s", NumberUtils.hex(array));
+    }
+
+    public String toDebugString() {
         StrWriter out = new StrWriter();
 
         out.println("*************************************************");
