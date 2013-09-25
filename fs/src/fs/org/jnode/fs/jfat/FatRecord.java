@@ -132,12 +132,6 @@ public class FatRecord {
         if (longEntries.isEmpty())
             return;
 
-        if (!longEntries.firstElement().isLast()) {
-            log.debug("last long vector element discarded for " + getShortName());
-            clearLongEntries();
-            return;
-        }
-
         int i;
         StringBuilder lname = new StringBuilder(longEntries.size() * FatLongDirEntry.NAMELENGTH);
 
@@ -149,14 +143,14 @@ public class FatRecord {
 
             int ordinal = last - i + 1;
 
-            if (l.getOrdinal() != ordinal) {
+            if (l.getOrdinal() != ordinal && !l.isFreeDirEntry()) {
                 log.debug("ordinal orphaned vector discarded for " + getShortName());
                 clearLongEntries();
                 return;
             }
 
-            if (l.getChkSum() != chkSum) {
-                log.debug("chksum orphaed vector discarded for " + getShortName());
+            if (l.getChkSum() != chkSum && !l.isFreeDirEntry()) {
+                log.debug("chksum orphaned vector discarded for " + getShortName());
                 clearLongEntries();
                 return;
             }
