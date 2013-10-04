@@ -41,7 +41,7 @@ import org.jnode.util.NumberUtils;
 public class FileRecord extends NTFSRecord {
 
     /**
-     * Sequence number of the file within the MFT.
+     * Index of the file record within the MFT.
      */
     private long referenceNumber;
 
