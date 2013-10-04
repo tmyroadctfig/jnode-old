@@ -93,9 +93,19 @@ public final class FileNameAttribute extends NTFSResidentAttribute {
      *
      * @return the index of the parent MFT entry.
      */
-    public int getParentMftIndex() {
+    public long getParentMftIndex() {
         final int attrOffset = getAttributeOffset();
-        return getInt32(attrOffset);
+        return getInt48(attrOffset);
+    }
+
+	/**
+     * Gets the parent sequence number as recorded in the child record.
+     *
+     * @return the parent sequence number.
+     */
+    public int getParentSequenceNumber() {
+        final int attrOffset = getAttributeOffset();
+        return getUInt16(attrOffset + 0x6);
     }
 
     /**
