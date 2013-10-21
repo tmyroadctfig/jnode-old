@@ -124,7 +124,7 @@ public enum GptPartitionTypes {
     private String name;
 
     private GptPartitionTypes() {
-        this(null, "Unknown");
+        this.name = "Unknown";
     }
 
     private GptPartitionTypes(String guid, String name) {
