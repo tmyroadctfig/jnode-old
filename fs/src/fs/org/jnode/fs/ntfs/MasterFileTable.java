@@ -140,13 +140,11 @@ public final class MasterFileTable extends FileRecord {
     }
 
     /**
-	 * Gets an MFT record with a given index but does not check if it is a valid file record.
+	 * Reads the bytes for a MFT record with a given index but does not check if it is a valid file record.
 	 * @param index the index to get.
 	 * @return the file record.
      */
-	public FileRecord getRecordUnchecked(long index) throws IOException {
-        log.debug("getRecord(" + index + ")");
-
+	public byte[] readRecord(long index) throws IOException {
         final NTFSVolume volume = getVolume();
         final int bytesPerFileRecord = volume.getBootRecord().getFileRecordSize();
         final long offset = bytesPerFileRecord * index;
@@ -158,11 +156,26 @@ public final class MasterFileTable extends FileRecord {
         // read the buffer
         final byte[] buffer = new byte[bytesPerFileRecord];
         readData(offset, buffer, 0, bytesPerFileRecord);
+        return buffer;
+    }
+
+    /**
+	 * Gets a MFT record with a given index but does not check if it is a valid file record.
+	 * @param index the index to get.
+	 * @return the file record.
+     */
+	public FileRecord getRecordUnchecked(long index) throws IOException {
+        log.debug("getRecord(" + index + ")");
+
+        final NTFSVolume volume = getVolume();
+
+        // read the buffer
+        final byte[] buffer = readRecord(index);
         return new FileRecord(volume, index, buffer, 0);
     }
 
 	/**
-	 * Gets an MFT record with a given index.
+	 * Gets a MFT record with a given index.
 	 * @param index the index to get.
 	 * @return the file record.
 	 * @throws IOException if the record at the index is not valid or there is an error reading in the data.

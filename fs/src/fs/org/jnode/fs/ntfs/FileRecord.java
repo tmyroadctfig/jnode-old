@@ -50,12 +50,12 @@ public class FileRecord extends NTFSRecord {
     /**
      * Cached attribute list attribute.
      */
-    private AttributeListAttribute attributeListAttribute;
+    protected AttributeListAttribute attributeListAttribute;
 
     /**
      * A cached copy of the attributes.
      */
-    private List<NTFSAttribute> attributeList;
+    protected List<NTFSAttribute> attributeList;
 
     /**
      * Cached standard information attribute.

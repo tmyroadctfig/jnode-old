@@ -31,7 +31,7 @@ import org.jnode.fs.ntfs.FileRecord;
  *
  * @author Daniel Noll (daniel@noll.id.au)
  */
-final class AttributeListAttributeNonRes extends NTFSNonResidentAttribute implements
+public class AttributeListAttributeNonRes extends NTFSNonResidentAttribute implements
         AttributeListAttribute {
 
     /**

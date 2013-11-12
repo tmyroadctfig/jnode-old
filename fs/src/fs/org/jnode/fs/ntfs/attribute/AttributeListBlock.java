@@ -29,7 +29,7 @@ import org.jnode.fs.ntfs.NTFSStructure;
  *
  * @author Daniel Noll (daniel@noll.id.au)
  */
-final class AttributeListBlock extends NTFSStructure {
+public final class AttributeListBlock extends NTFSStructure {
 
     /**
      * The length of the block.
