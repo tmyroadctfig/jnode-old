@@ -30,9 +30,9 @@ public class CatalogNodeId implements Comparable<CatalogNodeId> {
         System.arraycopy(src, offset, cnid, 0, 4);
     }
 
-    public CatalogNodeId(final int nodeId) {
+    public CatalogNodeId(final long nodeId) {
         cnid = new byte[4];
-        BigEndian.setInt32(cnid, 0, nodeId);
+        BigEndian.setInt32(cnid, 0, (int) nodeId);
     }
 
     /* Parent Of the Root */
@@ -56,8 +56,8 @@ public class CatalogNodeId implements Comparable<CatalogNodeId> {
     /* first available user id */
     public static final CatalogNodeId HFSPLUS_FIRSTUSER_CNID = new CatalogNodeId(16);
 
-    public final int getId() {
-        return BigEndian.getInt32(cnid, 0);
+    public final long getId() {
+        return BigEndian.getUInt32(cnid, 0);
     }
 
     public final byte[] getBytes() {
@@ -66,8 +66,8 @@ public class CatalogNodeId implements Comparable<CatalogNodeId> {
 
     @Override
     public int compareTo(CatalogNodeId o) {
-        Integer currentId = Integer.valueOf(this.getId());
-        Integer compareId = Integer.valueOf(o.getId());
+        Long currentId = Long.valueOf(this.getId());
+        Long compareId = Long.valueOf(o.getId());
         return currentId.compareTo(compareId);
     }
 }

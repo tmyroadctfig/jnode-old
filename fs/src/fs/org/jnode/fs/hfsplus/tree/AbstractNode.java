@@ -46,7 +46,7 @@ public abstract class AbstractNode<T extends NodeRecord> implements Node<T> {
         this.offsets = new ArrayList<Integer>(this.descriptor.getNumRecords() + 1);
         int offset;
         for (int i = 0; i < this.descriptor.getNumRecords() + 1; i++) {
-            offset = BigEndian.getInt16(nodeData, size - ((i + 1) * 2));
+            offset = BigEndian.getUInt16(nodeData, size - ((i + 1) * 2));
             offsets.add(Integer.valueOf(offset));
         }
         loadRecords(nodeData);

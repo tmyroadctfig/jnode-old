@@ -24,12 +24,12 @@ import org.jnode.util.BigEndian;
 
 public class IndexRecord extends AbstractNodeRecord {
     /** A node number that represent a child node of the index node. */
-    private int index;
+    private long index;
 
     public IndexRecord(final byte[] nodeData, final int offset) {
         this.recordData = new byte[4];
         System.arraycopy(nodeData, offset + key.getKeyLength(), recordData, 0, 4);
-        index = BigEndian.getInt32(recordData, 0);
+        index = BigEndian.getUInt32(recordData, 0);
     }
     
     /**
@@ -42,10 +42,10 @@ public class IndexRecord extends AbstractNodeRecord {
         this.key = key;
         this.recordData = new byte[4];
         System.arraycopy(nodeData, offset + key.getKeyLength(), recordData, 0, 4);
-        index = BigEndian.getInt32(recordData, 0);
+        index = BigEndian.getUInt32(recordData, 0);
     }
    
-    public final int getIndex() {
+    public final long getIndex() {
         return index;
     }
     

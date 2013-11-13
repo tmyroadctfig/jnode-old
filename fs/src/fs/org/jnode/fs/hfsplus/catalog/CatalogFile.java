@@ -47,15 +47,15 @@ public class CatalogFile {
     /** the catalog node id of the file */
     private CatalogNodeId fileId;
     /** The date and time the file was created */
-    private int createDate;
+    private long createDate;
     /**  */
-    private int contentModDate;
+    private long contentModDate;
     /** */
-    private int attrModDate;
+    private long attrModDate;
     /** */
-    private int accessDate;
+    private long accessDate;
     /** */
-    private int backupDate;
+    private long backupDate;
     /** */
     private HfsPlusBSDInfo permissions;
     /** */
@@ -77,13 +77,13 @@ public class CatalogFile {
         byte[] data = new byte[CATALOG_FILE_SIZE];
         System.arraycopy(src, 0, data, 0, 248);
         recordType = BigEndian.getInt16(data, 0);
-        flags = BigEndian.getInt16(data, 2);
+        flags = BigEndian.getUInt16(data, 2);
         fileId = new CatalogNodeId(data, 8);
-        createDate = BigEndian.getInt32(data, 12);
-        contentModDate = BigEndian.getInt32(data, 16);
-        attrModDate = BigEndian.getInt32(data, 20);
-        accessDate = BigEndian.getInt32(data, 24);
-        backupDate = BigEndian.getInt32(data, 28);
+        createDate = BigEndian.getUInt32(data, 12);
+        contentModDate = BigEndian.getUInt32(data, 16);
+        attrModDate = BigEndian.getUInt32(data, 20);
+        accessDate = BigEndian.getUInt32(data, 24);
+        backupDate = BigEndian.getUInt32(data, 28);
         permissions = new HfsPlusBSDInfo(data, 32);
         userInfo = new FileInfo(data, 48);
         datas = new HfsPlusForkData(data, 88);

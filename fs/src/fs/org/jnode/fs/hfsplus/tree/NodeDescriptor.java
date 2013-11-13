@@ -32,10 +32,10 @@ public class NodeDescriptor {
     public static final int BT_NODE_DESCRIPTOR_LENGTH = 14;
 
     /** The number of the next node. */
-    private int fLink;
+    private long fLink;
 
     /** The number of the previous node. */
-    private int bLink;
+    private long bLink;
 
     /** The type of the node. */
     private int kind;
@@ -72,11 +72,11 @@ public class NodeDescriptor {
     public NodeDescriptor(final byte[] src, int offset) {
         byte[] data = new byte[BT_NODE_DESCRIPTOR_LENGTH];
         System.arraycopy(src, offset, data, 0, BT_NODE_DESCRIPTOR_LENGTH);
-        fLink = BigEndian.getInt32(data, 0);
-        bLink = BigEndian.getInt32(data, 4);
+        fLink = BigEndian.getUInt32(data, 0);
+        bLink = BigEndian.getUInt32(data, 4);
         kind = BigEndian.getInt8(data, 8);
-        height = BigEndian.getInt8(data, 9);
-        numRecords = BigEndian.getInt16(data, 10);
+        height = BigEndian.getUInt8(data, 9);
+        numRecords = BigEndian.getUInt16(data, 10);
     }
 
     /**
@@ -85,8 +85,8 @@ public class NodeDescriptor {
      */
     public byte[] getBytes() {
         byte[] data = new byte[BT_NODE_DESCRIPTOR_LENGTH];
-        BigEndian.setInt32(data, 0, fLink);
-        BigEndian.setInt32(data, 4, bLink);
+        BigEndian.setInt32(data, 0, (int) fLink);
+        BigEndian.setInt32(data, 4, (int) bLink);
         BigEndian.setInt8(data, 8, kind);
         BigEndian.setInt8(data, 9, height);
         BigEndian.setInt16(data, 10, numRecords);
@@ -98,11 +98,11 @@ public class NodeDescriptor {
                 getKind() + "\n" + "height: " + getHeight() + "\n" + "#rec:   " + getNumRecords() + "\n");
     }
 
-    public int getFLink() {
+    public long getFLink() {
         return fLink;
     }
 
-    public int getBLink() {
+    public long getBLink() {
         return bLink;
     }
 

@@ -112,13 +112,13 @@ public class Catalog {
         log.debug(bthr.toString());
         bufferLength += BTHeaderRecord.BT_HEADER_RECORD_LENGTH;
         log.debug("Create root node.");
-        int rootNodePosition = bthr.getRootNode() * nodeSize;
+        long rootNodePosition = bthr.getRootNode() * nodeSize;
         bufferLength += (rootNodePosition - bufferLength);
         CatalogLeafNode rootNode = createRootNode(params);
         buffer = ByteBuffer.allocate(bufferLength + bthr.getNodeSize());
         buffer.put(btnd.getBytes());
         buffer.put(bthr.getBytes());
-        buffer.position(rootNodePosition);
+        buffer.position((int) rootNodePosition);
         buffer.put(rootNode.getBytes());
         buffer.rewind();
     }
@@ -210,7 +210,7 @@ public class Catalog {
      * @throws IOException
      */
     public final LeafRecord getRecord(final CatalogNodeId parentID) throws IOException {
-        int currentOffset = 0;
+        long currentOffset = 0;
         LeafRecord lr = null;
         int nodeSize = bthr.getNodeSize();
         ByteBuffer nodeData = ByteBuffer.allocate(nodeSize);
@@ -258,10 +258,10 @@ public class Catalog {
      * @return Array of LeafRecord
      * @throws IOException
      */
-    public final LeafRecord[] getRecords(final CatalogNodeId parentID, final int nodeNumber)
+    public final LeafRecord[] getRecords(final CatalogNodeId parentID, final long nodeNumber)
         throws IOException {
         try {
-            int currentNodeNumber = nodeNumber;
+            long currentNodeNumber = nodeNumber;
             int nodeSize = getBTHeaderRecord().getNodeSize();
             ByteBuffer nodeData = ByteBuffer.allocate(nodeSize);
             catalogFile.read(fs, (currentNodeNumber * nodeSize), nodeData);
@@ -297,12 +297,12 @@ public class Catalog {
      */
     public final LeafRecord getRecord(final CatalogNodeId parentID, final HfsUnicodeString nodeName)
         throws IOException {
-        int currentNodeNumber = getBTHeaderRecord().getRootNode();
+        long currentNodeNumber = getBTHeaderRecord().getRootNode();
         int nodeSize = getBTHeaderRecord().getNodeSize();
         ByteBuffer nodeData = ByteBuffer.allocate(nodeSize);
         catalogFile.read(fs, (currentNodeNumber * nodeSize), nodeData);
         NodeDescriptor nd = new NodeDescriptor(nodeData.array(), 0);
-        int currentOffset = 0;
+        long currentOffset = 0;
         CatalogKey cKey = new CatalogKey(parentID, nodeName);
         while (nd.isIndexNode()) {
             CatalogIndexNode node = new CatalogIndexNode(nodeData.array(), nodeSize);

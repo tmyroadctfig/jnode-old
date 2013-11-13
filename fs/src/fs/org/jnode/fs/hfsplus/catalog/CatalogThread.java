@@ -74,7 +74,7 @@ public class CatalogThread {
     public byte[] getBytes() {
         byte[] data = new byte[512];
         BigEndian.setInt16(data, 0, recordType);
-        BigEndian.setInt32(data, 4, parentId.getId());
+        BigEndian.setInt32(data, 4, (int) parentId.getId());
         System.arraycopy(parentId.getBytes(), 0, data, 4, 4);
         System.arraycopy(nodeName.getBytes(), 0, data, 8, nodeName.getBytes().length);
         return data;
