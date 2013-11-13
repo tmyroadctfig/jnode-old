@@ -23,16 +23,14 @@ package org.jnode.fs.hfsplus.catalog;
 import org.jnode.util.BigEndian;
 
 public class CatalogNodeId implements Comparable<CatalogNodeId> {
-    private byte[] cnid;
+    private long cnid;
 
     public CatalogNodeId(final byte[] src, final int offset) {
-        cnid = new byte[4];
-        System.arraycopy(src, offset, cnid, 0, 4);
+        cnid = BigEndian.getUInt32(src, 0);
     }
 
     public CatalogNodeId(final long nodeId) {
-        cnid = new byte[4];
-        BigEndian.setInt32(cnid, 0, (int) nodeId);
+        cnid = nodeId;
     }
 
     /* Parent Of the Root */
@@ -57,11 +55,13 @@ public class CatalogNodeId implements Comparable<CatalogNodeId> {
     public static final CatalogNodeId HFSPLUS_FIRSTUSER_CNID = new CatalogNodeId(16);
 
     public final long getId() {
-        return BigEndian.getUInt32(cnid, 0);
+        return cnid;
     }
 
     public final byte[] getBytes() {
-        return cnid;
+        byte[] cnidBuffer = new byte[4];
+        BigEndian.setInt32(cnidBuffer, 0, (int) cnid);
+        return cnidBuffer;
     }
 
     @Override
