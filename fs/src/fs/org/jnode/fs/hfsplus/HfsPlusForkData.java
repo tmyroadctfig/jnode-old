@@ -31,9 +31,9 @@ public class HfsPlusForkData {
     /** The size in bytes of the valid data in the fork. */
     private long totalSize;
     /** */
-    private int clumpSize;
+    private long clumpSize;
     /** The total of allocation blocks use by the extents in the fork. */
-    private int totalBlock;
+    private long totalBlock;
     /** The first eight extent descriptors for the fork. */
     private ExtentDescriptor[] extents;
 
@@ -47,8 +47,8 @@ public class HfsPlusForkData {
         byte[] data = new byte[FORK_DATA_LENGTH];
         System.arraycopy(src, offset, data, 0, FORK_DATA_LENGTH);
         totalSize = BigEndian.getInt64(data, 0);
-        clumpSize = BigEndian.getInt32(data, 8);
-        totalBlock = BigEndian.getInt32(data, 12);
+        clumpSize = BigEndian.getUInt32(data, 8);
+        totalBlock = BigEndian.getUInt32(data, 12);
         extents = new ExtentDescriptor[8];
         for (int i = 0; i < 8; i++) {
             extents[i] =
@@ -78,8 +78,8 @@ public class HfsPlusForkData {
     public byte[] write(byte[] dest, int destOffSet) {
         byte[] data = new byte[FORK_DATA_LENGTH];
         BigEndian.setInt64(data, 0, totalSize);
-        BigEndian.setInt32(data, 8, clumpSize);
-        BigEndian.setInt32(data, 12, totalBlock);
+        BigEndian.setInt32(data, 8, (int) clumpSize);
+        BigEndian.setInt32(data, 12, (int) totalBlock);
         for (int i = 0; i < extents.length; i++) {
             extents[i].write(data, EXTENT_OFFSET + (i * ExtentDescriptor.EXTENT_DESCRIPTOR_LENGTH));
         }
@@ -102,11 +102,11 @@ public class HfsPlusForkData {
         return totalSize;
     }
 
-    public int getClumpSize() {
+    public long getClumpSize() {
         return clumpSize;
     }
 
-    public int getTotalBlocks() {
+    public long getTotalBlocks() {
         return totalBlock;
     }
 
