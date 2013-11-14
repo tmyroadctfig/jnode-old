@@ -77,7 +77,7 @@ public class ApmPartitionTableEntry implements PartitionTableEntry {
     }
 
     public long getEndOffset() {
-        return getStartOffset() + (BigEndian.getInt32(first16KiB, offset + 0xc) + 1) * 0x200L;
+        return getStartOffset() + BigEndian.getInt32(first16KiB, offset + 0xc) * 0x200L;
     }
 
     public String getName() {
