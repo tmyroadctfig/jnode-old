@@ -20,6 +20,8 @@
  
 package org.jnode.fs.hfsplus.tree;
 
+import org.jnode.fs.hfsplus.catalog.CatalogFile;
+import org.jnode.fs.hfsplus.catalog.CatalogFolder;
 import org.jnode.util.BigEndian;
 
 public class LeafRecord extends AbstractNodeRecord {
@@ -44,8 +46,23 @@ public class LeafRecord extends AbstractNodeRecord {
         return type;
     }
 
+    @Override
     public final String toString() {
-        return "Type : " + type + "\nKey : " + getKey().toString() + "\n";
+        return "Type: " + getTypeString() + "\tKey: " + getKey();
     }
 
+    public String getTypeString() {
+        switch (type) {
+            case CatalogFolder.RECORD_TYPE_FOLDER:
+                return "Folder";
+            case CatalogFolder.RECORD_TYPE_FOLDER_THREAD:
+                return "FolderThread";
+            case CatalogFile.RECORD_TYPE_FILE:
+                return "File";
+            case CatalogFile.RECORD_TYPE_FILE_THREAD:
+                return "FileThread";
+        }
+
+        return "Unknown-" + type;
+    }
 }

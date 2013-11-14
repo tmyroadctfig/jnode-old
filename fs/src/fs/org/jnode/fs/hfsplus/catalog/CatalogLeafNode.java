@@ -62,6 +62,10 @@ public class CatalogLeafNode extends AbstractNode<LeafRecord> {
 			key = new CatalogKey(nodeData, offset);
 			int recordSize = offsets.get(i + 1) - offset;
 			records.add(new LeafRecord(key, nodeData, offset, recordSize));
+
+            if (log.isDebugEnabled()) {
+                log.debug("Loading leaf record: " + key);
+            }
 		}
 	}
 

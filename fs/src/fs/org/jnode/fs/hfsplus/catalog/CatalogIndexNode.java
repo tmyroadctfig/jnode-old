@@ -22,12 +22,15 @@ package org.jnode.fs.hfsplus.catalog;
 
 import java.util.LinkedList;
 
+import org.apache.log4j.Logger;
 import org.jnode.fs.hfsplus.tree.AbstractNode;
 import org.jnode.fs.hfsplus.tree.IndexRecord;
 import org.jnode.fs.hfsplus.tree.Key;
 import org.jnode.fs.hfsplus.tree.NodeDescriptor;
 
 public class CatalogIndexNode extends AbstractNode<IndexRecord> {
+
+    private final Logger log = Logger.getLogger(getClass());
 
     /**
      * Create a new node.
@@ -58,6 +61,10 @@ public class CatalogIndexNode extends AbstractNode<IndexRecord> {
             offset = offsets.get(i);
             key = new CatalogKey(nodeData, offset);
             records.add(new IndexRecord(key, nodeData, offset));
+
+            if (log.isDebugEnabled()) {
+                log.debug("Loading index record: " + key);
+            }
         }
     }
 
