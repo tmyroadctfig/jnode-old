@@ -39,7 +39,7 @@ import org.jnode.util.ByteBufferUtils;
 
 public class Catalog {
 
-    private final Logger log = Logger.getLogger(getClass());
+    private static final Logger log = Logger.getLogger(Catalog.class);
     private HfsPlusFileSystem fs;
 
     /**

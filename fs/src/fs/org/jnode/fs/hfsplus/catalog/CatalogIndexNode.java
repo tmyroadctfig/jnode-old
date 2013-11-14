@@ -30,7 +30,7 @@ import org.jnode.fs.hfsplus.tree.NodeDescriptor;
 
 public class CatalogIndexNode extends AbstractNode<IndexRecord> {
 
-    private final Logger log = Logger.getLogger(getClass());
+    private static final Logger log = Logger.getLogger(CatalogIndexNode.class);
 
     /**
      * Create a new node.

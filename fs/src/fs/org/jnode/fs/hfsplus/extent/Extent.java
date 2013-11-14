@@ -26,7 +26,7 @@ import org.jnode.fs.hfsplus.tree.BTHeaderRecord;
 import org.jnode.fs.hfsplus.tree.NodeDescriptor;
 
 public class Extent {
-    private final Logger log = Logger.getLogger(getClass());
+    private static final Logger log = Logger.getLogger(Extent.class);
 
     @SuppressWarnings("unused")
     private NodeDescriptor btnd;
