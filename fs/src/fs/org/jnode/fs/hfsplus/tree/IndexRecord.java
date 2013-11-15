@@ -48,5 +48,9 @@ public class IndexRecord extends AbstractNodeRecord {
     public final long getIndex() {
         return index;
     }
-    
+
+    @Override
+    public String toString() {
+        return String.format("IndexRecord: %d key:%s", index, key);
+    }
 }
