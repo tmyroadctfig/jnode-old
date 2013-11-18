@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.hfsplus;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class HfsPlusForkData {
 
     /**
      * Create fork data from existing informations.
-     * 
+     *
      * @param src
      * @param offset
      */
@@ -58,9 +58,9 @@ public class HfsPlusForkData {
     }
 
     /**
-     * 
+     *
      * Create a new empty fork data object.
-     * 
+     *
      * @param totalSize
      * @param clumpSize
      * @param totalBlock
@@ -122,21 +122,38 @@ public class HfsPlusForkData {
      * @throws java.io.IOException if an error occurs.
      */
     public void read(HfsPlusFileSystem fileSystem, long offset, ByteBuffer buffer) throws IOException {
+        int blockSize = fileSystem.getVolumeHeader().getBlockSize();
+        int limit = buffer.limit();
+        int remaining = buffer.remaining();
+
         for (ExtentDescriptor extentDescriptor : extents) {
-            if (buffer.remaining() > 0 && !extentDescriptor.isEmpty()) {
-                long length = extentDescriptor.getSize(fileSystem.getVolumeHeader().getBlockSize());
+            if (remaining > 0 && !extentDescriptor.isEmpty()) {
+                long length = extentDescriptor.getSize(blockSize);
 
                 if (offset != 0 && length < offset) {
                     offset -= length;
                 } else {
+                    long firstOffset = extentDescriptor.getStartOffset(blockSize);
 
-                    long firstOffset = extentDescriptor.getStartOffset(fileSystem.getVolumeHeader().getBlockSize());
-                    fileSystem.getApi().read(firstOffset + offset, buffer);
+                    while (remaining > 0 && offset < length)
+                    {
+                        int byteCount = Math.min(remaining, blockSize);
+                        buffer.limit(buffer.position() + byteCount);
+                        fileSystem.getApi().read(firstOffset + offset, buffer);
+
+                        offset += byteCount;
+                        remaining -= byteCount;
+                    }
 
                     offset = 0;
                 }
             }
         }
+
+        // TODO: handle the overflow case
+
+        // Reset the limit
+        buffer.limit(limit);
     }
 
     /**
