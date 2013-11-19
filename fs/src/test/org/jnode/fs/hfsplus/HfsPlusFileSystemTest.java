@@ -55,9 +55,7 @@ public class HfsPlusFileSystemTest extends TestCase {
             "type: HFS+ vol:Kenny total:67108864 free:66035712\n" +
             "  /; \n" +
             "    southpark.jpeg; 6420; 5a2ec290089ee04a470135f3bda29f94\n" +
-            "    southpark.jpeg:rsrc; 0; d41d8cd98f00b204e9800998ecf8427e\n" +
             "    test.txt; 1141; 48b97c1f1defb52c77ce75d55a4b066c\n" +
-            "    test.txt:rsrc; 0; d41d8cd98f00b204e9800998ecf8427e\n" +
             "    \u0000\u0000\u0000\u0000HFS+ Private Data; \n";
 
         DataStructureAsserts.assertStructure(fs, expectedStructure);
