@@ -3,7 +3,7 @@ package org.jnode.fs.hfsplus.tree;
 import java.util.LinkedList;
 import org.apache.log4j.Logger;
 
-public abstract class AbstractIndexNode<K extends Key> extends AbstractNode<IndexRecord> {
+public abstract class AbstractIndexNode<K extends Key> extends AbstractNode<K, IndexRecord> {
 
     private static final Logger log = Logger.getLogger(AbstractIndexNode.class);
 
@@ -25,47 +25,11 @@ public abstract class AbstractIndexNode<K extends Key> extends AbstractNode<Inde
      */
     public AbstractIndexNode(final byte[] nodeData, final int nodeSize) {
         super(nodeData, nodeSize);
-
     }
-
-    /**
-     * Creates a key for the node.
-     *
-     * @param nodeData the node data.
-     * @param offset the offset the key is at.
-     * @return the key.
-     */
-    protected abstract K createKey(byte[] nodeData, int offset);
 
     @Override
-    protected void loadRecords(final byte[] nodeData) {
-        int offset;
-        for (int i = 0; i < this.descriptor.getNumRecords(); i++) {
-            offset = offsets.get(i);
-            Key key = createKey(nodeData, offset);
-            records.add(new IndexRecord(key, nodeData, offset));
-
-            if (log.isDebugEnabled()) {
-                log.debug("Loading index record: " + key);
-            }
-        }
-    }
-
-    /**
-     * Find node record based on it's key.
-     *
-     * @param key The key to search.
-     * @return a NodeRecord or {@code null}
-     */
-    public IndexRecord find(final K key) {
-        for (int index = 0; index < this.getNodeDescriptor().getNumRecords(); index++) {
-            IndexRecord record = this.getNodeRecord(index);
-            if ((record.getKey().equals(key))) {
-                return record;
-            }
-        }
-
-        return null;
+    protected IndexRecord createRecord(Key key, byte[] nodeData, int offset, int recordSize) {
+        return new IndexRecord(key, nodeData, offset);
     }
 
     /**
