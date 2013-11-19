@@ -222,7 +222,7 @@ public class Catalog {
 
         while (nd.isIndexNode()) {
             CatalogIndexNode node = new CatalogIndexNode(data, nodeSize);
-            IndexRecord record = (IndexRecord) node.find(parentID);
+            IndexRecord record = (IndexRecord) node.find(new CatalogKey(parentID));
             currentOffset = record.getIndex() * nodeSize;
             nodeData = ByteBuffer.allocate(nodeSize);
             catalogFile.read(fs, currentOffset, nodeData);
@@ -270,7 +270,7 @@ public class Catalog {
             NodeDescriptor nd = new NodeDescriptor(datas, 0);
             if (nd.isIndexNode()) {
                 CatalogIndexNode node = new CatalogIndexNode(datas, nodeSize);
-                IndexRecord[] records = (IndexRecord[]) node.findAll(parentID);
+                IndexRecord[] records = (IndexRecord[]) node.findAll(new CatalogKey(parentID));
                 List<LeafRecord> lfList = new LinkedList<LeafRecord>();
                 for (IndexRecord rec : records) {
                     LeafRecord[] lfr = getRecords(parentID, rec.getIndex());

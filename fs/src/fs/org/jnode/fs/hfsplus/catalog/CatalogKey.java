@@ -73,12 +73,21 @@ public class CatalogKey extends AbstractKey {
     }
 
     /**
-     * Create new catalog key based on parent CNID and the name of the file or
-     * folder.
+     * Create new catalog key based on parent CNID, ignoring file/folder name.
      * 
      * @param parentID Parent catalog node identifier.
+     */
+    public CatalogKey(CatalogNodeId parentID) {
+        this(parentID, new HfsUnicodeString(""));
+    }
+
+    /**
+     * Create new catalog key based on parent CNID and the name of the file or
+     * folder.
+     *
+     * @param parentID Parent catalog node identifier.
      * @param name Name of the file or folder.
-     * 
+     *
      */
     public CatalogKey(final CatalogNodeId parentID, final HfsUnicodeString name) {
         this.parentId = parentID;
@@ -115,6 +124,21 @@ public class CatalogKey extends AbstractKey {
             }
         }
         return res;
+    }
+
+    @Override
+    public int hashCode() {
+        return 73 ^ parentId.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CatalogKey)) {
+            return false;
+        }
+
+        CatalogKey otherKey = (CatalogKey) obj;
+        return parentId.getId() == otherKey.parentId.getId();
     }
 
     /*
