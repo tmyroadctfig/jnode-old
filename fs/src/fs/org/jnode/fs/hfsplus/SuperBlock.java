@@ -146,7 +146,7 @@ public class SuperBlock extends HfsPlusObject {
         int startBlock = 1 + burnedBlocksBeforeVH;
         int blockCount = (int) bitmapBlocks;
         HfsPlusForkData forkdata =
-                new HfsPlusForkData(allocationClumpSize, (int) allocationClumpSize,
+                new HfsPlusForkData(CatalogNodeId.HFSPLUS_ALLOC_CNID, allocationClumpSize, (int) allocationClumpSize,
                         (int) bitmapBlocks);
         ExtentDescriptor desc = new ExtentDescriptor(startBlock, blockCount);
         forkdata.addDescriptor(0, desc);
@@ -166,8 +166,8 @@ public class SuperBlock extends HfsPlusObject {
         // Extent B-Tree initialization
         log.debug("Init extent file.");
         forkdata =
-                new HfsPlusForkData(params.getExtentClumpSize(), params.getExtentClumpSize(),
-                        (params.getExtentClumpSize() / blockSize));
+                new HfsPlusForkData(CatalogNodeId.HFSPLUS_EXT_CNID, params.getExtentClumpSize(),
+                    params.getExtentClumpSize(), (params.getExtentClumpSize() / blockSize));
         desc = new ExtentDescriptor(nextBlock, forkdata.getTotalBlocks());
         forkdata.addDescriptor(0, desc);
         forkdata.write(data, 192);
@@ -177,8 +177,8 @@ public class SuperBlock extends HfsPlusObject {
         log.debug("Init catalog file.");
         int totalBlocks = params.getCatalogClumpSize() / blockSize;
         forkdata =
-                new HfsPlusForkData(params.getCatalogClumpSize(), params.getCatalogClumpSize(),
-                        totalBlocks);
+                new HfsPlusForkData(CatalogNodeId.HFSPLUS_CAT_CNID, params.getCatalogClumpSize(),
+                    params.getCatalogClumpSize(), totalBlocks);
         desc = new ExtentDescriptor(nextBlock, totalBlocks);
         forkdata.addDescriptor(0, desc);
         forkdata.write(data, 272);
@@ -387,23 +387,23 @@ public class SuperBlock extends HfsPlusObject {
     }
 
     public final HfsPlusForkData getAllocationFile() {
-        return new HfsPlusForkData(data, 112);
+        return new HfsPlusForkData(CatalogNodeId.HFSPLUS_ALLOC_CNID, true, data, 112);
     }
 
     public final HfsPlusForkData getExtentsFile() {
-        return new HfsPlusForkData(data, 192);
+        return new HfsPlusForkData(CatalogNodeId.HFSPLUS_EXT_CNID, true, data, 192);
     }
 
     public final HfsPlusForkData getCatalogFile() {
-        return new HfsPlusForkData(data, 272);
+        return new HfsPlusForkData(CatalogNodeId.HFSPLUS_CAT_CNID, true, data, 272);
     }
 
     public final HfsPlusForkData getAttributesFile() {
-        return new HfsPlusForkData(data, 352);
+        return new HfsPlusForkData(CatalogNodeId.HFSPLUS_ATTR_CNID, true, data, 352);
     }
 
     public final HfsPlusForkData getStartupFile() {
-        return new HfsPlusForkData(data, 432);
+        return new HfsPlusForkData(CatalogNodeId.HFSPLUS_START_CNID, true, data, 432);
     }
 
     /**
