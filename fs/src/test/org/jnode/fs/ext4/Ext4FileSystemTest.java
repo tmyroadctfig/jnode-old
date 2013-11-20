@@ -1,6 +1,5 @@
 package org.jnode.fs.ext4;
 
-import junit.framework.TestCase;
 import org.jnode.driver.Device;
 import org.jnode.driver.block.FileDevice;
 import org.jnode.fs.DataStructureAsserts;
@@ -8,19 +7,21 @@ import org.jnode.fs.FileSystemTestUtils;
 import org.jnode.fs.ext2.Ext2FileSystem;
 import org.jnode.fs.ext2.Ext2FileSystemType;
 import org.jnode.fs.service.FileSystemService;
+import org.junit.Before;
+import org.junit.Test;
 
-public class Ext4FileSystemTest extends TestCase {
+public class Ext4FileSystemTest {
 
     private Device device;
     private FileSystemService fss;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         // create file system service.
         fss = FileSystemTestUtils.createFSService(Ext2FileSystemType.class.getName());
     }
 
+    @Test
     public void testReadExt4SpecialFiles() throws Exception {
 
         device = new FileDevice(FileSystemTestUtils.getTestFile("ext4/test-special-files.ext4"), "r");
