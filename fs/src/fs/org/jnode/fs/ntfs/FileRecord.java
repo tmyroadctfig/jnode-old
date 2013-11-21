@@ -330,8 +330,10 @@ public class FileRecord extends NTFSRecord {
             try {
                 AttributeIterator iter;
                 if (attributeListAttribute == null) {
+                    log.debug("All attributes stored");
                     iter = getAllStoredAttributes();
                 } else {
+                    log.debug("Attributes in attribute list");
                     iter = new AttributeListAttributeIterator();
                 }
 
@@ -593,10 +595,13 @@ public class FileRecord extends NTFSRecord {
                     if (entry.getFileReferenceNumber() == referenceNumber) {
                         holdingRecord = FileRecord.this;
                     } else {
+                        log.debug("Looking up MFT entry for: " + entry.getFileReferenceNumber());
                         holdingRecord = getVolume().getMFT().getRecord(entry.getFileReferenceNumber());
                     }
 
-                    return holdingRecord.findStoredAttributeByID(entry.getAttributeID());
+                    NTFSAttribute attribute = holdingRecord.findStoredAttributeByID(entry.getAttributeID());
+                    log.debug("Attribute: " + attribute);
+                    return attribute;
                 } catch (IOException e) {
                     throw new IllegalStateException("Error getting MFT or FileRecord for attribute in list, ref = 0x" +
                                                     Long.toHexString(entry.getFileReferenceNumber()), e);
@@ -625,6 +630,7 @@ public class FileRecord extends NTFSRecord {
                 return null;
             } else {
                 NTFSAttribute attribute = NTFSAttribute.getAttribute(FileRecord.this, offset);
+                log.debug("Attribute: " + attribute);
                 int offsetToNextOffset = getUInt32AsInt(offset + 0x04);
                 if (offsetToNextOffset <= 0) {
 					log.error("Non-positive offset, preventing infinite loop.  Data on disk may be corrupt.  "
