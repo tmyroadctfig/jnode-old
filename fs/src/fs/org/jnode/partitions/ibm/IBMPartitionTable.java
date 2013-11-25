@@ -180,19 +180,41 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
             return true;
         }
 
+        if (LittleEndian.getUInt32(bootSector, 6) == 0x4f4c494c) {
+            // Matches the LILO signature, probably an valid partition table
+        	log.debug("Has LILO signature");
+            return true;
+        }
+
         String bootSectorAsString = new String(bootSector, 0, 512, Charset.forName("US-ASCII"));
 
-        if (bootSectorAsString.contains("Invalid partition table\u0000Error loading operating system\u0000Missing operating system\u0000")) {
+        if (bootSectorAsString.contains("Invalid partition table\u0000Error loading operating system\u0000Missing operating system")) {
             // Matches Microsoft partition boot code error message signature
-            // see http://thestarman.pcministry.com/asm/mbr/VistaMBR.htm
-        	log.debug("Has Microsft code error string signature");
+            // see:
+            //     http://thestarman.pcministry.com/asm/mbr/VistaMBR.htm
+            //     http://thestarman.narod.ru/asm/mbr/Win2kmbr.htm
+            //     http://thestarman.narod.ru/asm/mbr/200MBR.htm
+            //     http://thestarman.narod.ru/asm/mbr/95BMEMBR.htm
+            //     http://thestarman.narod.ru/asm/mbr/STDMBR.htm
+            log.debug("Has Microsoft code error string signature");
             return true;
         }
 
         if (bootSectorAsString.contains("Read\u0000Boot\u0000 error\r\n\u0000")) {
             // Matches BSD partition boot code error message signature
-            // see http://thestarman.pcministry.com/asm/mbr/VistaMBR.htm
         	log.debug("Has BSD code error string signature");
+            return true;
+        }
+
+        if (bootSectorAsString.contains("GRUB \u0000Geom\u0000Hard Disk\u0000Read\u0000 Error\u0000")) {
+            // Matches GRUB string signature
+        	log.debug("Has GRUB string signature");
+            return true;
+        }
+
+        if (bootSectorAsString.contains("MBR \u0010\u0000")) {
+            // Matches MBR string extra signature
+        	log.debug("Has MBR string signature");
             return true;
         }
 
