@@ -212,6 +212,12 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
             return true;
         }
 
+        if (bootSectorAsString.contains("\u0000Multiple active partitions.\r\n")) {
+            // Matches SYSLINUX string signature
+        	log.debug("Has SYSLINUX string signature");
+            return true;
+        }
+
         if (bootSectorAsString.contains("MBR \u0010\u0000")) {
             // Matches MBR string extra signature
         	log.debug("Has MBR string signature");
