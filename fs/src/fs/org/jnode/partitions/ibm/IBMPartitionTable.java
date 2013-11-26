@@ -206,7 +206,7 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
             return true;
         }
 
-        if (bootSectorAsString.contains("GRUB \u0000Geom\u0000Hard Disk\u0000Read\u0000 Error\u0000")) {
+        if (bootSectorAsString.contains("GRUB \u0000Geom\u0000Hard Disk\u0000Read\u0000 Error\r\n\u0000")) {
             // Matches GRUB string signature
         	log.debug("Has GRUB string signature");
             return true;
