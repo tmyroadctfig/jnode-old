@@ -35,6 +35,7 @@ import org.jnode.fs.ReadOnlyFileSystemException;
 import org.jnode.fs.ext2.cache.Block;
 import org.jnode.fs.ext2.cache.BlockCache;
 import org.jnode.fs.ext2.cache.INodeCache;
+import org.jnode.fs.ext4.MultipleMountProtection;
 import org.jnode.fs.spi.AbstractFileSystem;
 
 /**
@@ -52,6 +53,8 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
 	private BlockCache blockCache;
 
 	private INodeCache inodeCache;
+
+	private MultipleMountProtection multipleMountProtection;
 
 	private final Logger log = Logger.getLogger(getClass());
 
@@ -123,15 +126,31 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
 		// if (hasIncompatFeature(Ext2Constants.EXT3_FEATURE_INCOMPAT_RECOVER))
 		// throw new FileSystemException(getDevice().getId() +
 		// " Unsupported filesystem feature (RECOVER) disallows mounting");
-		// if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_EXTENTS))
-		// throw new FileSystemException(getDevice().getId() +
-		// " Unsupported filesystem feature (EXTENTS) disallows mounting");
+
 		if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_64BIT)) throw new FileSystemException(
 				getDevice().getId() + " Unsupported filesystem feature (64BIT) disallows mounting");
-		if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_MMP)) throw new FileSystemException(
-				getDevice().getId() + " Unsupported filesystem feature (MMP) disallows mounting");
 		if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_FLEX_BG)) throw new FileSystemException(
 				getDevice().getId() + " Unsupported filesystem feature (FLEX_BG) disallows mounting");
+
+		if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_MMP)) {
+            // TODO: this should really update the MMP block now, and periodically, to indicate that the filesystem is in use
+            log.info(getDevice().getId() + " file system has multi-mount protection, forcing readonly mode");
+            setReadOnly(true);
+
+            try {
+                ByteBuffer mmpBuffer = ByteBuffer.allocate(MultipleMountProtection.MMP_LENGTH);
+                getApi().read(superblock.getMultiMountProtectionBlock() * superblock.getBlockSize(), mmpBuffer);
+
+                multipleMountProtection = new MultipleMountProtection(mmpBuffer.array());
+
+                if (multipleMountProtection.isInUse()) {
+                    log.warn(getDevice().getId() + " file system appears to be in use");
+                }
+
+            } catch (Exception e) {
+                throw new FileSystemException("Error reading checking multi-mount protection (MMP)", e);
+            }
+        }
 
 		// an unsupported RO_COMPAT feature means that the filesystem can only
 		// be mounted readonly
@@ -329,6 +348,15 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
      */
     public GroupDescriptor[] getGroupDescriptors() {
         return groupDescriptors;
+    }
+
+	/**
+     * Gets the multiple mount protection information for the file system.
+     *
+     * @return the MMP information.
+     */
+    public MultipleMountProtection getMultipleMountProtection() {
+        return multipleMountProtection;
     }
 
 	/**
