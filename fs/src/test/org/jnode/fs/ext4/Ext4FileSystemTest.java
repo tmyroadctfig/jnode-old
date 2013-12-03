@@ -111,5 +111,26 @@ public class Ext4FileSystemTest {
 
         Assert.assertEquals(65001, childCount);
     }
+
+    @Test
+    public void testReadExt4FlexBG() throws Exception {
+
+        device = new FileDevice(FileSystemTestUtils.getTestFile("ext4/ext4-flex-bg.img"), "r");
+        Ext2FileSystemType type = fss.getFileSystemType(Ext2FileSystemType.ID);
+        Ext2FileSystem fs = type.create(device, true);
+
+        String expectedStructure =
+            "type: EXT2 vol:ext4-ftw-omgz total:127926272 free:123949056\n" +
+            "  /; \n" +
+            "    lost+found; \n" +
+            "    wolf_slice_1.jpg; 6606; a28d342db2d2081f9d2eb287d49c1110\n" +
+            "    wired-science.jpg; 16; 67bc4bf64a29239a9f148fb768bfbbc8\n" +
+            "    The_Rabies_Virus_Remains_a_Medical_Mystery.jpg; 6606; a28d342db2d2081f9d2eb287d49c1110\n" +
+            "    console; 0; d41d8cd98f00b204e9800998ecf8427e\n" +
+            "    sda1; 0; d41d8cd98f00b204e9800998ecf8427e\n" +
+            "    fifo; 0; d41d8cd98f00b204e9800998ecf8427e\n";
+
+        DataStructureAsserts.assertStructure(fs, expectedStructure);
+    }
 }
 

@@ -129,8 +129,6 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
 
 		if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_64BIT)) throw new FileSystemException(
 				getDevice().getId() + " Unsupported filesystem feature (64BIT) disallows mounting");
-		if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_FLEX_BG)) throw new FileSystemException(
-				getDevice().getId() + " Unsupported filesystem feature (FLEX_BG) disallows mounting");
 
 		if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_MMP)) {
             // TODO: this should really update the MMP block now, and periodically, to indicate that the filesystem is in use
@@ -150,6 +148,11 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
             } catch (Exception e) {
                 throw new FileSystemException("Error reading checking multi-mount protection (MMP)", e);
             }
+        }
+
+		if (hasIncompatFeature(Ext2Constants.EXT4_FEATURE_INCOMPAT_FLEX_BG)) {
+            log.info(getDevice().getId() + " filesystem feature (FLEX_BG) is currently only implemented for reading, " +
+                "forcing readonly mode");
         }
 
 		// an unsupported RO_COMPAT feature means that the filesystem can only
