@@ -497,11 +497,11 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
 	 * the file/directory operations are synchronized to the inodes, so at any point in time it has to be sure that only
 	 * one instance of any inode is present in the filesystem.
 	 */
-	public INode getINode(int iNodeNr) throws IOException, FileSystemException {
+	public INode getINode(long iNodeNr) throws IOException, FileSystemException {
 		if ((iNodeNr < 1) || (iNodeNr > superblock.getINodesCount())) throw new FileSystemException("INode number ("
 				+ iNodeNr + ") out of range (0-" + superblock.getINodesCount() + ")");
 
-		Integer key = Integer.valueOf(iNodeNr);
+		Long key = Long.valueOf(iNodeNr);
 
 		log.debug("iNodeCache size: " + inodeCache.size());
 
@@ -605,7 +605,7 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
 		// inode table
 		INodeTable iNodeTable = iNodeTables[preferredBlockBroup];
 		// byte[] iNodeData = new byte[INode.INODE_LENGTH];
-		int iNodeNr = res.getINodeNr((int) superblock.getINodesPerGroup());
+		long iNodeNr = res.getINodeNr((int) superblock.getINodesPerGroup());
 		INode iNode = new INode(this, new INodeDescriptor(iNodeTable, iNodeNr, groupNr, res.getIndex()));
 		iNode.create(fileFormat, accessRights, uid, gid);
 		// trigger a write to disk
@@ -615,7 +615,7 @@ public class Ext2FileSystem extends AbstractFileSystem<Ext2Entry> {
 
 		// put the inode into the cache
 		synchronized (inodeCache) {
-			Integer key = Integer.valueOf(iNodeNr);
+			Long key = Long.valueOf(iNodeNr);
 			if (inodeCache.containsKey(key)) throw new FileSystemException(
 					"Newly allocated inode is already in the inode cache!?");
 			else inodeCache.put(key, iNode);
