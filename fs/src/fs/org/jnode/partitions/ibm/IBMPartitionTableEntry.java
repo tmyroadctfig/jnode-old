@@ -25,7 +25,6 @@ import org.jnode.driver.block.CHS;
 import org.jnode.partitions.PartitionTableEntry;
 import org.jnode.util.LittleEndian;
 import org.jnode.util.NumberUtils;
-import org.apache.log4j.Logger;
 
 /**
  * @author epr
@@ -71,8 +70,10 @@ public class IBMPartitionTableEntry implements PartitionTableEntry {
         final IBMPartitionTypes id = getSystemIndicator();
         // pgwiasda
         // there are more than one type of extended Partitions
-        return (id == IBMPartitionTypes.PARTTYPE_WIN95_FAT32_EXTENDED ||
-                id == IBMPartitionTypes.PARTTYPE_LINUX_EXTENDED || id == IBMPartitionTypes.PARTTYPE_DOS_EXTENDED);
+        return
+            id == IBMPartitionTypes.PARTTYPE_WIN95_FAT32_EXTENDED ||
+            id == IBMPartitionTypes.PARTTYPE_LINUX_EXTENDED ||
+            id == IBMPartitionTypes.PARTTYPE_DOS_EXTENDED;
     }
 
     public boolean getBootIndicator() {
