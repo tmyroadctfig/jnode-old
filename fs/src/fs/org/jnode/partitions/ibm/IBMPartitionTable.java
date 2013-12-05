@@ -123,7 +123,7 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
             log.error("IOException");
         }
 
-        IBMPartitionTableEntry entry = null;
+        IBMPartitionTableEntry entry;
         for (int i = 0; i < TABLE_SIZE; i++) {
             entry = new IBMPartitionTableEntry(this, sector.array(), i);
             if (entry.isValid() && !entry.isEmpty()) {
@@ -277,7 +277,7 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
     public Iterator<IBMPartitionTableEntry> iterator() {
         return new Iterator<IBMPartitionTableEntry>() {
             private int index = 0;
-            private final int last = (partitions == null) ? 0 : partitions.length - 1;
+            private final int last = (partitions == null) ? 0 : partitions.length;
 
             public boolean hasNext() {
                 return index < last;
