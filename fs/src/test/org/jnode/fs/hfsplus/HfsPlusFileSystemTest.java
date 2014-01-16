@@ -49,7 +49,7 @@ public class HfsPlusFileSystemTest {
     @Test
     public void testReadSmallDisk() throws Exception {
 
-        device = new FileDevice(FileSystemTestUtils.getTestFile("hfsplus/test.hfsplus"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/hfsplus/test.hfsplus"), "r");
         HfsPlusFileSystemType type = fss.getFileSystemType(HfsPlusFileSystemType.ID);
         HfsPlusFileSystem fs = type.create(device, true);
 

@@ -28,7 +28,7 @@ public class Ext4FileSystemTest {
     @Test
     public void testReadExt4SpecialFiles() throws Exception {
 
-        device = new FileDevice(FileSystemTestUtils.getTestFile("ext4/test-special-files.ext4"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/ext4/test-special-files.ext4"), "r");
         Ext2FileSystemType type = fss.getFileSystemType(Ext2FileSystemType.ID);
         Ext2FileSystem fs = type.create(device, true);
 
@@ -50,7 +50,7 @@ public class Ext4FileSystemTest {
     @Test
     public void testReadExt4Mmp() throws Exception {
 
-        device = new FileDevice(FileSystemTestUtils.getTestFile("ext4/ext4-mmp.dd"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/ext4/ext4-mmp.dd"), "r");
         Ext2FileSystemType type = fss.getFileSystemType(Ext2FileSystemType.ID);
         Ext2FileSystem fs = type.create(device, true);
 
@@ -66,7 +66,7 @@ public class Ext4FileSystemTest {
     public void testReadExt4LargeDirectory() throws Exception {
 
         // Filesystem created without the 'dir_index' feature
-        device = new FileDevice(FileSystemTestUtils.getTestFile("ext4/ext4-large-directory.dd"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/ext4/ext4-large-directory.dd"), "r");
         Ext2FileSystemType type = fss.getFileSystemType(Ext2FileSystemType.ID);
         Ext2FileSystem fs = type.create(device, true);
 
@@ -91,7 +91,7 @@ public class Ext4FileSystemTest {
     public void testReadExt4LargeDirectoryWithIndex() throws Exception {
 
         // Filesystem created with the 'dir_index' feature
-        device = new FileDevice(FileSystemTestUtils.getTestFile("ext4/ext4-large-dir-with-index.dd"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/ext4/ext4-large-dir-with-index.dd"), "r");
         Ext2FileSystemType type = fss.getFileSystemType(Ext2FileSystemType.ID);
         Ext2FileSystem fs = type.create(device, true);
 
@@ -115,7 +115,7 @@ public class Ext4FileSystemTest {
     @Test
     public void testReadExt4FlexBG() throws Exception {
 
-        device = new FileDevice(FileSystemTestUtils.getTestFile("ext4/ext4-flex-bg.img"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/ext4/ext4-flex-bg.img"), "r");
         Ext2FileSystemType type = fss.getFileSystemType(Ext2FileSystemType.ID);
         Ext2FileSystem fs = type.create(device, true);
 

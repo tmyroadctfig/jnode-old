@@ -22,7 +22,7 @@ public class NTFSFileSystemTest {
     @Test
     public void testReadSmallDisk() throws Exception {
 
-        device = new FileDevice(FileSystemTestUtils.getTestFile("ntfs/test.ntfs"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/ntfs/test.ntfs"), "r");
         NTFSFileSystemType type = fss.getFileSystemType(NTFSFileSystemType.ID);
         NTFSFileSystem fs = type.create(device, true);
 
@@ -57,7 +57,7 @@ public class NTFSFileSystemTest {
     @Test
     public void testReadCompressedDisk() throws Exception {
 
-        device = new FileDevice(FileSystemTestUtils.getTestFile("ntfs/compressed.dd"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/ntfs/compressed.dd"), "r");
         NTFSFileSystemType type = fss.getFileSystemType(NTFSFileSystemType.ID);
         NTFSFileSystem fs = type.create(device, true);
 
