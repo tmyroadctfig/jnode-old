@@ -262,6 +262,18 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
             return true;
         }
 
+        // Rule out the Linux kernel binary
+        if (bootSector.length > 520)
+        {
+            String linuxKernelHeaderString = new String(bootSector, 514, 4, Charset.forName("US-ASCII"));
+
+            if ("HdrS".equals(linuxKernelHeaderString)) {
+                // Matches Linux kernel header signature
+                log.debug("Has Linux kernel header signature");
+                return false;
+            }
+        }
+
         // Check if this looks like a filesystem instead of a partition table
         String oemName = new String(bootSector, 3, 8, Charset.forName("US-ASCII"));
         if (FILESYSTEM_OEM_NAMES.contains(oemName)) {

@@ -43,4 +43,20 @@ public class IBMPartitionTableTest {
                 IBMPartitionTable.containsPartitionTable(buffer));
         }
     }
+
+    @Test
+    public void testNotDetected() throws Exception {
+
+        Collection<String> testFileNames = Arrays.asList(
+            "linux-kernel.dd");
+
+        for (String testFileName : testFileNames) {
+            File testFile = FileSystemTestUtils.getTestFile("partitions/ibm/" + testFileName);
+            byte[] buffer = FileUtils.load(new FileInputStream(testFile), true);
+
+            System.out.println("Testing: " + testFileName);
+            Assert.assertFalse("Not expected a valid partition for: " + testFileName,
+                IBMPartitionTable.containsPartitionTable(buffer));
+        }
+    }
 }
