@@ -1,4 +1,23 @@
-
+/*
+ * $Id$
+ *
+ * Copyright (C) 2003-2014 JNode.org
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public 
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; If not, write to the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
 package org.jnode.fs.exfat;
 
 import java.io.IOException;
@@ -7,7 +26,6 @@ import java.nio.ByteOrder;
 import org.jnode.fs.spi.AbstractFSObject;
 
 /**
- *
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  */
 public final class ExFatSuperBlock extends AbstractFSObject {
@@ -15,12 +33,12 @@ public final class ExFatSuperBlock extends AbstractFSObject {
     /**
      * The size of the ExFAT super block in bytes.
      */
-    private final static int SIZE = 512;
+    private static final int SIZE = 512;
 
-    private final static String OEM_NAME = "EXFAT   "; //NOI18N
+    private static final String OEM_NAME = "EXFAT   "; //NOI18N
 
     private final DeviceAccess da;
-    
+
     private long blockStart;
     private long blockCount;
     private long fatBlockStart;
@@ -35,15 +53,15 @@ public final class ExFatSuperBlock extends AbstractFSObject {
     private byte blockBits;
     private byte blocksPerClusterBits;
     private byte percentInUse;
-    
+
     public ExFatSuperBlock(ExFatFileSystem fs) {
         super(fs);
-        
+
         this.da = new DeviceAccess(fs.getApi());
     }
-    
+
     public static ExFatSuperBlock read(ExFatFileSystem fs) throws IOException {
-        
+
         final ByteBuffer b = ByteBuffer.allocate(SIZE);
         b.order(ByteOrder.LITTLE_ENDIAN);
         fs.getApi().read(0, b);
@@ -73,9 +91,8 @@ public final class ExFatSuperBlock extends AbstractFSObject {
         
         /* check boot signature */
 
-        if ((b.get(510) & 0xff) != 0x55 ||
-                (b.get(511) & 0xff) != 0xaa) throw new IOException(
-                "missing boot sector signature");
+        if ((b.get(510) & 0xff) != 0x55 || (b.get(511) & 0xff) != 0xaa)
+            throw new IOException("missing boot sector signature");
 
         final ExFatSuperBlock result = new ExFatSuperBlock(fs);
 
@@ -98,44 +115,44 @@ public final class ExFatSuperBlock extends AbstractFSObject {
 
         if (result.fsVersionMajor != 1) {
             throw new IOException("unsupported version major " +
-                    result.fsVersionMajor);
+                result.fsVersionMajor);
         }
 
         if (result.fsVersionMinor != 0) {
             throw new IOException("unsupported version minor " +
-                    result.fsVersionMinor);
+                result.fsVersionMinor);
         }
 
         return result;
     }
-    
+
     public long clusterToBlock(long cluster) throws IOException {
         Cluster.checkValid(cluster);
 
         return this.clusterBlockStart +
-                ((cluster - Cluster.FIRST_DATA_CLUSTER) <<
-                    this.blocksPerClusterBits);
+            ((cluster - Cluster.FIRST_DATA_CLUSTER) <<
+                this.blocksPerClusterBits);
     }
-    
+
     public long blockToOffset(long block) {
         return (block << this.blockBits);
     }
-    
+
     public long clusterToOffset(long cluster) throws IOException {
         return blockToOffset(clusterToBlock(cluster));
     }
-    
+
     public void readCluster(ByteBuffer dest, long cluster) throws IOException {
         assert (dest.remaining() <= this.getBytesPerCluster())
-                : "read over cluster bundary";
-        
+            : "read over cluster bundary";
+
         da.read(dest, clusterToOffset(cluster));
     }
-    
+
     public DeviceAccess getDeviceAccess() {
         return da;
     }
-    
+
     public long getBlockStart() {
         return blockStart;
     }
@@ -155,12 +172,12 @@ public final class ExFatSuperBlock extends AbstractFSObject {
     public long getClusterBlockStart() {
         return clusterBlockStart;
     }
-    
+
     /**
      * Returns the total number of data clusters available on the file system.
      * To iterate the clusters the range {@code 0..count} must be shifted by
      * {@link Cluster#FIRST_DATA_CLUSTER}.
-     * 
+     *
      * @return the number of usable clusters on the file system
      */
     public long getClusterCount() {
@@ -198,15 +215,15 @@ public final class ExFatSuperBlock extends AbstractFSObject {
     public int getBytesPerCluster() {
         return (getBlockSize() << this.blocksPerClusterBits);
     }
-    
+
     /**
      * Returns the percentage of allocated clusters, rounded down to
      * integer value. {@code 0xff} means this value is not available.
-     * 
+     *
      * @return the percent of used clusters
      */
     public byte getPercentInUse() {
         return percentInUse;
     }
-    
+
 }

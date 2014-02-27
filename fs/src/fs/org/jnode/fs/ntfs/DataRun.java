@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -30,34 +30,48 @@ import org.jnode.fs.ntfs.attribute.NTFSNonResidentAttribute;
  */
 public final class DataRun implements DataRunInterface {
 
-    /** logger */
+    /**
+     * Type of this datarun
+     */
+    /**
+     * logger
+     */
     protected static final Logger log = Logger.getLogger(DataRun.class);
 
     /**
-	 * Cluster number of first cluster of this run. If this is zero, the run isn't actually stored as it is all zero.
+     * Cluster number of first cluster of this run. If this is zero, the run
+     * isn't actually stored as it is all zero.
      */
     private final long cluster;
 
-    /** Length of datarun in clusters */
+    /**
+     * Length of datarun in clusters
+     */
     private final int length;
 
-    /** Flag indicating that the data is not stored on disk but is all zero. */
+    /**
+     * Flag indicating that the data is not stored on disk but is all zero.
+     */
     private boolean sparse = false;
 
-    /** Size in bytes of this datarun descriptor */
+    /**
+     * Size in bytes of this datarun descriptor
+     */
     private final int size;
 
-    /** First VCN of this datarun. */
+    /**
+     * First VCN of this datarun.
+     */
     private long vcn;
 
     /**
      * Initialize this instance.
      *
      * @param cluster Cluster number of first cluster of this run.
-     * @param length Length of datarun in clusters
-     * @param sparse Flag indicating that the data is not stored on disk but is all zero.
-     * @param size Size in bytes of this datarun descriptor
-     * @param vcn First VCN of this datarun.
+     * @param length  Length of datarun in clusters
+     * @param sparse  Flag indicating that the data is not stored on disk but is all zero.
+     * @param size    Size in bytes of this datarun descriptor
+     * @param vcn     First VCN of this datarun.
      */
     public DataRun(long cluster, int length, boolean sparse, int size, long vcn) {
         this.cluster = cluster;
@@ -72,7 +86,7 @@ public final class DataRun implements DataRunInterface {
      *
      * @param attr
      * @param offset
-     * @param vcn First VCN of this datarun.
+     * @param vcn         First VCN of this datarun.
      * @param previousLCN
      */
     public DataRun(NTFSNonResidentAttribute attr, int offset, long vcn, long previousLCN) {
@@ -130,8 +144,10 @@ public final class DataRun implements DataRunInterface {
     }
 
     /**
-	 * Tests if this data run is a sparse run. Sparse runs don't actually refer to stored data, and are effectively a
-	 * way to store a run of zeroes without storage penalty.
+     * Tests if this data run is a sparse run.  Sparse runs don't actually refer to
+     * stored data, and are effectively a way to store a run of zeroes without storage
+     * penalty.
+     *
      * @return {@code true} if the run is sparse, {@code false} if it is not.
      */
     public boolean isSparse() {
@@ -147,6 +163,7 @@ public final class DataRun implements DataRunInterface {
 
     /**
      * Gets the size of this datarun descriptor in bytes.
+     *
      * @return Returns the size.
      */
     public int getSize() {
@@ -155,6 +172,7 @@ public final class DataRun implements DataRunInterface {
 
     /**
      * Gets the length of this datarun in clusters.
+     *
      * @return Returns the length.
      */
     public int getLength() {
@@ -163,6 +181,7 @@ public final class DataRun implements DataRunInterface {
 
     /**
      * Gets the first VCN of this data run.
+     *
      * @return Returns the vcn.
      */
     @Override
@@ -182,6 +201,7 @@ public final class DataRun implements DataRunInterface {
 
     /**
      * Read clusters from this datarun.
+     *
      * @param vcn
      * @param dst
      * @param dstOffset
@@ -191,8 +211,8 @@ public final class DataRun implements DataRunInterface {
      * @return The number of clusters read.
      * @throws IOException
      */
-	public int readClusters(long vcn, byte[] dst, int dstOffset, int nrClusters, int clusterSize, NTFSVolume volume)
-			throws IOException {
+    public int readClusters(long vcn, byte[] dst, int dstOffset, int nrClusters, int clusterSize,
+                            NTFSVolume volume) throws IOException {
 
         final long myFirstVcn = getFirstVcn();
         final int myLength = getLength();

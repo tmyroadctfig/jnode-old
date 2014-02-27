@@ -1,4 +1,23 @@
-
+/*
+ * $Id$
+ *
+ * Copyright (C) 2003-2014 JNode.org
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public 
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; If not, write to the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
 package org.jnode.fs.exfat;
 
 import java.io.EOFException;
@@ -8,19 +27,18 @@ import org.jnode.fs.FSFile;
 import org.jnode.fs.spi.AbstractFSObject;
 
 /**
- *
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  */
 final class NodeFile extends AbstractFSObject implements FSFile {
-    
+
     private final Node node;
 
     public NodeFile(ExFatFileSystem fs, Node node) {
         super(fs);
-        
+
         this.node = node;
     }
-    
+
     @Override
     public long getLength() {
         return this.node.getSize();
@@ -29,16 +47,16 @@ final class NodeFile extends AbstractFSObject implements FSFile {
     @Override
     public void setLength(long length) throws IOException {
         if (getLength() == length) return;
-        
+
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void read(long offset, ByteBuffer dest) throws IOException {
         final int len = dest.remaining();
-        
+
         if (len == 0) return;
-        
+
         if (offset + len > getLength()) {
             throw new EOFException();
         }
@@ -79,10 +97,10 @@ final class NodeFile extends AbstractFSObject implements FSFile {
             int toRead = Math.min(bpc, remain);
             dest.limit(dest.position() + toRead);
             node.getSuperBlock().readCluster(dest, cluster);
-            
+
             remain -= toRead;
             cluster = this.node.nextCluster(cluster);
-            
+
             if (remain != 0 && Cluster.invalid(cluster)) {
                 throw new IOException("invalid cluster");
             }

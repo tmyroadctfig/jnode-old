@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,7 @@
  
 package org.jnode.driver.console.textscreen;
 
+import java.awt.event.KeyEvent;
 import java.io.PrintStream;
 
 import javax.naming.NamingException;
@@ -61,6 +62,7 @@ public class TextScreenConsolePlugin extends Plugin {
                 null,
                 (ConsoleManager.CreateOptions.TEXT |
                     ConsoleManager.CreateOptions.SCROLLABLE));
+            first.setAcceleratorKeyCode(KeyEvent.VK_F1);
             mgr.focus(first);
             System.setOut(new PrintStream(new WriterOutputStream(first.getOut(), false), true));
             System.setErr(new PrintStream(new WriterOutputStream(first.getErr(), false), true));

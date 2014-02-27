@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.driver.block.ide.disk;
 
 import java.io.IOException;
@@ -26,10 +26,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
-
 import org.apache.log4j.Logger;
 import org.jnode.bootlog.BootLogInstance;
 import org.jnode.driver.Bus;
@@ -126,11 +124,11 @@ public class IDEDiskDriver extends Driver
             int partIndex = 0;
             int i = 0;
             for (IBMPartitionTableEntry pte : pt) {
-            	log.debug("Processing partition " + i);
+                log.debug("Processing partition " + i);
                 if (pte == null) {
                     BootLogInstance.get().warn("PartitionTableEntry #" + i + " is null");
                 } else if (pte.isValid()) {
-                	log.debug("Partition " + i + " is valid");
+                    log.debug("Partition " + i + " is valid");
                     registerPartition(devMan, dev, pte, partIndex);
                 }
                 partIndex++;
@@ -142,17 +140,17 @@ public class IDEDiskDriver extends Driver
                 partIndex = registerExtendedPartition(devMan, dev, partIndex);
             }
         } catch (DeviceAlreadyRegisteredException ex) {
-        	log.error("Partition device is already known");
+            log.error("Partition device is already known");
             throw new DriverException("Partition device is already known???? Probably a bug", ex);
         } catch (IOException ex) {
-        	log.error("Cannot read partition table", ex);
+            log.error("Cannot read partition table", ex);
             throw new DriverException("Cannot read partition table", ex);
         } catch (NameNotFoundException ex) {
-        	log.error("Cannot find DeviceManager", ex);
+            log.error("Cannot find DeviceManager", ex);
             throw new DriverException("Cannot find DeviceManager", ex);
         } catch (Throwable ex) {
-        	log.error("Unknown error", ex);
-        	throw new DriverException("Unknown error", ex);
+            log.error("Unknown error", ex);
+            throw new DriverException("Unknown error", ex);
         }
     }
 
@@ -204,6 +202,9 @@ public class IDEDiskDriver extends Driver
     protected void transfer(long devOffset, ByteBuffer buf, boolean isWrite) throws IOException {
 //        int bufOffset = 0;
         int length = buf.remaining();
+        if (length < SECTOR_SIZE) {
+            log.debug("Transfer length=" + length + (isWrite ? " Wr " : " Rd "));
+        }
 
         BlockDeviceAPIHelper.checkBounds(this, devOffset, length);
         BlockDeviceAPIHelper.checkAlignment(SECTOR_SIZE, this, devOffset, length);
@@ -219,17 +220,20 @@ public class IDEDiskDriver extends Driver
         final IDEDevice dev = (IDEDevice) getDevice();
         final IDEBus bus = (IDEBus) dev.getBus();
         final int maxSectorCount = is48bit ? MAX_SECTOR_COUNT_48 : MAX_SECTOR_COUNT_28;
+        final boolean primary = dev.isPrimary();
+        final boolean master = dev.isMaster();
 
         while (length > 0) {
             final long partLbaStart = devOffset / SECTOR_SIZE;
-            final int partSectors = Math.min(length / SECTOR_SIZE, maxSectorCount);
-            final int partLength = partSectors * SECTOR_SIZE;
+            final int partSectorCount = Math.min(length / SECTOR_SIZE, maxSectorCount);
+            final int partLength = partSectorCount * SECTOR_SIZE;
 
-            final IDERWSectorsCommand cmd = isWrite ? 
-            	new IDEWriteSectorsCommand(dev.isPrimary(), dev.isMaster(), is48bit, partLbaStart, partSectors, buf) : 
-            	new IDEReadSectorsCommand(dev.isPrimary(), dev.isMaster(), is48bit, partLbaStart, partSectors, buf);
+            final IDERWSectorsCommand cmd = isWrite ?
+                new IDEWriteSectorsCommand(primary, master, is48bit, partLbaStart, partSectorCount, buf) :
+                new IDEReadSectorsCommand(primary, master, is48bit, partLbaStart, partSectorCount, buf);
             try {
-            	log.debug("bus.executeAndWait dev=" + dev.getId() + " start=" + partLbaStart + " sectors=" + partSectors + " len=" + partLength);
+                log.debug("bus.exAndWt" + (isWrite ? "W" : "R") + " dev=" + dev.getId() + " start=" + partLbaStart +
+                    " sectors=" + partSectorCount + " len=" + partLength);
                 bus.executeAndWait(cmd, IDE_DATA_XFER_TIMEOUT);
             } catch (InterruptedException ex) {
                 throw new IOException("IDE " + errorSource + " interrupted", ex);

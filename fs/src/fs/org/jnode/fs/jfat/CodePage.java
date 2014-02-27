@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.jfat;
 
 import java.nio.charset.Charset;
@@ -26,48 +26,48 @@ import java.nio.charset.Charset;
  * @author gvt
  */
 public class CodePage {
-	private final Charset charset;
+    private final Charset charset;
 
-	protected CodePage(Charset charset) {
-		this.charset = charset;
-	}
+    protected CodePage(Charset charset) {
+        this.charset = charset;
+    }
 
-	public static CodePage forName(String codePageName) {
-		return new CodePage(Charset.forName(codePageName));
-	}
+    public static CodePage forName(String codePageName) {
+        return new CodePage(Charset.forName(codePageName));
+    }
 
-	public Charset getCharset() {
-		return charset;
-	}
+    public Charset getCharset() {
+        return charset;
+    }
 
-	public CodePageEncoder newEncoder() {
-		return new Encoder();
-	}
+    public CodePageEncoder newEncoder() {
+        return new Encoder();
+    }
 
-	public CodePageDecoder newDecoder() {
-		return new Decoder();
-	}
+    public CodePageDecoder newDecoder() {
+        return new Decoder();
+    }
 
-	private class Encoder extends CodePageEncoder {
-		protected Encoder() {
-			super(charset);
-		}
-	}
+    private class Encoder extends CodePageEncoder {
+        protected Encoder() {
+            super(charset);
+        }
+    }
 
-	private class Decoder extends CodePageDecoder {
-		protected Decoder() {
-			super(charset);
-		}
-	}
+    private class Decoder extends CodePageDecoder {
+        protected Decoder() {
+            super(charset);
+        }
+    }
 
-	public String toString() {
-		StrWriter out = new StrWriter();
+    public String toString() {
+        StrWriter out = new StrWriter();
 
-		out.println("*******************************************");
-		out.println("CodePage");
-		out.println("*******************************************");
-		out.print("Charset\t" + charset);
+        out.println("*******************************************");
+        out.println("CodePage");
+        out.println("*******************************************");
+        out.print("Charset\t" + charset);
 
-		return out.toString();
-	}
+        return out.toString();
+    }
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -152,7 +152,7 @@ public class FatDirectory extends FatEntry implements FSDirectory, FSDirectoryId
      * Creates a new directory entry iterator.
      *
      * @param includeDeleted {@code true} if deleted files and directory entries should be returned, {@code false}
-     *     otherwise.
+     *                       otherwise.
      * @return the iterator.
      */
     public Iterator<FSEntry> createIterator(boolean includeDeleted) {
@@ -377,7 +377,7 @@ public class FatDirectory extends FatEntry implements FSDirectory, FSDirectoryId
             if (index > MAXENTRIES)
                 log.debug("Full Directory: invalid index " + index);
 
-            for (i = index;;) {
+            for (i = index;; ) {
                 /*
                  * create a new entry from the chain
                  */
@@ -430,7 +430,7 @@ public class FatDirectory extends FatEntry implements FSDirectory, FSDirectoryId
                     return false;
                 } else
                     throw new UnsupportedOperationException(
-                            "FatDirEntry is of unknown type, shouldn't happen");
+                        "FatDirEntry is of unknown type, shouldn't happen");
             }
 
             if (!e.isShortDirEntry())

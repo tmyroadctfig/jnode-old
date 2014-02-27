@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -99,7 +99,7 @@ public class IDEPacketCommand extends IDECommand {
 
         TimeUtils.sleep(1); // Delay 400ns
 
-        io.waitUntilNotBusy(IDE_TIMEOUT);
+        io.waitUntilStatus(ST_BUSY, 0, IDE_TIMEOUT, "before writeData");
 
         // Transfer command packet to device
         ide.writeData(commandPacket, 0, cmdLength);
@@ -146,10 +146,10 @@ public class IDEPacketCommand extends IDECommand {
                 final int cnt = cntLow | (cntHigh << 8);
 
                 if (io2dev) {
-                    log.debug("Write data " + cnt);
+                    log.debug("Write data cnt=" + cnt);
                     ide.writeData(dataPacket, dataOffset, cnt);
                 } else {
-                    log.debug("Read data " + cnt);
+                    //log.debug("Read data cnt=" + cnt);
                     ide.readData(dataPacket, dataOffset, cnt);
                 }
 

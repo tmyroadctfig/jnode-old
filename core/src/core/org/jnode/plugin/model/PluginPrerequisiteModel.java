@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,14 +23,15 @@ package org.jnode.plugin.model;
 import org.jnode.nanoxml.XMLElement;
 import org.jnode.plugin.PluginException;
 import org.jnode.plugin.PluginPrerequisite;
+import org.jnode.plugin.PluginReference;
+import org.jnode.util.Version;
 
 /**
  * @author epr
  */
 final class PluginPrerequisiteModel extends PluginModelObject implements PluginPrerequisite {
 
-    private final String pluginIdentifier;
-    private final String version;
+    private final PluginReference reference;
 
     /**
      * Initialize this instance.
@@ -42,13 +43,12 @@ final class PluginPrerequisiteModel extends PluginModelObject implements PluginP
     public PluginPrerequisiteModel(PluginDescriptorModel plugin, XMLElement e)
         throws PluginException {
         super(plugin);
-        this.pluginIdentifier = getAttribute(e, "plugin", true);
-        final String version = getAttribute(e, "version", false);
-        if (version != null) {
-            this.version = version;
-        } else {
-            this.version = plugin.getVersion();
+        final String pluginIdentifier = getAttribute(e, "plugin", true);
+        String version = getAttribute(e, "version", false);
+        if (version == null) {
+            version = plugin.getVersion().toString();
         }
+        reference = new PluginReference(pluginIdentifier, new Version(version));
     }
 
     /**
@@ -59,7 +59,7 @@ final class PluginPrerequisiteModel extends PluginModelObject implements PluginP
      * @param pluginVersion
      */
     public PluginPrerequisiteModel(PluginDescriptorModel plugin,
-                                   String pluginIdentifier, String pluginVersion) {
+                                   String pluginIdentifier, Version pluginVersion) {
         super(plugin);
         if (pluginIdentifier == null) {
             throw new IllegalArgumentException("pluginId is null");
@@ -67,27 +67,17 @@ final class PluginPrerequisiteModel extends PluginModelObject implements PluginP
         if (pluginVersion == null) {
             throw new IllegalArgumentException("pluginVersion is null");
         }
-        this.pluginIdentifier = pluginIdentifier;
-        this.version = pluginVersion;
-    }
-
-    /**
-     * Gets the identifier of the plugin that is required
-     */
-    public String getPluginId() {
-        return pluginIdentifier;
+        reference = new PluginReference(pluginIdentifier, pluginVersion);
     }
 
 
     /**
-     * Gets the version of the plugin that is required.
-     * If not specified, this version is equal to the version of the
-     * declaring plugin.
+     * Gets the fully qualified reference to the plugin that is required
      *
-     * @return The version
+     * @return The fully qualified reference to the required plugin.
      */
-    public String getPluginVersion() {
-        return version;
+    public PluginReference getPluginReference() {
+        return reference;
     }
 
     /**
@@ -97,9 +87,9 @@ final class PluginPrerequisiteModel extends PluginModelObject implements PluginP
      */
     protected void resolve(PluginRegistryModel registry)
         throws PluginException {
-        if (registry.getPluginDescriptor(pluginIdentifier) == null) {
+        if (registry.getPluginDescriptor(reference.getId()) == null) {
             throw new PluginException(
-                "Unknown plugin " + pluginIdentifier + " in import of " + getDeclaringPluginDescriptor().getId());
+                "Unknown plugin " + reference + " in import of " + getDeclaringPluginDescriptor().getId());
         }
     }
 

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -60,9 +60,25 @@ public class Log4jLoggerArgument extends Argument<Logger> {
         Enumeration<?> en = LogManager.getCurrentLoggers();
         while (en.hasMoreElements()) {
             String loggerName = ((Logger) en.nextElement()).getName();
-            if (loggerName.startsWith(partial)) {
+            if (isCompletion(loggerName, partial)) {
                 completions.addCompletion(loggerName);
             }
         }
+    }
+
+    /**
+     * Is the given logger name a potential completion for the given partial
+     * text?
+     */
+    private static boolean isCompletion(String loggerName, String partial) {
+        if (loggerName.startsWith(partial))
+            return true;
+        final int index = loggerName.lastIndexOf('.');
+        if (index > 0) {
+            final String lastName = loggerName.substring(index + 1);
+            if (lastName.startsWith(partial))
+                return true;
+        }
+        return false;
     }
 }

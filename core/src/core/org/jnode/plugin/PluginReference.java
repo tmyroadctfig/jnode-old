@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,8 @@
  
 package org.jnode.plugin;
 
+import org.jnode.util.Version;
+
 /**
  * Class the contains a full reference to a plugin, containing its
  * id and its version.
@@ -29,14 +31,13 @@ package org.jnode.plugin;
 public final class PluginReference implements Comparable<PluginReference> {
 
     private final String id;
-
-    private final String version;
+    private final Version version;
 
     /**
      * @param id
      * @param version
      */
-    public PluginReference(String id, String version) {
+    public PluginReference(String id, Version version) {
         this.id = id;
         this.version = version;
     }
@@ -55,7 +56,7 @@ public final class PluginReference implements Comparable<PluginReference> {
      *
      * @return Returns the version.
      */
-    public final String getVersion() {
+    public final Version getVersion() {
         return version;
     }
 

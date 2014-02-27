@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -28,6 +28,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.jnode.bootlog.BootLogInstance;
 import org.jnode.nanoxml.XMLElement;
 import org.jnode.plugin.Extension;
@@ -39,6 +40,7 @@ import org.jnode.plugin.PluginException;
 import org.jnode.plugin.PluginPrerequisite;
 import org.jnode.plugin.PluginReference;
 import org.jnode.plugin.Runtime;
+import org.jnode.util.Version;
 import org.jnode.vm.VmSystem;
 import org.jnode.vm.classmgr.VmClassLoader;
 import org.jnode.vm.isolate.VmIsolateLocal;
@@ -102,7 +104,7 @@ public class PluginDescriptorModel extends AbstractModelObject implements
 
     private final boolean system;
 
-    private final String version;
+    private final Version version;
 
     private final int priority;
     
@@ -124,7 +126,7 @@ public class PluginDescriptorModel extends AbstractModelObject implements
         providerUrl = getAttribute(rootElement, "provider-url", false);
         licenseName = getAttribute(rootElement, "license-name", true);
         licenseUrl = getAttribute(rootElement, "license-url", false);
-        version = getAttribute(rootElement, "version", true);
+        version = new Version(getAttribute(rootElement, "version", true));
         className = getAttribute(rootElement, "class", false);
         system = getBooleanAttribute(rootElement, "system", false);
         autoStart = getBooleanAttribute(rootElement, "auto-start", false);
@@ -281,7 +283,7 @@ public class PluginDescriptorModel extends AbstractModelObject implements
         final PluginPrerequisite[] req = this.requires;
         final int max = req.length;
         for (int i = 0; i < max; i++) {
-            if (req[i].getPluginId().equals(id)) {
+            if (req[i].getPluginReference().getId().equals(id)) {
                 return true;
             }
         }
@@ -458,9 +460,8 @@ public class PluginDescriptorModel extends AbstractModelObject implements
         final int reqMax = requires.length;
         final PluginClassLoaderImpl[] preLoaders = new PluginClassLoaderImpl[reqMax];
         for (int i = 0; i < reqMax; i++) {
-            final String reqId = requires[i].getPluginId();
-            final PluginDescriptor reqDescr = registry
-                .getPluginDescriptor(reqId);
+            final String reqId = requires[i].getPluginReference().getId();
+            final PluginDescriptor reqDescr = registry.getPluginDescriptor(reqId);
             final ClassLoader cl = reqDescr.getPluginClassLoader();
             if (cl instanceof PluginClassLoaderImpl) {
                 preLoaders[i] = (PluginClassLoaderImpl) cl;
@@ -519,7 +520,7 @@ public class PluginDescriptorModel extends AbstractModelObject implements
     /**
      * Gets the version of this plugin
      */
-    public String getVersion() {
+    public Version getVersion() {
         return version;
     }
     
@@ -666,7 +667,7 @@ public class PluginDescriptorModel extends AbstractModelObject implements
                     resolve(registry);
                     final int reqMax = requires.length;
                     for (int i = 0; i < reqMax; i++) {
-                        final String reqId = requires[i].getPluginId();
+                        final String reqId = requires[i].getPluginReference().getId();
                         // BootLogInstance.get().info("Start dependency " + reqId);
                         final PluginDescriptorModel reqDescr = (PluginDescriptorModel) registry
                             .getPluginDescriptor(reqId);

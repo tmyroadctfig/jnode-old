@@ -2,7 +2,7 @@
 <!--
     $Id$
 
-    Copyright (C) 2003-2013 JNode.org
+    Copyright (C) 2003-2014 JNode.org
 
     This library is free software; you can redistribute it and/or modify it
     under the terms of the GNU Lesser General Public License as published
@@ -359,6 +359,7 @@
           <option argLabel="force"       shortName="f" longName="force" />
           <option argLabel="interactive" shortName="i" longName="interactive" />
           <option argLabel="verbose"     shortName="v" longName="verbose" />
+          <option argLabel="onefs"       longName="one-file-system"/>
         </optionSet>
         <repeat minCount="1">
           <argument argLabel="paths"/>

@@ -2,7 +2,7 @@
 <!--
     $Id$
 
-    Copyright (C) 2003-2013 JNode.org
+    Copyright (C) 2003-2014 JNode.org
 
     This library is free software; you can redistribute it and/or modify it
     under the terms of the GNU Lesser General Public License as published
@@ -50,7 +50,8 @@ The default list of (non-system) plugins to be included in the init-jar.
     <plugin id="org.classpath.ext.security"/>
     <plugin id="org.classpath.tools"/>
 
-    <plugin id="org.apache.jakarta.commons.net"/>
+    <plugin id="org.apache.commons.bsf"/>
+    <plugin id="org.apache.commons.net"/>
     <plugin id="org.xbill.dns"/>
 
     <plugin id="org.jnode.driver.console"/>

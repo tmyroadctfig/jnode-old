@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.plugin.model;
 
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ final class LibraryModel extends PluginModelObject implements Library {
 
     private final String name;
     private final String[] exports;
+    private final String[] excludes;
     private final String type;
 
     /**
@@ -42,13 +43,17 @@ final class LibraryModel extends PluginModelObject implements Library {
         name = getAttribute(e, "name", true);
         type = getAttribute(e, "type", false);
 
-        final ArrayList<String> list = new ArrayList<String>();
+        final ArrayList<String> exportList = new ArrayList<String>();
+        final ArrayList<String> excludeList = new ArrayList<String>();
         for (final XMLElement exE : e.getChildren()) {
             if (exE.getName().equals("export")) {
-                list.add(getAttribute(exE, "name", true));
+                exportList.add(getAttribute(exE, "name", true));
+            } else if (exE.getName().equals("exclude")) {
+                excludeList.add(getAttribute(exE, "name", true));
             }
         }
-        exports = (String[]) list.toArray(new String[list.size()]);
+        exports = (String[]) exportList.toArray(new String[exportList.size()]);
+        excludes = (String[]) excludeList.toArray(new String[excludeList.size()]);
     }
 
     /**
@@ -95,5 +100,15 @@ final class LibraryModel extends PluginModelObject implements Library {
      */
     public String[] getExports() {
         return exports;
+    }
+
+    /**
+     * Gets all declared exclude names.
+     * Exclude overrides export.
+     *
+     * @return All declared exclude names
+     */
+    public String[] getExcludes() {
+        return excludes;
     }
 }

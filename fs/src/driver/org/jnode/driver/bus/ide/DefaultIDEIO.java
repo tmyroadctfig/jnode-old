@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,13 +17,11 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.driver.bus.ide;
 
 import java.security.PrivilegedExceptionAction;
-
 import javax.naming.NameNotFoundException;
-
 import org.apache.log4j.Logger;
 import org.jnode.driver.Device;
 import org.jnode.driver.DriverException;
@@ -36,6 +34,7 @@ import org.jnode.system.resource.ResourceManager;
 import org.jnode.system.resource.ResourceNotFreeException;
 import org.jnode.system.resource.ResourceOwner;
 import org.jnode.util.AccessControllerUtils;
+import org.jnode.util.NumberUtils;
 import org.jnode.util.TimeUtils;
 import org.jnode.util.TimeoutException;
 
@@ -371,15 +370,16 @@ public class DefaultIDEIO implements IDEIO {
     }
 
     /**
-     * Block the current thread until the controller is not busy anymore.
-     *
-     * @param timeout
-     * @throws TimeoutException
+     * Block the current thread until the status of the controller masked by the given mask equals value.
      */
-    public final void waitUntilNotBusy(long timeout) throws TimeoutException {
-        while (isBusy()) {
+    public void waitUntilStatus(int mask, int value, long timeout, String message) throws TimeoutException {
+        while ((getAltStatusReg() & mask) != value) {
+            final int state = getAltStatusReg();
+            if ((state & ST_ERROR) != 0) {
+                throw new TimeoutException("IDE error " + NumberUtils.hex(getErrorReg(), 2));
+            }
             if (timeout <= 0) {
-                throw new TimeoutException("Timeout in waitUntilNotBusy");
+                throw new TimeoutException((message != null) ? message : "Timeout in waitUntilStatus");
             }
             TimeUtils.sleep(10);
             timeout -= 10;
@@ -391,10 +391,10 @@ public class DefaultIDEIO implements IDEIO {
         throws ResourceNotFreeException, DriverException {
         try {
             return AccessControllerUtils.doPrivileged(new PrivilegedExceptionAction<IOResource>() {
-                    public IOResource run() throws ResourceNotFreeException {
-                        return rm.claimIOResource(owner, low, length);
-                    }
-                });
+                public IOResource run() throws ResourceNotFreeException {
+                    return rm.claimIOResource(owner, low, length);
+                }
+            });
         } catch (ResourceNotFreeException ex) {
             throw ex;
         } catch (Exception ex) {

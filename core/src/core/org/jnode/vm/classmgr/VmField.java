@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -134,7 +134,7 @@ public abstract class VmField extends VmMember {
                 throw new ClassFormatError("Invalid field: " + this.getName());
             }
             javaField = ReflectionFactory.getReflectionFactory().newField(d_class.asClass(), getName(),
-                getType().asClass(), getModifiers(), slot,getSignature(), getRawAnnotations());
+                getType().asClass(), getModifiers(), slot, getSignature(), getRawAnnotations());
             javaFieldHolder.set(javaField);
         }
         return javaField;

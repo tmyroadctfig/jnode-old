@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.driver.bus.ide;
 
 import javax.naming.NameNotFoundException;
@@ -168,7 +168,7 @@ public class IDEBus extends Bus implements IDEConstants, IRQHandler,
                 cmd.setError(ERR_ABORT);
             }
         } else if (log.isDebugEnabled()) {
-            log.debug("Unknown IDE IRQ " + irq + " status 0x" + NumberUtils.hex(io.getStatusReg(), 2));
+            log.debug("Unknown IDE IRQ " + irq + " status 0x" + NumberUtils.hex(io.getAltStatusReg(), 2));
         }
     }
 
@@ -336,14 +336,14 @@ public class IDEBus extends Bus implements IDEConstants, IRQHandler,
             dst[ofs++] = (byte) (v & 0xFF);
             dst[ofs++] = (byte) ((v >> 8) & 0xFF);
         }
-        // Recieve padding
+        // Receive padding
         for (; length > 0; length -= 2) {
             io.getDataReg();
         }
     }
 
     /**
-     * (non-Javadoc)
+     * Process an IDE command from our queue.
      *
      * @see org.jnode.util.QueueProcessor#process(java.lang.Object)
      */
@@ -351,7 +351,7 @@ public class IDEBus extends Bus implements IDEConstants, IRQHandler,
         // Wait until the controller is not busy anymore
         if (io.isBusy()) {
             try {
-                io.waitUntilNotBusy(IDE_DATA_XFER_TIMEOUT);
+                io.waitUntilStatus(ST_BUSY, 0, IDE_DATA_XFER_TIMEOUT, null);
             } catch (TimeoutException ex) {
                 log.debug("Controller still busy");
             }
@@ -379,10 +379,15 @@ public class IDEBus extends Bus implements IDEConstants, IRQHandler,
 
         this.currentCommand = cmd;
         try {
+            io.getStatusReg(); // Flush any pending IRQ
             cmd.setup(IDEBus.this, io);
         } catch (TimeoutException ex) {
-            log.error("Timeout in setup of " + cmd);
-            cmd.setError(ERR_ABORT);
+            log.error("Timeout in setup of " + cmd + ": " + ex.getMessage());
+            if ((io.getAltStatusReg() & ST_ERROR) != 0) {
+                cmd.setError(io.getErrorReg());
+            } else {
+                cmd.setError(ERR_ABORT);
+            }
             this.currentCommand = null;
         }
     }

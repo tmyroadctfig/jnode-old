@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,6 +19,8 @@
  */
  
 package org.jnode.plugin;
+
+import org.jnode.util.Version;
 
 /**
  * Descriptor of a Plugin.
@@ -78,7 +80,7 @@ public interface PluginDescriptor {
      *
      * @return the version
      */
-    public abstract String getVersion();
+    public abstract Version getVersion();
     
     /**
      * Get the plugin reference which uniquely identifies a plugin.

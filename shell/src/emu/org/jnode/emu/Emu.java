@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -73,6 +73,7 @@ public class Emu {
         "org.jnode.shell.command.driver.console",
         "org.jnode.apps.editor",
         "org.jnode.apps.edit",
+        "org.jnode.apps.commander",
         "org.jnode.apps.console",
     };
     

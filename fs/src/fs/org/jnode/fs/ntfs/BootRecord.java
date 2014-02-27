@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -40,17 +40,24 @@ public final class BootRecord extends NTFSStructure {
 
     private final long totalSectors;
 
-    /** Size of a filerecord in bytes */
+    /**
+     * Size of a filerecord in bytes
+     */
     private final int fileRecordSize;
 
-    /** Size of an index record in bytes */
+    /**
+     * Size of an index record in bytes
+     */
     private final int indexRecordSize;
 
-    /** Size of a cluster in bytes */
+    /**
+     * Size of a cluster in bytes
+     */
     private final int clusterSize;
 
     /**
      * Initialize this instance.
+     *
      * @param buffer
      */
     public BootRecord(byte[] buffer) {
@@ -90,6 +97,7 @@ public final class BootRecord extends NTFSStructure {
 
     /**
      * Gets the logical cluster number of the MFT.
+     *
      * @return Returns the mFTPointer.
      */
     public long getMftLcn() {
@@ -126,6 +134,7 @@ public final class BootRecord extends NTFSStructure {
 
     /**
      * Gets the size of a filerecord in bytes.
+     *
      * @return
      */
     public int getFileRecordSize() {
@@ -134,6 +143,7 @@ public final class BootRecord extends NTFSStructure {
 
     /**
      * Gets the size of a indexrecord in bytes.
+     *
      * @return
      */
     public int getIndexRecordSize() {
@@ -142,6 +152,7 @@ public final class BootRecord extends NTFSStructure {
 
     /**
      * Gets the size of a cluster bytes.
+     *
      * @return
      */
     public int getClusterSize() {

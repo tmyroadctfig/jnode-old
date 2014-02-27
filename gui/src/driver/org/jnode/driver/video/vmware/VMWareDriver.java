@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,11 +17,13 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.driver.video.vmware;
 
+import java.io.PrintWriter;
 import org.jnode.driver.Device;
 import org.jnode.driver.DeviceException;
+import org.jnode.driver.DeviceInfoAPI;
 import org.jnode.driver.DriverException;
 import org.jnode.driver.bus.pci.PCIDevice;
 import org.jnode.driver.video.AbstractFrameBufferDriver;
@@ -36,7 +38,8 @@ import org.jnode.system.resource.ResourceNotFreeException;
 /**
  * @author epr
  */
-public class VMWareDriver extends AbstractFrameBufferDriver implements VMWareConstants {
+public class VMWareDriver extends AbstractFrameBufferDriver implements
+    VMWareConstants, DeviceInfoAPI {
 
     private FrameBufferConfiguration currentConfig;
     private VMWareCore kernel;
@@ -67,7 +70,8 @@ public class VMWareDriver extends AbstractFrameBufferDriver implements VMWareCon
      * @see org.jnode.driver.video.FrameBufferAPI#open(org.jnode.driver.video.FrameBufferConfiguration)
      */
     public synchronized Surface open(FrameBufferConfiguration config)
-        throws UnknownConfigurationException, AlreadyOpenException, DeviceException {
+        throws UnknownConfigurationException, AlreadyOpenException,
+        DeviceException {
         for (int i = 0; i < configs.length; i++) {
             if (config.equals(configs[i])) {
                 kernel.open(config);
@@ -98,7 +102,7 @@ public class VMWareDriver extends AbstractFrameBufferDriver implements VMWareCon
 
     /**
      * Notify of a close of the graphics object
-     * 
+     *
      * @param graphics
      */
     final synchronized void close(VMWareCore graphics) {
@@ -118,6 +122,7 @@ public class VMWareDriver extends AbstractFrameBufferDriver implements VMWareCon
         final Device dev = getDevice();
         super.startDevice();
         dev.registerAPI(HardwareCursorAPI.class, kernel);
+        dev.registerAPI(DeviceInfoAPI.class, this);
     }
 
     /**
@@ -136,4 +141,10 @@ public class VMWareDriver extends AbstractFrameBufferDriver implements VMWareCon
         super.stopDevice();
     }
 
+    @Override
+    public void showInfo(PrintWriter out) {
+        if (kernel != null) {
+            kernel.showInfo(out);
+        }
+    }
 }

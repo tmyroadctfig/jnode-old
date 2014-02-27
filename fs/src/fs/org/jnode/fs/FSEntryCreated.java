@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,7 +23,8 @@ package org.jnode.fs;
 import java.io.IOException;
 
 /**
- * Interface to stack on to declare implementation of a {@code getCreated()} method, until JNode adds it to {@link FSEntry}.
+ * Interface to stack on to declare implementation of a {@code getCreated()} method,
+ * until JNode adds it to {@link FSEntry}.
  */
 public interface FSEntryCreated {
     public long getCreated() throws IOException;

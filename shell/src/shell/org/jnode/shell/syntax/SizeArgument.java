@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -52,7 +52,10 @@ public class SizeArgument extends Argument<Long> {
         }
         try {
             long tmp = Long.parseLong(str);
-            return new Long(tmp * factor.getMultiplier());
+            if (factor != null) {
+                tmp *= factor.getMultiplier();
+            }
+            return new Long(tmp);
         } catch (NumberFormatException ex) {
             throw new CommandSyntaxException("invalid size");
         }
@@ -63,7 +66,7 @@ public class SizeArgument extends Argument<Long> {
                 BinaryScaleFactor.values() : DecimalScaleFactor.values();
         for (ScaleFactor unit : prefixes) {
             String unitStr = unit.getUnit();
-            if (str.endsWith(unitStr)) {
+            if ((unitStr.length() > 0) &&  str.endsWith(unitStr)) {
                 return unit;
             }
         }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,7 +22,6 @@ package org.jnode.fs.ntfs;
 
 import java.io.IOException;
 import java.util.Arrays;
-
 import org.apache.log4j.Logger;
 import org.jnode.util.LittleEndian;
 
@@ -31,7 +30,8 @@ import org.jnode.util.LittleEndian;
  */
 public final class CompressedDataRun implements DataRunInterface {
     /**
-	 * Size of a compressed block in NTFS. This is always the same even if the cluster size is not 4k.
+     * Size of a compressed block in NTFS.  This is always the same even if the cluster size
+     * is not 4k.
      */
     private static final int BLOCK_SIZE = 0x1000;
 
@@ -51,8 +51,10 @@ public final class CompressedDataRun implements DataRunInterface {
     private final int compressionUnitSize;
 
     /**
-	 * Constructs a compressed run which when read, will decrypt data found in the provided data run.
-     * @param compressedRun the compressed data run.
+     * Constructs a compressed run which when read, will decrypt data found
+     * in the provided data run.
+     *
+     * @param compressedRun       the compressed data run.
      * @param compressionUnitSize the number of clusters which make up a compression unit.
      */
     public CompressedDataRun(DataRun compressedRun, int compressionUnitSize) {
@@ -62,6 +64,7 @@ public final class CompressedDataRun implements DataRunInterface {
 
     /**
      * Gets the length of the data run in clusters.
+     *
      * @return the length of the run in clusters.
      */
     public int getLength() {
@@ -70,17 +73,18 @@ public final class CompressedDataRun implements DataRunInterface {
 
     /**
      * Reads clusters from this datarun.
-     * @param vcn the VCN to read, offset from the start of the entire file.
-     * @param dst destination buffer.
-     * @param dstOffset offset into destination buffer.
-     * @param nrClusters number of clusters to read.
+     *
+     * @param vcn         the VCN to read, offset from the start of the entire file.
+     * @param dst         destination buffer.
+     * @param dstOffset   offset into destination buffer.
+     * @param nrClusters  number of clusters to read.
      * @param clusterSize size of each cluster.
-     * @param volume reference to the NTFS volume structure.
+     * @param volume      reference to the NTFS volume structure.
      * @return the number of clusters read.
      * @throws IOException if an error occurs reading.
      */
-	public int readClusters(long vcn, byte[] dst, int dstOffset, int nrClusters, int clusterSize, NTFSVolume volume)
-			throws IOException {
+    public int readClusters(long vcn, byte[] dst, int dstOffset, int nrClusters, int clusterSize, NTFSVolume volume)
+        throws IOException {
 
         // Logic to determine whether we own the VCN which has been requested.
         // XXX: Lifted from DataRun.  Consider moving to some good common location.
@@ -102,16 +106,16 @@ public final class CompressedDataRun implements DataRunInterface {
         // then the data can be read directly without decompressing it.
         final int compClusters = compressedRun.getLength();
         if (compClusters == compressionUnitSize) {
-			return compressedRun.readClusters(vcn, dst, dstOffset, compClusters, clusterSize, volume);
+            return compressedRun.readClusters(vcn, dst, dstOffset, compClusters, clusterSize, volume);
         }
 
         // Now we know the data is compressed.  Read in the compressed block...
         final int vcnOffsetWithinUnit = (int) (actFirstVcn % compressionUnitSize);
         final byte[] tempCompressed = new byte[compressionUnitSize * clusterSize];
         final int read = compressedRun.readClusters(myFirstVcn, tempCompressed, 0,
-                                                    compClusters, clusterSize, volume);
+            compClusters, clusterSize, volume);
         if (read != compClusters) {
-			throw new IOException("Needed " + compClusters + " clusters but could " + "only read " + read);
+            throw new IOException("Needed " + compClusters + " clusters but could " + "only read " + read);
         }
 
         // Uncompress it, and copy into the destination.
@@ -126,12 +130,14 @@ public final class CompressedDataRun implements DataRunInterface {
 
         if (copyDest + copyLength > dst.length) {
             throw new ArrayIndexOutOfBoundsException(
-                String.format("Copy dest %d length %d is too big for destination %d", copyDest, copyLength, dst.length));
+                String
+                    .format("Copy dest %d length %d is too big for destination %d", copyDest, copyLength, dst.length));
         }
 
         if (copySource + copyLength > tempUncompressed.length) {
             throw new ArrayIndexOutOfBoundsException(
-                String.format("Copy source %d length %d is too big for source %d", copySource, copyLength, tempUncompressed.length));
+                String.format("Copy source %d length %d is too big for source %d", copySource, copyLength,
+                    tempUncompressed.length));
         }
 
         System.arraycopy(tempUncompressed, copySource, dst, copyDest, copyLength);
@@ -141,11 +147,13 @@ public final class CompressedDataRun implements DataRunInterface {
 
     /**
      * Uncompresses a single unit of multiple compressed blocks.
-     * @param compressed the compressed data (in.)
+     *
+     * @param compressed   the compressed data (in.)
      * @param uncompressed the uncompressed data (out.)
      * @throws IOException if the decompression fails.
      */
-	private static void unCompressUnit(final byte[] compressed, final byte[] uncompressed) throws IOException {
+    private static void unCompressUnit(final byte[] compressed,
+                                       final byte[] uncompressed) throws IOException {
 
         // This is just a convenient way to simulate the original code's pointer arithmetic.
         // I tried using buffers but positions in those are always from the beginning and
@@ -153,7 +161,7 @@ public final class CompressedDataRun implements DataRunInterface {
         final OffsetByteArray compressedData = new OffsetByteArray(compressed);
         final OffsetByteArray uncompressedData = new OffsetByteArray(uncompressed);
 
-		for(int i = 0; i * BLOCK_SIZE < uncompressed.length; i++) {
+        for (int i = 0; i * BLOCK_SIZE < uncompressed.length; i++) {
             final int consumed = uncompressBlock(compressedData, uncompressedData);
 
             // Apple's code had this as an error but to me it looks like this simply
@@ -172,19 +180,21 @@ public final class CompressedDataRun implements DataRunInterface {
 
     /**
      * Uncompresses a single block.
-     * @param compressed the compressed buffer (in.)
+     *
+     * @param compressed   the compressed buffer (in.)
      * @param uncompressed the uncompressed buffer (out.)
      * @return the number of bytes consumed from the compressed buffer.
      */
-	private static int uncompressBlock(final OffsetByteArray compressed, final OffsetByteArray uncompressed) {
+    private static int uncompressBlock(final OffsetByteArray compressed,
+                                       final OffsetByteArray uncompressed) {
 
         int pos = 0, cpos = 0;
 
-		final int rawLen = compressed.getShort(cpos);
-		cpos += 2;
+        final int rawLen = compressed.getShort(cpos);
+        cpos += 2;
         final int len = rawLen & 0xFFF;
-		log.debug("ntfs_uncompblock: block length: " + len + " + 3, 0x" + Integer.toHexString(len) + ",0x"
-				+ Integer.toHexString(rawLen));
+        log.debug("ntfs_uncompblock: block length: " + len + " + 3, 0x" +
+            Integer.toHexString(len) + ",0x" + Integer.toHexString(rawLen));
 
         if (rawLen == 0) {
             // End of sequence, rest is zero.  For some reason there is nothing
@@ -209,15 +219,16 @@ public final class CompressedDataRun implements DataRunInterface {
 
         while (cpos < len + 3 && pos < BLOCK_SIZE) {
             byte ctag = compressed.get(cpos++);
-			for(int i = 0; i < 8 && pos < BLOCK_SIZE; i++) {
+            for (int i = 0; i < 8 && pos < BLOCK_SIZE; i++) {
                 if ((ctag & 1) != 0) {
                     int j, lmask, dshift;
-					for(j = pos - 1, lmask = 0xFFF, dshift = 12; j >= 0x10; j >>= 1) {
+                    for (j = pos - 1, lmask = 0xFFF, dshift = 12;
+                         j >= 0x10; j >>= 1) {
                         dshift--;
                         lmask >>= 1;
                     }
-					final int tmp = compressed.getShort(cpos);
-					cpos += 2;
+                    final int tmp = compressed.getShort(cpos);
+                    cpos += 2;
                     final int boff = -1 - (tmp >> dshift);
                     final int blen = Math.min(3 + (tmp & lmask), BLOCK_SIZE - pos);
 
@@ -262,8 +273,8 @@ public final class CompressedDataRun implements DataRunInterface {
     }
 
     /**
-	 * Convenience class wrapping an array with its offset. An alternative to pointer arithmetic without going to the
-	 * level of using an NIO buffer.
+     * Convenience class wrapping an array with its offset.  An alternative to pointer
+     * arithmetic without going to the level of using an NIO buffer.
      */
     private static class OffsetByteArray {
 
@@ -279,6 +290,7 @@ public final class CompressedDataRun implements DataRunInterface {
 
         /**
          * Constructs the offset byte array.  The offset begins at zero.
+         *
          * @param array the contained array.
          */
         private OffsetByteArray(final byte[] array) {
@@ -287,6 +299,7 @@ public final class CompressedDataRun implements DataRunInterface {
 
         /**
          * Gets a single byte from the array.
+         *
          * @param offset the offset from the contained offset.
          * @return the byte.
          */
@@ -296,8 +309,9 @@ public final class CompressedDataRun implements DataRunInterface {
 
         /**
          * Puts a single byte into the array.
+         *
          * @param offset the offset from the contained offset.
-         * @param value the byte.
+         * @param value  the byte.
          */
         private void put(int offset, byte value) {
             array[this.offset + offset] = value;
@@ -305,6 +319,7 @@ public final class CompressedDataRun implements DataRunInterface {
 
         /**
          * Gets a 16-bit little-endian value from the array.
+         *
          * @param offset the offset from the contained offset.
          * @return the short.
          */
@@ -313,13 +328,14 @@ public final class CompressedDataRun implements DataRunInterface {
         }
 
         /**
-		 * Copies a slice from the provided array into our own array. Uses {@code System.arraycopy} where possible; if
-		 * the slices overlap, copies one byte at a time to avoid a problem with using {@code System.arraycopy} in this
-		 * situation.
-         * @param src the source offset byte array.
-         * @param srcOffset offset from the source array's offset.
+         * Copies a slice from the provided array into our own array.  Uses {@code System.arraycopy}
+         * where possible; if the slices overlap, copies one byte at a time to avoid a problem with
+         * using {@code System.arraycopy} in this situation.
+         *
+         * @param src        the source offset byte array.
+         * @param srcOffset  offset from the source array's offset.
          * @param destOffset offset from our own offset.
-         * @param length the number of bytes to copy.
+         * @param length     the number of bytes to copy.
          */
         private void copyFrom(OffsetByteArray src, int srcOffset, int destOffset, int length) {
             int realSrcOffset = src.offset + srcOffset;
@@ -329,9 +345,9 @@ public final class CompressedDataRun implements DataRunInterface {
 
             // If the arrays are the same and the slices overlap we can't use the optimisation
             // because System.arraycopy effectively copies to a temp area. :-(
-			if (srcArray == destArray
-					&& (realSrcOffset < realDestOffset && realSrcOffset + length > realDestOffset || realDestOffset < realSrcOffset
-							&& realDestOffset + length > realSrcOffset)) {
+            if (srcArray == destArray &&
+                (realSrcOffset < realDestOffset && realSrcOffset + length > realDestOffset ||
+                    realDestOffset < realSrcOffset && realDestOffset + length > realSrcOffset)) {
 
                 // Don't change to System.arraycopy (see above)
                 for (int i = 0; i < length; i++) {
@@ -346,6 +362,7 @@ public final class CompressedDataRun implements DataRunInterface {
 
         /**
          * Zeroes out elements of the array.
+         *
          * @param offset the offset from the contained offset.
          * @param length the number of sequential bytes to zero out.
          */

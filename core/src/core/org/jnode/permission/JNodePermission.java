@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.permission;
 
 import java.security.BasicPermission;
@@ -34,6 +34,11 @@ import java.security.BasicPermission;
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
 public class JNodePermission extends BasicPermission {
+
+    /**
+     * Serialization
+     */
+    private static final long serialVersionUID = -4640568385065658738L;
 
     /**
      * @param name

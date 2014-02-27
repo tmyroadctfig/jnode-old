@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,13 +17,11 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.driver.bus.ide.command;
 
 import java.nio.ByteBuffer;
-
 import org.apache.log4j.Logger;
-import org.jnode.driver.block.ide.disk.IDEDiskDriver;
 import org.jnode.driver.bus.ide.IDEBus;
 import org.jnode.driver.bus.ide.IDEIO;
 import org.jnode.util.TimeoutException;
@@ -35,15 +33,17 @@ import org.jnode.util.TimeoutException;
 public class IDEReadSectorsCommand extends IDERWSectorsCommand {
     private final ByteBuffer buf;
 
+    private static final Logger log = Logger.getLogger(IDEReadSectorsCommand.class);
+
     private int readSectors = 0;
 
     public IDEReadSectorsCommand(
-            boolean primary, 
-            boolean master,
-            boolean is48bit,
-            long lbaStart, 
-            int sectors, 
-            ByteBuffer dest) {
+        boolean primary,
+        boolean master,
+        boolean is48bit,
+        long lbaStart,
+        int sectors,
+        ByteBuffer dest) {
         super(primary, master, is48bit, lbaStart, sectors);
         buf = dest;
     }
@@ -54,28 +54,36 @@ public class IDEReadSectorsCommand extends IDERWSectorsCommand {
     protected void setup(IDEBus ide, IDEIO io) throws TimeoutException {
         super.setup(ide, io);
         io.setCommandReg(is48bit ? CMD_READ_EXT : CMD_READ);
+
+        // Read data
+        for (int i = 0; i < sectorCount; i++) {
+            log.debug("RDSect pw " + i);
+            if (!pollWait(io, false))
+                return;
+            // Read sector
+            log.debug("RDSect trf " + i);
+            transferOneSector(ide, io);
+        }
+
+        // We're done
+        notifyFinished();
+    }
+
+    /**
+     * Transfer exactly one sector of data from the device.
+     */
+    private void transferOneSector(IDEBus ide, IDEIO io) throws TimeoutException {
+        for (int i = 0; i < 256; i++) {
+            final int v = io.getDataReg();
+            buf.put((byte) (v & 0xFF));
+            buf.put((byte) ((v >> 8) & 0xFF));
+        }
     }
 
     /**
      * @see org.jnode.driver.bus.ide.IDECommand#handleIRQ(IDEBus, IDEIO)
      */
     protected void handleIRQ(IDEBus ide, IDEIO io) {
-        final int state = io.getStatusReg();
-        if ((state & ST_ERROR) != 0) {
-            setError(io.getErrorReg());
-        } else {
-            if ((state & (ST_BUSY | ST_DEVICE_READY)) == ST_DEVICE_READY) {
-                // final int offset = readSectors * SECTOR_SIZE;
-                for (int i = 0; i < 256; i++) {
-                    final int v = io.getDataReg();
-                    buf.put((byte) (v & 0xFF));
-                    buf.put((byte) ((v >> 8) & 0xFF));
-                }
-                readSectors++;
-                if (readSectors == sectors) {
-                    notifyFinished();
-                }
-            }
-        }
+        // Do nothing
     }
 }

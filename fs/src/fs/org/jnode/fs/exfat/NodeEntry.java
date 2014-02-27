@@ -1,4 +1,23 @@
-
+/*
+ * $Id$
+ *
+ * Copyright (C) 2003-2014 JNode.org
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public 
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; If not, write to the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
 package org.jnode.fs.exfat;
 
 import java.io.IOException;
@@ -11,7 +30,6 @@ import org.jnode.fs.FSFile;
 import org.jnode.fs.spi.AbstractFSObject;
 
 /**
- *
  * @author Matthias Treydte &lt;waldheinz at gmail.com&gt;
  */
 public final class NodeEntry extends AbstractFSObject implements FSEntry, FSEntryCreated, FSEntryLastAccessed {
@@ -61,12 +79,12 @@ public final class NodeEntry extends AbstractFSObject implements FSEntry, FSEntr
     public long getLastAccessed() throws IOException {
         return node.getTimes().getAccessed().getTime();
     }
-    
+
     @Override
     public boolean isFile() {
         return (!this.node.isDirectory());
     }
-    
+
     @Override
     public boolean isDirectory() {
         return this.node.isDirectory();
@@ -90,13 +108,13 @@ public final class NodeEntry extends AbstractFSObject implements FSEntry, FSEntr
 
         return new NodeFile((ExFatFileSystem) getFileSystem(), this.node);
     }
-    
+
     @Override
     public FSDirectory getDirectory() throws IOException {
         if (!isDirectory()) {
             throw new UnsupportedOperationException("not a directory");
         }
-        
+
         return new NodeDirectory((ExFatFileSystem) getFileSystem(), node);
     }
 
@@ -129,8 +147,8 @@ public final class NodeEntry extends AbstractFSObject implements FSEntry, FSEntr
         sb.append(", parent=");
         sb.append(this.parent);
         sb.append("]");
-        
+
         return sb.toString();
     }
-    
+
 }

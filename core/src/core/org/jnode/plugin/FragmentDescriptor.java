@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,8 @@
  
 package org.jnode.plugin;
 
+import org.jnode.util.Version;
+
 /**
  * @author Ewout Prangsma (epr@users.sourceforge.net)
  */
@@ -37,5 +39,5 @@ public interface FragmentDescriptor extends PluginDescriptor {
      *
      * @return the related plugin version
      */
-    public String getPluginVersion();
+    public Version getPluginVersion();
 }

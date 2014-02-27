@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -59,14 +59,14 @@ public class VMwareBuilderTask extends Task {
      * @return Returns the Virtual machine name
      */
     public final String getName() {
-    	return name;
+        return name;
     }
 
     /**
      * @Set the Virtual machine name
      */
     public final void setName(String name) {
-    	this.name = name;
+        this.name = name;
     }
     
     /**

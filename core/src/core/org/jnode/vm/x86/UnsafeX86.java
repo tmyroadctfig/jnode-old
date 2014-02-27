@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,10 +17,11 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.vm.x86;
 
 import org.jnode.annotation.Internal;
+import org.jnode.annotation.KernelSpace;
 import org.vmmagic.unboxed.Address;
 import org.vmmagic.unboxed.Word;
 
@@ -73,12 +74,25 @@ public final class UnsafeX86 {
     /**
      * Read CPU identification data.
      * <p/>
-	 * @param input  The number to put in EAX
+     *
+     * @param input  The number to put in EAX
      * @param result An array of length 4 (or longer) where eax, ebx, ecx, edx is stored into.
-	 * @return 1 on success, 0 otherwise (result == null or result.length less than 4).
+     * @return 1 on success, 0 otherwise (result == null or result.length less than 4).
      */
     @Internal
-    public static native int getCPUID(Word input, int[] result);
+    static native int getCPUID(Word input, int[] result);
+
+    /**
+     * Read a model specific register
+     */
+    @KernelSpace
+    static native long readMSR(Word index);
+
+    /**
+     * Write a model specific register
+     */
+    @KernelSpace
+    static native void writeMSR(Word index, long value);
 
     /**
      * Gets the address of first entry in the multiboot mmap table.

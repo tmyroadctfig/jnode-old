@@ -2,7 +2,7 @@
 <!--
     $Id$
 
-    Copyright (C) 2003-2013 JNode.org
+    Copyright (C) 2003-2014 JNode.org
 
     This library is free software; you can redistribute it and/or modify it
     under the terms of the GNU Lesser General Public License as published
@@ -27,7 +27,7 @@
     license-name="lgpl">
 
     <requires>
-      <import plugin="org.acplt.oncrpc"/>
+      <import plugin="org.acplt.oncrpc" version="1.0.6"/>
       <import plugin="org.jnode.driver"/>
       <import plugin="org.jnode.net"/>
       <import plugin="org.jnode.net.arp"/>
@@ -55,7 +55,6 @@
       <alias name="ping"     class="org.jnode.command.net.PingCommand"/>
       <alias name="route"    class="org.jnode.command.net.RouteCommand"/>
       <alias name="resolver" class="org.jnode.command.net.ResolverCommand"/>
-      <alias name="resolve"  class="org.jnode.command.net.ResolveCommand"/>
       <alias name="tftp"     class="org.jnode.command.net.TftpCommand"/>
       <alias name="wlanctl"  class="org.jnode.command.net.WLanCtlCommand"/>
       <alias name="tcpinout" class="org.jnode.command.net.TcpInoutCommand"/>

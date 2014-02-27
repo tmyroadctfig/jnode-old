@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  * along with this library; If not, write to the Free Software Foundation, Inc., 
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 package org.jnode.fs.ntfs;
 
 import java.io.IOException;
@@ -27,27 +27,43 @@ import java.io.IOException;
  */
 public class NTFSRecord extends NTFSStructure {
 
-    /** Size of an NTFS record in bytes */
+    /**
+     * Size of an NTFS record in bytes
+     */
     public static final int SIZE = 0x08;
 
-    /** The volume this record is a part of */
+    /**
+     * The volume this record is a part of
+     */
     private final NTFSVolume volume;
 
-    /** Magic constants */
+    /**
+     * Magic constants
+     */
     public static class Magic {
-        /** Corrupt record */
+        /**
+         * Corrupt record
+         */
         public static final int BAAD = 0x44414142;
 
-        /** chkdsk ??? */
+        /**
+         * chkdsk ???
+         */
         public static final int CHKD = 0x424b4843;
 
-        /** mft entry */
+        /**
+         * mft entry
+         */
         public static final int FILE = 0x454c4946;
 
-        /** ? (NTFS 3.0+?) */
+        /**
+         * ? (NTFS 3.0+?)
+         */
         public static final int HOLE = 0x454c4f48;
 
-        /** index buffer */
+        /**
+         * index buffer
+         */
         public static final int INDX = 0x58444e49;
     }
 
@@ -73,6 +89,7 @@ public class NTFSRecord extends NTFSStructure {
 
     /**
      * Gets the magic value of this record.
+     *
      * @return
      */
     public int getMagic() {
@@ -80,7 +97,8 @@ public class NTFSRecord extends NTFSStructure {
     }
 
     /**
-	 * Offset to the Update Sequence Array (usa) from the start of the ntfs record.
+     * Offset to the Update Sequence Array (usa) from the start of the ntfs record.
+     *
      * @return
      */
     public int getUpdateSequenceArrayOffset() {
@@ -88,15 +106,18 @@ public class NTFSRecord extends NTFSStructure {
     }
 
     /**
-	 * Number of u16 sized entries in the usa including the Update Sequence Number (usn), thus the number of fixups is
-	 * the usa_count minus 1.
+     * Number of u16 sized entries in the usa including the Update Sequence Number (usn), thus the number of fixups is
+     * the usa_count minus 1.
+     *
      * @return
      */
     public int getUpdateSequenceArrayCount() {
         return getUInt16(0x06);
     }
 
-    /** The volume this record is a part of */
+    /**
+     * The volume this record is a part of
+     */
     public NTFSVolume getVolume() {
         return volume;
     }
@@ -115,7 +136,7 @@ public class NTFSRecord extends NTFSStructure {
         // check each sector if the last 2 bytes are equal with the USN from
         // header
 
-		for(int i = 1/* intended */; i < usnCount; i++) {
+        for (int i = 1/* intended */; i < usnCount; i++) {
             final int bufOffset = (i * bytesPerSector) - 2;
             final int usnOffset = updateSequenceOffset + (i * 2);
             if (getUInt16(bufOffset) == usn) {

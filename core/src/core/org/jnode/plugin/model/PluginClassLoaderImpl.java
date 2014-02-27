@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2013 JNode.org
+ * Copyright (C) 2003-2014 JNode.org
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -214,7 +214,7 @@ final class PluginClassLoaderImpl extends ClassLoader implements PluginClassLoad
                     String specVersion = null;
                     String implTitle = descriptor.getName();
                     String implVendor = descriptor.getProviderName();
-                    String implVersion = descriptor.getVersion();
+                    String implVersion = descriptor.getVersion().toString();
                     URL sealed = null;
                     definePackage(packageName, specTitle, specVendor,
                         specVersion, implTitle, implVendor, implVersion,

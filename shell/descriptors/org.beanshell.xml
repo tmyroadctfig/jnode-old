@@ -2,7 +2,7 @@
 <!--
     $Id$
 
-    Copyright (C) 2003-2013 JNode.org
+    Copyright (C) 2003-2014 JNode.org
 
     This library is free software; you can redistribute it and/or modify it
     under the terms of the GNU Lesser General Public License as published
@@ -26,6 +26,10 @@
     provider-name="beanshell.org"
     provider-url="http://www.beanshell.org"
     license-name="lgpl">
+
+    <requires>
+      <import plugin="org.apache.commons.bsf" version="2.4"/>
+    </requires>
 
     <runtime>
         <library name="beanshell.jar">
