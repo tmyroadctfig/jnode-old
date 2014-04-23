@@ -35,6 +35,7 @@ import org.jnode.driver.block.BlockDeviceAPI;
 import org.jnode.driver.bus.ide.IDEConstants;
 import org.jnode.partitions.PartitionTable;
 import org.jnode.partitions.PartitionTableType;
+import org.jnode.util.BigEndian;
 import org.jnode.util.LittleEndian;
 
 /**

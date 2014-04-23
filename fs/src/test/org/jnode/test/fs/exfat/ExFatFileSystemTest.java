@@ -1,27 +1,30 @@
-package org.jnode.fs.exfat;
+package org.jnode.test.fs.exfat;
 
-import junit.framework.TestCase;
 import org.jnode.driver.Device;
 import org.jnode.driver.block.FileDevice;
-import org.jnode.fs.DataStructureAsserts;
-import org.jnode.fs.FileSystemTestUtils;
+import org.jnode.fs.exfat.ExFatFileSystem;
+import org.jnode.fs.exfat.ExFatFileSystemType;
 import org.jnode.fs.service.FileSystemService;
+import org.jnode.test.fs.DataStructureAsserts;
+import org.jnode.test.fs.FileSystemTestUtils;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ExFatFileSystemTest extends TestCase {
+public class ExFatFileSystemTest {
 
     private Device device;
     private FileSystemService fss;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         // create file system service.
         fss = FileSystemTestUtils.createFSService(ExFatFileSystemType.class.getName());
     }
 
+    @Test
     public void testReadSmallDisk() throws Exception {
 
-        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/exfat/test.exfat"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("test/fs/exfat/test.exfat"), "r");
         ExFatFileSystemType type = fss.getFileSystemType(ExFatFileSystemType.ID);
         ExFatFileSystem fs = type.create(device, true);
 

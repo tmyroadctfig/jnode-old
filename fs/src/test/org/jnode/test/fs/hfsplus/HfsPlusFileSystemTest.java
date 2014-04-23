@@ -18,15 +18,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-package org.jnode.fs.hfsplus;
+package org.jnode.test.fs.hfsplus;
 
 import java.io.File;
 import java.io.IOException;
 import org.jnode.driver.Device;
 import org.jnode.driver.block.FileDevice;
-import org.jnode.fs.DataStructureAsserts;
+import org.jnode.fs.hfsplus.HFSPlusParams;
+import org.jnode.fs.hfsplus.HfsPlusFileSystem;
+import org.jnode.fs.hfsplus.HfsPlusFileSystemType;
+import org.jnode.fs.hfsplus.SuperBlock;
+import org.jnode.test.fs.DataStructureAsserts;
 import org.jnode.fs.FSDirectory;
-import org.jnode.fs.FileSystemTestUtils;
+import org.jnode.test.fs.FileSystemTestUtils;
 import org.jnode.fs.service.FileSystemService;
 import org.jnode.test.support.TestUtils;
 import org.junit.Assert;
@@ -49,7 +53,7 @@ public class HfsPlusFileSystemTest {
     @Test
     public void testReadSmallDisk() throws Exception {
 
-        device = new FileDevice(FileSystemTestUtils.getTestFile("fs/hfsplus/test.hfsplus"), "r");
+        device = new FileDevice(FileSystemTestUtils.getTestFile("test/fs/hfsplus/test.hfsplus"), "r");
         HfsPlusFileSystemType type = fss.getFileSystemType(HfsPlusFileSystemType.ID);
         HfsPlusFileSystem fs = type.create(device, true);
 
