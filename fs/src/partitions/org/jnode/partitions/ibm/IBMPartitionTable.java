@@ -293,13 +293,12 @@ public class IBMPartitionTable implements PartitionTable<IBMPartitionTableEntry>
             log.error("Looks like a file system instead of a partition table.");
             return false;
         }
-        /* FIXME Always failed
+
         if (LittleEndian.getUInt16(bootSector, 218) != 0) {
             // This needs to be zero in the 'standard' MBR layout
             log.debug("Fails standard MBR reserved@218=0 test");
             return false;
         }
-        */
 
         // Nothing matched, fall back to validating any specified partition entries
         log.debug("Checking partitions");
